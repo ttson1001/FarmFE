@@ -1,0 +1,8 @@
+.custom-rounded th:first-child {
+  border-top-left-radius: 1.5rem; /* Adjust as needed */
+  z-index: 10;
+}
+
+.custom-rounded th:last-child {
+  border-top-right-radius: 1.5rem; /* Adjust as needed */
+}

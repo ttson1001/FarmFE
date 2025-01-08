@@ -6,15 +6,20 @@ import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { Editor } from "primereact/editor";
 import {
+  addFileToPost,
+  addImageToPost,
   deletePost,
   getBusinessHistory,
-  getFarmerHistory,
+  UpdateBusinessPost,
 } from "../../api/historyFarmer";
 import { uploadFile, uploadImage } from "../../api/file";
 import { Divider } from "primereact/divider";
 import FileCarousel from "../../common/carousel/FileCarousel";
 import ImageCarousel from "../../common/carousel/ImageCarousel";
 import moment from "moment";
+import { getFromLocalStorage, getStatus } from "../../constant/utils";
+import { categories } from "../../constant/constant";
+import { Dropdown } from "primereact/dropdown";
 
 const HistoryCompany = () => {
   const [expandedItems, setExpandedItems] = useState<{
@@ -31,17 +36,26 @@ const HistoryCompany = () => {
 
   const [listObjects, setListObjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [object, setObject] = useState<any>(null);
   const [error, setError] = useState(null);
-
-  const [content, setContent] = useState("string");
-  const [productName, setProductName] = useState("string");
-  const [quantity, setQuantity] = useState(2147483647);
-  const [category, setCategory] = useState(1);
-  const [unitPrice, setUnitPrice] = useState(0);
-  const [standardRequirements, setStandardRequirements] = useState("string");
-  const [otherRequirement, setOtherRequirement] = useState("string");
+  const [selectedCategory, setSelectedCategory] = useState<number | undefined>(
+    0
+  );
   const [images, setImages] = useState<number[]>([]);
   const [files, setFiles] = useState<number[]>([]);
+  const [selectedItemId, setSelectedItemId] = useState(null);
+  const [visible, setVisible] = useState(false);
+
+  const footerContent1 = (
+    <>
+      <Button
+        label="Có"
+        severity="danger"
+        onClick={() => handleDelete(selectedItemId)}
+      />
+      <Button label="Không" onClick={() => setVisible(false)} />
+    </>
+  );
 
   useEffect(() => {
     getBusinessHistory()
@@ -60,11 +74,17 @@ const HistoryCompany = () => {
       });
   }, [loading]);
 
-  const showModal = () => {
+  const showModal = (value: any) => {
+    setObject(value);
+    console.log(value);
+    const cate = categories?.find((x) => x.label === value?.category)?.value;
+
+    setSelectedCategory(cate);
     setModalVisible(true); // Mở modal
   };
 
   const hideModal = () => {
+    setObject(null);
     setModalVisible(false); // Đóng modal
   };
 
@@ -74,17 +94,24 @@ const HistoryCompany = () => {
   };
 
   const [file, setFile] = useState(null);
+  const [file1, setFile1] = useState(null);
 
   const onFileChange = (event) => {
     setFile(event.target.files[0]); // Get the first selected file
   };
+  const onImageChange = (event) => {
+    setFile1(event.target.files[0]); // Get the first selected file
+  };
 
   const onUploadImage = async () => {
     const formData = new FormData();
-    formData.append("File", file); // Append the file
+    formData.append("File", file1); // Append the file
     formData.append("CustomFileName", "aaa"); // Append the custom file name
 
-    uploadImage(formData);
+    uploadImage(formData).then((x) => {
+      const id = x.data.data.data.id;
+      setImages((prv) => [...prv, id]);
+    });
   };
 
   const onUploadFile = async () => {
@@ -92,12 +119,53 @@ const HistoryCompany = () => {
     formData.append("File", file); // Append the file
     formData.append("CustomFileName", "aaa"); // Append the custom file name
 
-    uploadFile(formData);
+    uploadFile(formData).then((x) => {
+      const id = x.data.data.data.id;
+      setFiles((prv) => [...prv, id]);
+    });
+  };
+
+  const update = () => {
+    const data = {
+      id: object?.id,
+      content: object?.content,
+      productName: object?.productName,
+      quantity: object?.quantity,
+      category: selectedCategory,
+      unitPrice: object?.unitPrice,
+      standardRequirments: object?.standardRequirement,
+      otherRequirement: object?.otherRequirement,
+    };
+    UpdateBusinessPost(data).then(() => {
+      setLoading(true);
+      hideModal();
+    });
+    if (images.length > 0) {
+      const imagesData = {
+        postId: object?.id,
+        imageIds: images,
+      };
+      addImageToPost(imagesData);
+    }
+    if (files.length > 0) {
+      const filesData = {
+        postId: object?.id,
+        fileIds: files,
+      };
+
+      addFileToPost(filesData);
+    }
   };
 
   const footerContent = (
     <div className="flex justify-end mt-10">
-      <Button className="mr-5" severity="help">
+      <Button
+        className="mr-5"
+        severity="help"
+        onClick={() => {
+          update();
+        }}
+      >
         Thay đổi
       </Button>
       <Button severity="danger" onClick={hideModal}>
@@ -119,7 +187,7 @@ const HistoryCompany = () => {
                   <div className="flex items-center gap-3">
                     <Avatar
                       className="w-12 h-12 mx-auto sm:col-span-1" // Sử dụng col-span-2 trên màn hình nhỏ
-                      image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png"
+                      image={getFromLocalStorage("avatar") ?? ""}
                       shape="circle"
                     />
                     <div>
@@ -134,8 +202,18 @@ const HistoryCompany = () => {
                     </div>
                   </div>
 
-                  <div className="rounded-md p-2 bg-green-400">
-                    {item?.status}
+                  <div
+                    className={`rounded-md p-2 text-white ${
+                      item?.status === "Pending"
+                        ? "bg-blue-500"
+                        : item?.status === "Rejected"
+                        ? "bg-red-500"
+                        : item?.status === "Approved"
+                        ? "bg-green-500"
+                        : "bg-gray-400" // màu mặc định nếu không có trạng thái nào khớp
+                    }`}
+                  >
+                    {getStatus(item?.status)}
                   </div>
                 </div>
                 <Divider />
@@ -148,7 +226,7 @@ const HistoryCompany = () => {
                 </div>
                 <div className="flex justify-start text-start">
                   <strong className="mr-1">Loại sản phẩm:</strong>{" "}
-                  {item?.category}
+                  {categories.find((x) => x.label === item?.category)?.name}
                 </div>
                 <div className="flex justify-start text-start">
                   <strong className="mr-1">Giá từng sản phẩm:</strong>{" "}
@@ -171,9 +249,19 @@ const HistoryCompany = () => {
                   <div>
                     {/* Hiển thị nội dung văn bản */}
                     <p>
-                      {expandedItems[item.id]
-                        ? item.content
-                        : item.content.slice(0, 100)}
+                      {expandedItems[item.id] ? (
+                        <span
+                          dangerouslySetInnerHTML={{
+                            __html: item.content,
+                          }}
+                        ></span>
+                      ) : (
+                        <span
+                          dangerouslySetInnerHTML={{
+                            __html: item.content.slice(0, 100),
+                          }}
+                        ></span>
+                      )}
                       {item.content.length > 100 && (
                         <span
                           className="text-blue-500 cursor-pointer ml-2"
@@ -205,7 +293,7 @@ const HistoryCompany = () => {
                 )}
                 <Divider />
                 <div className="flex justify-between mt-5">
-                  <Button severity="help" onClick={showModal}>
+                  <Button severity="help" onClick={() => showModal(item)}>
                     Chỉnh sửa bài đăng
                   </Button>
                   <Button
@@ -234,21 +322,31 @@ const HistoryCompany = () => {
             <label className="mr-2">Tên nông sản:</label>
             <InputText
               className="w-full"
-              onChange={(e) => setProductName(e.target.value)}
+              value={object?.productName}
+              onChange={(e) =>
+                setObject({ ...object, productName: e.target.value })
+              }
             />
           </div>
           <div className="col-span-4">
             <label className="mr-2">Số lượng:</label>
             <InputText
               className="w-full"
-              onChange={(e) => setQuantity(Number(e.target.value))}
+              value={object?.quantity}
+              onChange={(e) =>
+                setObject({ ...object, quantity: e.target.value })
+              }
             />
           </div>
           <div className="col-span-4">
             <label className="mr-2">Loại Hàng:</label>
-            <InputText
+            <Dropdown
+              value={selectedCategory}
+              options={categories}
+              optionLabel="name"
+              onChange={(e) => setSelectedCategory(e.value)}
+              placeholder="Chọn loại"
               className="w-full"
-              onChange={(e) => setCategory(Number(e.target.value))}
             />
           </div>
         </div>
@@ -257,21 +355,30 @@ const HistoryCompany = () => {
             <label className="mr-2">Yêu cầu tiêu chuẩn:</label>
             <InputText
               className="w-full"
-              onChange={(e) => setStandardRequirements(e.target.value)}
+              value={object?.standardRequirement}
+              onChange={(e) =>
+                setObject({ ...object, standardRequirement: e.target.value })
+              }
             />
           </div>
           <div className="col-span-4">
             <label className="mr-2">Các yêu cầu khác:</label>
             <InputText
               className="w-full"
-              onChange={(e) => setOtherRequirement(e.target.value)}
+              value={object?.otherRequirement}
+              onChange={(e) =>
+                setObject({ ...object, otherRequirement: e.target.value })
+              }
             />
           </div>
           <div className="col-span-4">
             <label className="mr-2">Giá từng sản phẩm:</label>
             <InputText
               className="w-full"
-              onChange={(e) => setUnitPrice(Number(e.target.value))}
+              value={object?.unitPrice}
+              onChange={(e) =>
+                setObject({ ...object, unitPrice: e.target.value })
+              }
             />
           </div>
         </div>
@@ -281,14 +388,17 @@ const HistoryCompany = () => {
             <Editor
               placeholder="Nhập nội dung"
               className="h-40"
-              onChange={(e: any) => setContent(e.target.value)}
+              value={object?.content}
+              onTextChange={(e: any) =>
+                setObject({ ...object, content: e.htmlValue })
+              }
             />
           </div>
         </div>
         <Divider />
         <div>Chọn hình ảnh</div>
         <div className="card col-span-full">
-          <input id="file-upload" type="file" onChange={onFileChange} />
+          <input id="file-upload" type="file" onChange={onImageChange} />
           <button
             onClick={onUploadImage}
             className="p-button p-component p-mt-2"

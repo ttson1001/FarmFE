@@ -1,6 +1,5 @@
 import { Card } from "primereact/card";
 import { InputText } from "primereact/inputtext";
-import { RadioButton } from "primereact/radiobutton";
 import { useRef, useState } from "react";
 import { Button } from "primereact/button";
 import { Divider } from "primereact/divider";
@@ -13,6 +12,7 @@ import {
   role,
   saveToLocalStorage,
 } from "../../constant/utils";
+import { getBusinesProfile, getProfile } from "../../api/profileFarmer";
 
 const Login = () => {
   const [ingredient, setIngredient] = useState("");
@@ -44,16 +44,35 @@ const Login = () => {
           severity: "success",
           summary: message,
         });
-        console.log(role());
         setTimeout(() => {
           if (role() === 1) {
-            navigate("/admin");
+            navigate("admin/account");
           }
           if (role() === 2) {
-            navigate("farmer-home");
+            getProfile()
+              .then((req) => {
+                const farmer = req?.data?.data;
+                saveToLocalStorage("avatar", farmer?.avatar);
+                navigate("farmer-home");
+              })
+              .catch((e: any) => {
+                {
+                  console.log(e);
+                }
+              });
           }
           if (role() === 3) {
-            navigate("company-home");
+            getBusinesProfile()
+              .then((req) => {
+                const farmer = req?.data?.data;
+                saveToLocalStorage("avatar", farmer?.avatar);
+                navigate("company-home");
+              })
+              .catch((e: any) => {
+                {
+                  console.log(e);
+                }
+              });
           }
         }, 1000);
       })
@@ -76,33 +95,6 @@ const Login = () => {
       <div className="grid grid-cols-2 h-screen">
         <div className="col bg-purple-200 h-full items-center justify-center flex">
           <Card title="Đăng nhập" className="w-2/3 h-2/3">
-            <div className="font-bold mb-2">Bạn là:</div>
-            <div className="flex flex-wrap gap-3">
-              <div className="flex align-items-center">
-                <RadioButton
-                  inputId="ingredient1"
-                  name="pizza"
-                  value="1"
-                  onChange={(e) => setIngredient(e.value)}
-                  checked={ingredient === "1"}
-                />
-                <label htmlFor="ingredient1" className="ml-2">
-                  Doanh nghiệp
-                </label>
-              </div>
-              <div className="flex align-items-center">
-                <RadioButton
-                  inputId="ingredient2"
-                  name="pizza"
-                  value="2"
-                  onChange={(e) => setIngredient(e.value)}
-                  checked={ingredient === "2"}
-                />
-                <label htmlFor="ingredient2" className="ml-2">
-                  Nông dân
-                </label>
-              </div>
-            </div>
             <div className="mt-5">
               <div className="font-bold">Tài khoản:</div>
               <InputText
@@ -131,7 +123,9 @@ const Login = () => {
               <div className="font-bold">
                 <Link to={"/register"}>Đăng kí</Link>
               </div>
-              <div className="font-bold">Quên mật khẩu</div>
+              <div className="font-bold">
+                <Link to={"/forgot"}>Quên mật khẩu</Link>
+              </div>
             </div>
             <Divider />
             <div className="flex gap-10 justify-center">

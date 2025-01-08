@@ -12,6 +12,9 @@ import ImageCarousel from "../../common/carousel/ImageCarousel";
 import FileCarousel from "../../common/carousel/FileCarousel";
 import { Calendar } from "primereact/calendar";
 import { uploadFile, uploadImage } from "../../api/file";
+import { getFromLocalStorage } from "../../constant/utils";
+import { categories } from "../../constant/constant";
+import { Dropdown } from "primereact/dropdown";
 
 const HomeFarmerPage = () => {
   const [isModalVisible, setModalVisible] = useState(false); // State để quản lý modal;
@@ -62,6 +65,7 @@ const HomeFarmerPage = () => {
   };
 
   const hideModal = () => {
+    setCategory(0);
     setModalVisible(false); // Đóng modal
   };
 
@@ -70,6 +74,9 @@ const HomeFarmerPage = () => {
   const [toDate, setToDate] = useState<Date | null>(null);
   const [minPrice, setMinPrice] = useState<number>(0);
   const [maxPrice, setMaxPrice] = useState<number>(0);
+  const [selectedCategory, setSelectedCategory] = useState<number | undefined>(
+    0
+  );
 
   const handleReset = () => {
     setSearchTerm("");
@@ -109,13 +116,6 @@ const HomeFarmerPage = () => {
       .catch((err) => {
         setError(err.message || "An error occurred");
       });
-    console.log({
-      searchTerm,
-      fromDate,
-      toDate,
-      minPrice,
-      maxPrice,
-    });
   };
 
   const [file, setFile] = useState(null);
@@ -151,7 +151,7 @@ const HomeFarmerPage = () => {
       content,
       productName,
       quantity,
-      category,
+      category: selectedCategory,
       lossRate,
       unitPrice,
       images,
@@ -236,12 +236,12 @@ const HomeFarmerPage = () => {
           </Card>
         </div>
 
-        <div className="col-span-12 md:col-span-6 p-4 text-center">
+        <div className="col-span-12 md:col-span-9 p-4 text-center">
           <Card className="rounded-3xl">
             <div className="grid grid-cols-12 gap-2">
               <Avatar
                 className="w-12 h-12 col-span-2 mx-auto sm:col-span-1" // Sử dụng col-span-2 trên màn hình nhỏ
-                image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png"
+                image={getFromLocalStorage("avatar") ?? ""}
                 shape="circle"
               />
               <InputText
@@ -259,11 +259,11 @@ const HomeFarmerPage = () => {
                 onHide={hideModal}
                 className="h-[950px] w-[950px]"
               >
-                <div className="grid grid-cols-12 gap-2">
+                <div className="grid grid-cols-12 gap-4">
                   <div className="col-span-4">
                     <label className="mr-2">Tên nông sản:</label>
                     <InputText
-                      className="mt-2 w-full"
+                      className="mt-2  w-full"
                       onChange={(e) => setProductName(e.target.value)}
                     />
                   </div>
@@ -277,11 +277,13 @@ const HomeFarmerPage = () => {
                   </div>
                   <div className="col-span-4">
                     <label className="mr-2">Loại Hàng:</label>
-                    <InputText
-                      className="mt-2  w-full"
-                      onChange={(e) =>
-                        setCategory(parseInt(e.target.value, 10))
-                      }
+                    <Dropdown
+                      value={selectedCategory}
+                      options={categories}
+                      optionLabel="name"
+                      onChange={(e: any) => setSelectedCategory(e.value)}
+                      placeholder="Chọn loại"
+                      className="w-full mt-2"
                     />
                   </div>
                 </div>
@@ -290,6 +292,7 @@ const HomeFarmerPage = () => {
                     <label className="mr-2">Tỉ lệ thất thoát:</label>
                     <InputText
                       className="w-full mt-2"
+                      type="number"
                       onChange={(e) => setLossRate(parseFloat(e.target.value))}
                     />
                   </div>
@@ -297,6 +300,7 @@ const HomeFarmerPage = () => {
                     <label className="mr-2">Giá tiền:</label>
                     <InputText
                       className="w-full mt-2"
+                      type="number"
                       onChange={(e) => setUnitPrice(parseFloat(e.target.value))}
                     />
                   </div>
@@ -307,7 +311,7 @@ const HomeFarmerPage = () => {
                     <Editor
                       placeholder="Nhập nội dung"
                       className="h-40 mt-2"
-                      onChange={(e: any) => setContent(e.target.value)}
+                      onTextChange={(e: any) => setContent(e.htmlValue)}
                     />
                   </div>
                 </div>
@@ -343,7 +347,7 @@ const HomeFarmerPage = () => {
                   <div className="flex items-center gap-3">
                     <Avatar
                       className="w-12 h-12 mx-auto sm:col-span-1" // Sử dụng col-span-2 trên màn hình nhỏ
-                      image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png"
+                      image={item?.avatar}
                       shape="circle"
                     />
                     <div>
@@ -368,7 +372,7 @@ const HomeFarmerPage = () => {
                 </div>
                 <div className="flex justify-start text-start">
                   <strong className="mr-1">Loại sản phẩm:</strong>{" "}
-                  {item?.category}
+                  {categories.find((x) => x.label === item?.category)?.name}
                 </div>
                 <div className="flex justify-start text-start">
                   <strong className="mr-1">Giá từng sản phẩm:</strong>{" "}
@@ -391,9 +395,19 @@ const HomeFarmerPage = () => {
                   <div>
                     {/* Hiển thị nội dung văn bản */}
                     <p>
-                      {expandedItems[item.id]
-                        ? item.content
-                        : item.content.slice(0, 100)}
+                      {expandedItems[item.id] ? (
+                        <span
+                          dangerouslySetInnerHTML={{
+                            __html: item.content,
+                          }}
+                        ></span>
+                      ) : (
+                        <span
+                          dangerouslySetInnerHTML={{
+                            __html: item.content.slice(0, 100),
+                          }}
+                        ></span>
+                      )}
                       {item.content.length > 100 && (
                         <span
                           className="text-blue-500 cursor-pointer ml-2"
@@ -406,7 +420,7 @@ const HomeFarmerPage = () => {
                   </div>
                 </div>
 
-                {item?.postFiles.length > 0 ? (
+                {item?.postFiles?.length > 0 ? (
                   <>
                     <Divider />
                     <FileCarousel files={item?.postFiles ?? []} />
@@ -426,31 +440,6 @@ const HomeFarmerPage = () => {
               </Card>
             </div>
           ))}
-        </div>
-
-        <div className="col-span-3 p-4 text-center hidden md:block">
-          <Card className="rounded-3xl">
-            <div className="flex items-center gap-5">
-              <div>
-                <Avatar
-                  className="w-12 h-12 mx-auto sm:col-span-1" // Sử dụng col-span-2 trên màn hình nhỏ
-                  image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png"
-                  shape="circle"
-                />
-              </div>
-              <div>
-                <div className="text-start">
-                  <strong>Tên công ty:</strong> Công ti tư gia
-                </div>
-                <div className="text-start">
-                  <strong>Địa chỉ: </strong> 26 Âu cơ
-                </div>
-                <div className="text-start">
-                  <strong>Số điện thoại:</strong> 0833327665
-                </div>
-              </div>
-            </div>
-          </Card>
         </div>
       </div>
     </>

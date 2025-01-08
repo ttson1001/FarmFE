@@ -6,10 +6,20 @@ export const getProfile = async () => {
   return await apiClient.get<any>(`${SERVER_API}get-personal-farmer-profile`);
 };
 
-export const updatePròile = async (value: FarmerProfileDto) => {
-  console.log(value);
+export const getBusinesProfile = async () => {
+  return await apiClient.get<any>(`${SERVER_API}get-personal-business-profile`);
+};
+
+export const updateProfile = async (value: FarmerProfileDto) => {
   return await apiClient.post<any>(
     `${SERVER_API}create-update-personal-farmer-profile`,
+    value
+  );
+};
+
+export const updateBusinessProfile = async (value: any) => {
+  return await apiClient.post<any>(
+    `${SERVER_API}create-update-personal-business-profile`,
     value
   );
 };

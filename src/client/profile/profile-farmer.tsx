@@ -1,9 +1,12 @@
 import { Avatar } from "primereact/avatar";
 import { Calendar } from "primereact/calendar";
-import { Card } from "primereact/card";
 import { InputText } from "primereact/inputtext";
 import { useEffect, useRef, useState } from "react";
-import { getProfile, updatePròile } from "../../api/profileFarmer";
+import {
+  getProfile,
+  updateProfile,
+  updatePròile,
+} from "../../api/profileFarmer";
 import { Button } from "primereact/button";
 import moment from "moment";
 import { FarmerProfileDto } from "../../dto/FarmerProfileDto";
@@ -51,7 +54,7 @@ const FarmerProfile = () => {
       identityCard,
     };
 
-    updatePròile(data).then((x) => {
+    updateProfile(data).then((x) => {
       toast.current?.show({
         severity: "success",
         summary: x.data.message,

@@ -16,6 +16,8 @@ import {
 } from "../../api/homeFarmer";
 import { uploadFile, uploadImage } from "../../api/file";
 import moment from "moment";
+import { getFromLocalStorage } from "../../constant/utils";
+import { categories } from "../../constant/constant";
 
 const HomeCompanyPage = () => {
   const [isModalVisible, setModalVisible] = useState(false); // State để quản lý modal;
@@ -24,13 +26,13 @@ const HomeCompanyPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [content, setContent] = useState("string");
-  const [productName, setProductName] = useState("string");
-  const [quantity, setQuantity] = useState(2147483647);
+  const [content, setContent] = useState("");
+  const [productName, setProductName] = useState("");
+  const [quantity, setQuantity] = useState(0);
   const [category, setCategory] = useState(1);
   const [unitPrice, setUnitPrice] = useState(0);
-  const [standardRequirements, setStandardRequirements] = useState("string");
-  const [otherRequirement, setOtherRequirement] = useState("string");
+  const [standardRequirements, setStandardRequirements] = useState("");
+  const [otherRequirement, setOtherRequirement] = useState("");
   const [images, setImages] = useState<number[]>([]);
   const [files, setFiles] = useState<number[]>([]);
 
@@ -182,7 +184,7 @@ const HomeCompanyPage = () => {
     <>
       <div className="grid grid-cols-12 p-4">
         <div className="col-span-3 p-4 text-center hidden md:block">
-          <Card className="rounded-3xl">
+          <Card className="rounded-3xl sticky top-4">
             <div className="text-start font-bold">Tìm kiếm:</div>
             <div>
               <InputText
@@ -242,12 +244,12 @@ const HomeCompanyPage = () => {
           </Card>
         </div>
 
-        <div className="col-span-12 md:col-span-6 p-4 text-center">
+        <div className="col-span-12 md:col-span-9 p-4 text-center">
           <Card className="rounded-3xl">
             <div className="grid grid-cols-12 gap-2">
               <Avatar
                 className="w-12 h-12 col-span-2 mx-auto sm:col-span-1" // Sử dụng col-span-2 trên màn hình nhỏ
-                image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png"
+                image={getFromLocalStorage("avatar") ?? ""}
                 shape="circle"
               />
               <InputText
@@ -265,11 +267,11 @@ const HomeCompanyPage = () => {
                 onHide={hideModal}
                 className="h-[950px] w-[950px]"
               >
-                <div className="grid grid-cols-12 gap-2">
+                <div className="grid grid-cols-12 gap-4 ">
                   <div className="col-span-4">
                     <label className="mr-2">Tên nông sản:</label>
                     <InputText
-                      className="w-full"
+                      className="w-5/6"
                       onChange={(e) => setProductName(e.target.value)}
                     />
                   </div>
@@ -277,6 +279,7 @@ const HomeCompanyPage = () => {
                     <label className="mr-2">Số lượng:</label>
                     <InputText
                       className="w-full"
+                      type="number"
                       onChange={(e) => setQuantity(Number(e.target.value))}
                     />
                   </div>
@@ -307,6 +310,7 @@ const HomeCompanyPage = () => {
                     <label className="mr-2">Giá từng sản phẩm:</label>
                     <InputText
                       className="w-full"
+                      type="number"
                       onChange={(e) => setUnitPrice(Number(e.target.value))}
                     />
                   </div>
@@ -317,7 +321,7 @@ const HomeCompanyPage = () => {
                     <Editor
                       placeholder="Nhập nội dung"
                       className="h-40"
-                      onChange={(e: any) => setContent(e.target.value)}
+                      onTextChange={(e: any) => setContent(e.htmlValue)}
                     />
                   </div>
                 </div>
@@ -353,7 +357,7 @@ const HomeCompanyPage = () => {
                   <div className="flex items-center gap-3">
                     <Avatar
                       className="w-12 h-12 mx-auto sm:col-span-1" // Sử dụng col-span-2 trên màn hình nhỏ
-                      image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png"
+                      image={item?.avatar}
                       shape="circle"
                     />
                     <div>
@@ -378,7 +382,7 @@ const HomeCompanyPage = () => {
                 </div>
                 <div className="flex justify-start text-start">
                   <strong className="mr-1">Loại sản phẩm:</strong>{" "}
-                  {item?.category}
+                  {categories.find((x) => x.label === item?.category)?.name}
                 </div>
                 <div className="flex justify-start text-start">
                   <strong className="mr-1">Giá từng sản phẩm:</strong>{" "}
@@ -393,9 +397,19 @@ const HomeCompanyPage = () => {
                   <div>
                     {/* Hiển thị nội dung văn bản */}
                     <p>
-                      {expandedItems[item.id]
-                        ? item.content
-                        : item.content.slice(0, 100)}
+                      {expandedItems[item.id] ? (
+                        <span
+                          dangerouslySetInnerHTML={{
+                            __html: item.content,
+                          }}
+                        ></span>
+                      ) : (
+                        <span
+                          dangerouslySetInnerHTML={{
+                            __html: item.content.slice(0, 100),
+                          }}
+                        ></span>
+                      )}
                       {item.content.length > 100 && (
                         <span
                           className="text-blue-500 cursor-pointer ml-2"
@@ -428,31 +442,6 @@ const HomeCompanyPage = () => {
               </Card>
             </div>
           ))}
-        </div>
-
-        <div className="col-span-3 p-4 text-center hidden md:block">
-          <Card className="rounded-3xl">
-            <div className="flex items-center gap-5">
-              <div>
-                <Avatar
-                  className="w-12 h-12 mx-auto sm:col-span-1" // Sử dụng col-span-2 trên màn hình nhỏ
-                  image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png"
-                  shape="circle"
-                />
-              </div>
-              <div>
-                <div className="text-start">
-                  <strong>Tên công ty:</strong> Công ti tư gia
-                </div>
-                <div className="text-start">
-                  <strong>Địa chỉ: </strong> 26 Âu cơ
-                </div>
-                <div className="text-start">
-                  <strong>Số điện thoại:</strong> 0833327665
-                </div>
-              </div>
-            </div>
-          </Card>
         </div>
       </div>
     </>

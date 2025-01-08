@@ -6,7 +6,7 @@ export const getFarmerHistory = async () => {
     pageIndex: 1,
     pageSize: 10,
     keyword: "",
-    orderDate: 1,
+    orderDate: 0,
     totalRecord: 1,
     createdDate: {
       from: "2024-01-29",
@@ -34,7 +34,7 @@ export const getBusinessHistory = async () => {
     pageIndex: 1,
     pageSize: 10,
     keyword: "",
-    orderDate: 1,
+    orderDate: 0,
     totalRecord: 1,
     createdDate: {
       from: "2024-01-29",
@@ -51,4 +51,20 @@ export const getBusinessHistory = async () => {
     `${SERVER_API}get-personal-business-posts`,
     payload
   );
+};
+
+export const UpdateFarmerPost = async (value: any) => {
+  return await apiClient.post<any>(`${SERVER_API}update-farmer-post`, value);
+};
+
+export const UpdateBusinessPost = async (value: any) => {
+  return await apiClient.post<any>(`${SERVER_API}update-business-post`, value);
+};
+
+export const addImageToPost = async (value: any) => {
+  return await apiClient.post<any>(`${SERVER_API}add-images-to-post`, value);
+};
+
+export const addFileToPost = async (value: any) => {
+  return await apiClient.post<any>(`${SERVER_API}add-files-to-post`, value);
 };

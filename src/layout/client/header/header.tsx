@@ -1,4 +1,3 @@
-import { InputText } from "primereact/inputtext";
 import { Menubar } from "primereact/menubar";
 import AvatarMenu from "./avatar";
 import { useNavigate } from "react-router-dom";
