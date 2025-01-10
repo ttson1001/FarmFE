@@ -15,14 +15,10 @@ import {
 import { getBusinesProfile, getProfile } from "../../api/profileFarmer";
 
 const Login = () => {
-  const [ingredient, setIngredient] = useState("");
   const toast = useRef<Toast>(null);
 
   const [userNameOrEmail, setUserNameOrEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [isRemember, setIsRemember] = useState<boolean>(true);
-  const [ruuid, setRuuid] = useState<number>(0);
-  const [redirect, setRedirect] = useState<string>("");
 
   const navigate = useNavigate();
 
@@ -30,9 +26,9 @@ const Login = () => {
     const data: UserLoginData = {
       userNameOrEmail,
       password,
-      isRemember,
-      ruuid,
-      redirect,
+      isRemember: true,
+      ruuid: 0,
+      redirect: "",
     };
 
     login(data)
@@ -137,11 +133,7 @@ const Login = () => {
         </div>
         <div className="col h-full flex justify-center items-center">
           <img
-            src={
-              ingredient === "2"
-                ? "/src/assets/farmer.png"
-                : "/src/assets/company.png"
-            }
+            src={"/src/assets/farmer.png"}
             alt="Farmer"
             className="h-2/3 w-2/3 object-contain"
           />

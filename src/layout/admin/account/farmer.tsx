@@ -18,7 +18,6 @@ import { ConfirmDialog } from "primereact/confirmdialog";
 const AccountPage = () => {
   const [listObjects, setListObjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [visible, setVisible] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState(null);
 
@@ -32,7 +31,7 @@ const AccountPage = () => {
         }
       })
       .catch((err) => {
-        setError(err.message || "An error occurred");
+        console.log(err);
       })
       .finally(() => {
         setLoading(false);
@@ -72,7 +71,7 @@ const AccountPage = () => {
         }
       })
       .catch((err) => {
-        setError(err.message || "An error occurred");
+        console.log(err);
       });
   };
 
@@ -94,7 +93,7 @@ const AccountPage = () => {
         }
       })
       .catch((err) => {
-        setError(err.message || "An error occurred");
+        console.log(err);
       });
     console.log({
       searchTerm,
@@ -110,7 +109,7 @@ const AccountPage = () => {
       <Button
         label="Có"
         severity="danger"
-        onClick={() => handleDelete(selectedItemId)}
+        onClick={() => handleDelete(selectedItemId ?? 0)}
       />
       <Button label="Không" onClick={() => setVisible(false)} />
     </>
@@ -135,14 +134,14 @@ const AccountPage = () => {
               className="w-full mt-2"
               showIcon
               value={fromDate}
-              maxDate={toDate}
+              maxDate={toDate ?? new Date()}
               onChange={(e) => setFromDate(e.value as Date)}
             />
             <div className="text-start font-bold mt-2">Đến ngày:</div>
             <Calendar
               className="w-full mt-2"
               showIcon
-              minDate={fromDate}
+              minDate={fromDate ?? new Date()}
               value={toDate}
               onChange={(e) => setToDate(e.value as Date)}
             />
@@ -151,7 +150,7 @@ const AccountPage = () => {
               <InputText
                 type="number"
                 className="w-full mt-2"
-                value={status}
+                value={status + ""}
                 onChange={(e) =>
                   setStatus(e.target.value ? parseFloat(e.target.value) : 0)
                 }

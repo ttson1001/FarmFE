@@ -17,8 +17,12 @@ import CompanyPage from "./layout/admin/company/company";
 import AccountPage from "./layout/admin/account/farmer";
 import Forgot from "./client/password/forgot-password";
 import Resset from "./client/password/resest-pasword";
+import { useEffect } from "react";
 
 const App = () => {
+  useEffect(() => {
+    document.title = "Farm APP"; // Đổi tiêu đề tab
+  }, []);
   return (
     <Routes>
       <Route path="/" element={<Login />} />

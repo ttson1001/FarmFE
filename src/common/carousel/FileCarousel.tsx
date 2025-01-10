@@ -8,7 +8,7 @@ interface FileCarouselProps {
 const FileCarousel: React.FC<FileCarouselProps> = ({ files }) => {
   const itemTemplate = (item: any) => {
     return (
-      <div className="flex justify-center">
+      <div className="flex justify-center cursor-pointer">
         <div>
           <div className="flex justify-center">
             <img

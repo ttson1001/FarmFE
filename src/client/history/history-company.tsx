@@ -20,6 +20,7 @@ import moment from "moment";
 import { getFromLocalStorage, getStatus } from "../../constant/utils";
 import { categories } from "../../constant/constant";
 import { Dropdown } from "primereact/dropdown";
+import { ConfirmDialog } from "primereact/confirmdialog";
 
 const HistoryCompany = () => {
   const [expandedItems, setExpandedItems] = useState<{
@@ -37,7 +38,6 @@ const HistoryCompany = () => {
   const [listObjects, setListObjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [object, setObject] = useState<any>(null);
-  const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState<number | undefined>(
     0
   );
@@ -51,7 +51,7 @@ const HistoryCompany = () => {
       <Button
         label="Có"
         severity="danger"
-        onClick={() => handleDelete(selectedItemId)}
+        onClick={() => handleDelete(selectedItemId ?? 0)}
       />
       <Button label="Không" onClick={() => setVisible(false)} />
     </>
@@ -67,7 +67,7 @@ const HistoryCompany = () => {
         }
       })
       .catch((err) => {
-        setError(err.message || "An error occurred");
+        console.log(err);
       })
       .finally(() => {
         setLoading(false);
@@ -91,15 +91,16 @@ const HistoryCompany = () => {
   const handleDelete = (id: number) => {
     deletePost(id);
     setLoading(true);
+    setVisible(false);
   };
 
-  const [file, setFile] = useState(null);
-  const [file1, setFile1] = useState(null);
+  const [file, setFile] = useState<any>(null);
+  const [file1, setFile1] = useState<any>(null);
 
-  const onFileChange = (event) => {
+  const onFileChange = (event: any) => {
     setFile(event.target.files[0]); // Get the first selected file
   };
-  const onImageChange = (event) => {
+  const onImageChange = (event: any) => {
     setFile1(event.target.files[0]); // Get the first selected file
   };
 
@@ -297,7 +298,10 @@ const HistoryCompany = () => {
                     Chỉnh sửa bài đăng
                   </Button>
                   <Button
-                    onClick={() => handleDelete(item?.id)}
+                    onClick={() => {
+                      setVisible(true); // Hiển thị hộp thoại xác nhận
+                      setSelectedItemId(item.id);
+                    }}
                     severity="danger"
                   >
                     Xóa bài đăng
@@ -319,9 +323,11 @@ const HistoryCompany = () => {
       >
         <div className="grid grid-cols-12 gap-2">
           <div className="col-span-4">
-            <label className="mr-2">Tên nông sản:</label>
+            <label className="mr-2">
+              Tên nông sản: <span className="text-red-500">*</span>
+            </label>
             <InputText
-              className="w-full"
+              className="w-full mt-2"
               value={object?.productName}
               onChange={(e) =>
                 setObject({ ...object, productName: e.target.value })
@@ -329,9 +335,11 @@ const HistoryCompany = () => {
             />
           </div>
           <div className="col-span-4">
-            <label className="mr-2">Số lượng:</label>
+            <label className="mr-2">
+              Số lượng: <span className="text-red-500">*</span>
+            </label>
             <InputText
-              className="w-full"
+              className="w-full  mt-2"
               value={object?.quantity}
               onChange={(e) =>
                 setObject({ ...object, quantity: e.target.value })
@@ -339,22 +347,24 @@ const HistoryCompany = () => {
             />
           </div>
           <div className="col-span-4">
-            <label className="mr-2">Loại Hàng:</label>
+            <label className="mr-2  mt-2">
+              Loại Hàng: <span className="text-red-500">*</span>
+            </label>
             <Dropdown
               value={selectedCategory}
               options={categories}
               optionLabel="name"
               onChange={(e) => setSelectedCategory(e.value)}
               placeholder="Chọn loại"
-              className="w-full"
+              className="w-full  mt-2"
             />
           </div>
         </div>
-        <div className="grid grid-cols-12 gap-2">
+        <div className="grid grid-cols-12 gap-2  mt-2">
           <div className="col-span-4">
             <label className="mr-2">Yêu cầu tiêu chuẩn:</label>
             <InputText
-              className="w-full"
+              className="w-full  mt-2"
               value={object?.standardRequirement}
               onChange={(e) =>
                 setObject({ ...object, standardRequirement: e.target.value })
@@ -364,7 +374,7 @@ const HistoryCompany = () => {
           <div className="col-span-4">
             <label className="mr-2">Các yêu cầu khác:</label>
             <InputText
-              className="w-full"
+              className="w-full  mt-2"
               value={object?.otherRequirement}
               onChange={(e) =>
                 setObject({ ...object, otherRequirement: e.target.value })
@@ -372,9 +382,12 @@ const HistoryCompany = () => {
             />
           </div>
           <div className="col-span-4">
-            <label className="mr-2">Giá từng sản phẩm:</label>
+            <label className="mr-2">
+              Giá từng sản phẩm: <span className="text-red-500">*</span>
+            </label>
             <InputText
-              className="w-full"
+              className="w-full  mt-2"
+              type="number"
               value={object?.unitPrice}
               onChange={(e) =>
                 setObject({ ...object, unitPrice: e.target.value })
@@ -382,12 +395,12 @@ const HistoryCompany = () => {
             />
           </div>
         </div>
-        <div className="grid grid-cols-12 h-60">
+        <div className="grid grid-cols-12 h-60  mt-2">
           <div className="col-span-full h-52">
             <label className=" col-span-3">Mô tả:</label>
             <Editor
               placeholder="Nhập nội dung"
-              className="h-40"
+              className="h-40  mt-2"
               value={object?.content}
               onTextChange={(e: any) =>
                 setObject({ ...object, content: e.htmlValue })
@@ -418,6 +431,14 @@ const HistoryCompany = () => {
           </button>
         </div>
       </Dialog>
+      <ConfirmDialog
+        visible={visible}
+        onHide={() => setVisible(false)} // Đóng hộp thoại
+        message="Bạn có chắc chắn muốn xóa mục này không?"
+        header="Xác nhận"
+        icon="pi pi-exclamation-triangle"
+        footer={footerContent1}
+      />
     </>
   );
 };

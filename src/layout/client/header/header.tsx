@@ -23,9 +23,9 @@ const ClientHeader = () => {
   const start = (
     <img
       alt="logo"
-      src="https://primefaces.org/cdn/primereact/images/logo.png"
-      width={50}
-      height={50}
+      src={"/src/assets/logo.png"}
+      width={70}
+      height={70}
       className="mr-2"
     ></img>
   );
@@ -36,7 +36,7 @@ const ClientHeader = () => {
   );
 
   return (
-    <div className="card">
+    <div className="card bg-white">
       <Menubar model={items} start={start} end={end} />
     </div>
   );

@@ -32,7 +32,7 @@ export const role = () => {
   }
 };
 
-export const getStatus = (value) => {
+export const getStatus = (value: any) => {
   if (value === "Pending" || value === "1") {
     return "Đang chờ duyệt";
   } else if (value === "Approved" || value === "2") {
@@ -42,6 +42,6 @@ export const getStatus = (value) => {
   }
 };
 
-export const getURL = (value) => {
+export const getURL = (value: any) => {
   return `/src/assets${value}.svg`;
 };

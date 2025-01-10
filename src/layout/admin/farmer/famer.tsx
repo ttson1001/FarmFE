@@ -19,7 +19,6 @@ import { categories } from "../../../constant/constant";
 const FarmerPage = () => {
   const [listObjects, setListObjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     getFarmerPost(null)
@@ -31,7 +30,7 @@ const FarmerPage = () => {
         }
       })
       .catch((err) => {
-        setError(err.message || "An error occurred");
+        console.log(err);
       })
       .finally(() => {
         setLoading(false);
@@ -56,7 +55,7 @@ const FarmerPage = () => {
         if (response.data.success) {
           // Cập nhật trạng thái của bài viết trong listObjects
           setListObjects((prevList: any) =>
-            prevList.map((item) =>
+            prevList.map((item: any) =>
               item.id === id
                 ? {
                     ...item,
@@ -78,7 +77,7 @@ const FarmerPage = () => {
         console.error("Error occurred:", err.message || "An error occurred");
       });
   };
-  const getStatus = (value) => {
+  const getStatus = (value: any) => {
     console.log(value);
     if (value === "Pending" || value === "1") {
       return "Đang chờ duyệt";
@@ -111,7 +110,7 @@ const FarmerPage = () => {
         }
       })
       .catch((err) => {
-        setError(err.message || "An error occurred");
+        console.log(err);
       });
   };
 
@@ -133,7 +132,7 @@ const FarmerPage = () => {
         }
       })
       .catch((err) => {
-        setError(err.message || "An error occurred");
+        console.log(err);
       });
     console.log({
       searchTerm,
@@ -163,14 +162,14 @@ const FarmerPage = () => {
               className="w-full mt-2"
               showIcon
               value={fromDate}
-              maxDate={toDate}
+              maxDate={toDate ?? new Date()}
               onChange={(e) => setFromDate(e.value as Date)}
             />
             <div className="text-start font-bold mt-2">Đến ngày:</div>
             <Calendar
               className="w-full mt-2"
               showIcon
-              minDate={fromDate}
+              minDate={fromDate ?? new Date()}
               value={toDate}
               onChange={(e) => setToDate(e.value as Date)}
             />
@@ -179,7 +178,7 @@ const FarmerPage = () => {
               <InputText
                 type="number"
                 className="w-full mt-2"
-                value={status}
+                value={status + ""}
                 onChange={(e) =>
                   setStatus(e.target.value ? parseFloat(e.target.value) : 0)
                 }

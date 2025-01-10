@@ -24,7 +24,6 @@ const HomeCompanyPage = () => {
 
   const [listObjects, setListObjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   const [content, setContent] = useState("");
   const [productName, setProductName] = useState("");
@@ -46,7 +45,7 @@ const HomeCompanyPage = () => {
         }
       })
       .catch((err) => {
-        setError(err.message || "An error occurred");
+        console.log(err);
       })
       .finally(() => {
         setLoading(false);
@@ -93,7 +92,7 @@ const HomeCompanyPage = () => {
         }
       })
       .catch((err) => {
-        setError(err.message || "An error occurred");
+        console.log(err);
       });
   };
 
@@ -114,20 +113,13 @@ const HomeCompanyPage = () => {
         }
       })
       .catch((err) => {
-        setError(err.message || "An error occurred");
+        console.log(err);
       });
-    console.log({
-      searchTerm,
-      fromDate,
-      toDate,
-      minPrice,
-      maxPrice,
-    });
   };
 
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState<any>(null);
 
-  const onFileChange = (event) => {
+  const onFileChange = (event: any) => {
     setFile(event.target.files[0]); // Get the first selected file
   };
 
@@ -184,7 +176,7 @@ const HomeCompanyPage = () => {
     <>
       <div className="grid grid-cols-12 p-4">
         <div className="col-span-3 p-4 text-center hidden md:block">
-          <Card className="rounded-3xl sticky top-4">
+          <Card className="rounded-3xl sticky top-28">
             <div className="text-start font-bold">Tìm kiếm:</div>
             <div>
               <InputText
@@ -199,14 +191,14 @@ const HomeCompanyPage = () => {
               className="w-full mt-2"
               showIcon
               value={fromDate}
-              maxDate={toDate}
+              maxDate={toDate ?? new Date()}
               onChange={(e) => setFromDate(e.value as Date)}
             />
             <div className="text-start font-bold mt-2">Đến ngày:</div>
             <Calendar
               className="w-full mt-2"
               showIcon
-              minDate={fromDate}
+              minDate={fromDate ?? new Date()}
               value={toDate}
               onChange={(e) => setToDate(e.value as Date)}
             />
@@ -215,7 +207,7 @@ const HomeCompanyPage = () => {
               <InputText
                 type="number"
                 className="w-full mt-2"
-                value={minPrice}
+                value={minPrice + ""}
                 onChange={(e) =>
                   setMinPrice(e.target.value ? parseFloat(e.target.value) : 0)
                 }
@@ -226,7 +218,7 @@ const HomeCompanyPage = () => {
               <InputText
                 type="number"
                 className="w-full mt-2"
-                value={maxPrice}
+                value={maxPrice + ""}
                 onChange={(e) =>
                   setMaxPrice(e.target.value ? parseFloat(e.target.value) : 0)
                 }

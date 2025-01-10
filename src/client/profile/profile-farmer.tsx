@@ -2,11 +2,7 @@ import { Avatar } from "primereact/avatar";
 import { Calendar } from "primereact/calendar";
 import { InputText } from "primereact/inputtext";
 import { useEffect, useRef, useState } from "react";
-import {
-  getProfile,
-  updateProfile,
-  updatePròile,
-} from "../../api/profileFarmer";
+import { getProfile, updateProfile } from "../../api/profileFarmer";
 import { Button } from "primereact/button";
 import moment from "moment";
 import { FarmerProfileDto } from "../../dto/FarmerProfileDto";
@@ -93,7 +89,7 @@ const FarmerProfile = () => {
         <div className="w-24 font-bold">Giới tính:</div>
         <InputText
           onChange={(e: any) => setGender(e.target.value)}
-          value={gender}
+          value={gender + ""}
           className="w-96"
         />
       </div>

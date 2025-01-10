@@ -1,5 +1,5 @@
 import { Avatar } from "primereact/avatar";
-import { useRef, useState, MouseEvent } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   clearLocalStorage,
@@ -66,7 +66,7 @@ const AvatarMenu = () => {
     },
   ];
 
-  const handleAvatarClick = (event: MouseEvent) => {
+  const handleAvatarClick = () => {
     setDropdownVisible((prev) => !prev);
   };
 

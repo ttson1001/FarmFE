@@ -35,7 +35,6 @@ const HistoryFarmer = () => {
   const [object, setObject] = useState<any>(null);
   const [listObjects, setListObjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [selectedItemId, setSelectedItemId] = useState(null);
   const [visible, setVisible] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<number | undefined>(
@@ -52,7 +51,7 @@ const HistoryFarmer = () => {
         }
       })
       .catch((err) => {
-        setError(err.message || "An error occurred");
+        console.log(err);
       })
       .finally(() => {
         setLoading(false);
@@ -79,9 +78,9 @@ const HistoryFarmer = () => {
     setLoading(true);
   };
 
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState<any>(null);
 
-  const onFileChange = (event) => {
+  const onFileChange = (event: any) => {
     setFile(event.target.files[0]); // Get the first selected file
   };
 
@@ -134,7 +133,7 @@ const HistoryFarmer = () => {
       <Button
         label="Có"
         severity="danger"
-        onClick={() => handleDelete(selectedItemId)}
+        onClick={() => handleDelete(selectedItemId ?? 0)}
       />
       <Button label="Không" onClick={() => setVisible(false)} />
     </>

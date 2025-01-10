@@ -15,8 +15,6 @@ import { categories } from "../../../constant/constant";
 const CompanyPage = () => {
   const [listObjects, setListObjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
   useEffect(() => {
     getBussinesPost(null)
       .then((response) => {
@@ -27,7 +25,7 @@ const CompanyPage = () => {
         }
       })
       .catch((err) => {
-        setError(err.message || "An error occurred");
+        console.log(err);
       })
       .finally(() => {
         setLoading(false);
@@ -52,7 +50,7 @@ const CompanyPage = () => {
         if (response.data.success) {
           // Cập nhật trạng thái của bài viết trong listObjects
           setListObjects((prevList: any) =>
-            prevList.map((item) =>
+            prevList.map((item: any) =>
               item.id === id
                 ? {
                     ...item,
@@ -75,7 +73,7 @@ const CompanyPage = () => {
       });
   };
 
-  const getStatus = (value) => {
+  const getStatus = (value: any) => {
     if (value === "Pending" || value === "1") {
       return "Đang chờ duyệt";
     } else if (value === "Approved" || value === "2") {
@@ -107,7 +105,7 @@ const CompanyPage = () => {
         }
       })
       .catch((err) => {
-        setError(err.message || "An error occurred");
+        console.log(err);
       });
   };
 
@@ -129,7 +127,7 @@ const CompanyPage = () => {
         }
       })
       .catch((err) => {
-        setError(err.message || "An error occurred");
+        console.log(err);
       });
     console.log({
       searchTerm,
@@ -159,14 +157,14 @@ const CompanyPage = () => {
               className="w-full mt-2"
               showIcon
               value={fromDate}
-              maxDate={toDate}
+              maxDate={toDate ?? new Date()}
               onChange={(e) => setFromDate(e.value as Date)}
             />
             <div className="text-start font-bold mt-2">Đến ngày:</div>
             <Calendar
               className="w-full mt-2"
               showIcon
-              minDate={fromDate}
+              minDate={fromDate ?? new Date()}
               value={toDate}
               onChange={(e) => setToDate(e.value as Date)}
             />
@@ -175,7 +173,7 @@ const CompanyPage = () => {
               <InputText
                 type="number"
                 className="w-full mt-2"
-                value={status}
+                value={status + ""}
                 onChange={(e) =>
                   setStatus(e.target.value ? parseFloat(e.target.value) : 0)
                 }
