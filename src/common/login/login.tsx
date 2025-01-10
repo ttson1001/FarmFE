@@ -7,6 +7,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { UserLoginData } from "../../dto/LoginDto";
 import { login } from "../../api/apiLogin";
 import { Toast } from "primereact/toast";
+import farmerImage from '../../assets/farmer.png';
+
 import {
   getFromLocalStorage,
   role,
@@ -133,7 +135,7 @@ const Login = () => {
         </div>
         <div className="col h-full flex justify-center items-center">
           <img
-            src={"/src/assets/farmer.png"}
+            src={farmerImage}
             alt="Farmer"
             className="h-2/3 w-2/3 object-contain"
           />
