@@ -15,17 +15,24 @@ import farmer from "../../assets/farmer.png";
 import f from "../../assets/face.svg";
 import g from "../../assets/x.svg";
 import x from "../../assets/gmail.svg";
+import { Dialog } from "primereact/dialog";
+import FarmerProfile from "../../client/profile/profile-farmer";
+import CompanyProfile from "../../client/profile/profile-company";
 
 const Login = () => {
   const toast = useRef<Toast>(null);
 
   const [userNameOrEmail, setUserNameOrEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [profileVisible, setProfileVisible] = useState(false);
   const [errors, setErrors] = useState<{
     userNameOrEmail?: string;
     password?: string;
   }>({});
   const navigate = useNavigate();
+
+  const showProfileModal = () => setProfileVisible(true);
+  const hideProfileModal = () => setProfileVisible(false);
 
   const hanldeSumbmit = () => {
     const data: UserLoginData = {
@@ -56,6 +63,12 @@ const Login = () => {
               })
               .catch((e: any) => {
                 {
+                  toast.current?.show({
+                    severity: "error",
+                    summary:
+                      "Vui lòng nhập đầy đủ thông tin để sử dụng dc app của chúng tôi",
+                  });
+                  showProfileModal();
                   console.log(e);
                 }
               });
@@ -69,6 +82,12 @@ const Login = () => {
               })
               .catch((e: any) => {
                 {
+                  toast.current?.show({
+                    severity: "error",
+                    summary:
+                      "Vui lòng nhập đầy đủ thông tin để sử dụng dc app của chúng tôi",
+                  });
+                  showProfileModal();
                   console.log(e);
                 }
               });
@@ -199,6 +218,21 @@ const Login = () => {
           />
         </div>
       </div>
+      <Dialog
+        header="Thông tin cá nhân"
+        className="md:w-[365px] lg:w-[500px]"
+        visible={profileVisible}
+        position="right"
+        onHide={hideProfileModal}
+        draggable={false}
+        resizable={false}
+      >
+        {role() === 2 ? (
+          <FarmerProfile value="login" />
+        ) : (
+          <CompanyProfile value="login" />
+        )}
+      </Dialog>
     </>
   );
 };

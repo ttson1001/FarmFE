@@ -185,7 +185,11 @@ const AvatarMenu = () => {
           draggable={false}
           resizable={false}
         >
-          {role() === 2 ? <FarmerProfile /> : <CompanyProfile />}
+          {role() === 2 ? (
+            <FarmerProfile value="" />
+          ) : (
+            <CompanyProfile value="" />
+          )}
         </Dialog>
 
         {/* Dialog: Cài đặt */}

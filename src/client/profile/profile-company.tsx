@@ -10,8 +10,10 @@ import { Button } from "primereact/button";
 import { uploadImage } from "../../api/file";
 import { useNavigate } from "react-router-dom";
 import { clearLocalStorage, role } from "../../constant/utils";
-
-const CompanyProfile = () => {
+interface CompanyProfileProps {
+  value: string; // Gán kiểu string cho prop value
+}
+const CompanyProfile: React.FC<CompanyProfileProps> = ({ value }) => {
   const [companyName, setCompanyName] = useState("");
   const [address, setAddress] = useState("");
   const [taxNumber, setTaxNumber] = useState(0);
@@ -26,7 +28,6 @@ const CompanyProfile = () => {
       clearLocalStorage();
       navigate("../");
     }
-
   });
 
   const [errors, setErrors] = useState<{
@@ -91,6 +92,9 @@ const CompanyProfile = () => {
         severity: "success",
         summary: x.data.message,
       });
+      if (value === "login") {
+        navigate("/profile-farmer");
+      }
       setLoad(true);
     });
   };

@@ -13,7 +13,10 @@ import { genderOption } from "../../constant/constant";
 import { useNavigate } from "react-router-dom";
 import { clearLocalStorage, role } from "../../constant/utils";
 
-const FarmerProfile = () => {
+interface FarmerProfileProps {
+  value: string; // Gán kiểu string cho prop value
+}
+const FarmerProfile: React.FC<FarmerProfileProps> = ({ value }) => {
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [identityCard, setIdentityCard] = useState<string>("");
@@ -69,6 +72,9 @@ const FarmerProfile = () => {
         severity: "success",
         summary: x.data.message,
       });
+      if (value === "login") {
+        navigate("/profile-farmer");
+      }
       setLoad(true);
     });
   };
