@@ -1,11 +1,13 @@
 import { Card } from "primereact/card";
 import { Avatar } from "primereact/avatar";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { Editor } from "primereact/editor";
 import {
+  addFileToPost,
+  addImageToPost,
   deletePost,
   getFarmerHistory,
   UpdateFarmerPost,
@@ -15,10 +17,17 @@ import FileCarousel from "../../common/carousel/FileCarousel";
 import moment from "moment";
 import { Divider } from "primereact/divider";
 import { uploadFile, uploadImage } from "../../api/file";
-import { getFromLocalStorage, getStatus } from "../../constant/utils";
+import {
+  clearLocalStorage,
+  getFromLocalStorage,
+  getStatus,
+  role,
+} from "../../constant/utils";
 import { ConfirmDialog } from "primereact/confirmdialog";
 import { Dropdown } from "primereact/dropdown";
 import { categories } from "../../constant/constant";
+import { Toast } from "primereact/toast";
+import { useNavigate } from "react-router-dom";
 
 const HistoryFarmer = () => {
   const [expandedItems, setExpandedItems] = useState<{
@@ -40,6 +49,14 @@ const HistoryFarmer = () => {
   const [selectedCategory, setSelectedCategory] = useState<number | undefined>(
     0
   );
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (role() !== 2) {
+      clearLocalStorage();
+      navigate("../");
+    }
+  });
 
   useEffect(() => {
     getFarmerHistory()
@@ -60,7 +77,6 @@ const HistoryFarmer = () => {
 
   const showModal = (value: any) => {
     setObject(value);
-    console.log(value.category);
     const cate = categories?.find((x) => x.label === value?.category)?.value;
 
     setSelectedCategory(cate);
@@ -69,27 +85,61 @@ const HistoryFarmer = () => {
 
   const hideModal = () => {
     setObject(null);
+    setErrors({});
     setModalVisible(false); // Đóng modal
   };
 
   const handleDelete = (id: number) => {
-    deletePost(id);
-    setVisible(true);
-    setLoading(true);
+    deletePost(id)
+      .then(() => {
+        toast.current?.show({
+          severity: "success",
+          summary: "Xóa bài đăng thành công",
+        });
+        setLoading(true);
+        setVisible(false);
+      })
+      .catch(() => {
+        toast.current?.show({
+          severity: "success",
+          summary: "Xóa bài đăng thất bại",
+        });
+      });
   };
 
   const [file, setFile] = useState<any>(null);
+  const [file1, setFile1] = useState<any>(null);
+
+  const [images, setImages] = useState<number[]>([]);
+  const [files, setFiles] = useState<number[]>([]);
 
   const onFileChange = (event: any) => {
     setFile(event.target.files[0]); // Get the first selected file
   };
+  const onImageChange = (event: any) => {
+    setFile1(event.target.files[0]); // Get the first selected file
+  };
 
   const onUploadImage = async () => {
     const formData = new FormData();
-    formData.append("File", file); // Append the file
+    formData.append("File", file1); // Append the file
     formData.append("CustomFileName", "aaa"); // Append the custom file name
 
-    uploadImage(formData);
+    uploadImage(formData)
+      .then((x) => {
+        toast.current?.show({
+          severity: "success",
+          summary: "Tải lên thành công",
+        });
+        const id = x.data.data.data.id;
+        setImages((prv) => [...prv, id]);
+      })
+      .catch(() => {
+        toast.current?.show({
+          severity: "error",
+          summary: "Tải lên thất bại",
+        });
+      });
   };
 
   const onUploadFile = async () => {
@@ -97,7 +147,21 @@ const HistoryFarmer = () => {
     formData.append("File", file); // Append the file
     formData.append("CustomFileName", "aaa"); // Append the custom file name
 
-    uploadFile(formData);
+    uploadFile(formData)
+      .then((x) => {
+        toast.current?.show({
+          severity: "success",
+          summary: "Tải lên thành công",
+        });
+        const id = x.data.data.data.id;
+        setFiles((prv) => [...prv, id]);
+      })
+      .catch(() => {
+        toast.current?.show({
+          severity: "error",
+          summary: "Tải lên thất bại",
+        });
+      });
   };
 
   const update = () => {
@@ -110,11 +174,41 @@ const HistoryFarmer = () => {
       lossRate: Number(object?.lossRate),
       unitPrice: object?.unitPrice,
     };
-    console.log(data);
-    UpdateFarmerPost(data).then(() => {
-      setLoading(true);
-      hideModal();
-    });
+    UpdateFarmerPost(data)
+      .then(() => {
+        toast.current?.show({
+          severity: "success",
+          summary: "Chỉnh sửa bài đăng thành công",
+        });
+
+        setLoading(true);
+        hideModal();
+      })
+      .catch(() => {
+        toast.current?.show({
+          severity: "error",
+          summary: "Chỉnh sửa bài đăng thất bại",
+        });
+      });
+    if (images.length > 0) {
+      const imagesData = {
+        postId: object?.id,
+        imageIds: images,
+      };
+      addImageToPost(imagesData).then(() => {
+        setImages([]);
+      });
+    }
+    if (files.length > 0) {
+      const filesData = {
+        postId: object?.id,
+        fileIds: files,
+      };
+
+      addFileToPost(filesData).then(() => {
+        setFiles([]);
+      });
+    }
   };
 
   const footerContent = (
@@ -138,9 +232,66 @@ const HistoryFarmer = () => {
       <Button label="Không" onClick={() => setVisible(false)} />
     </>
   );
+  const toast = useRef<Toast>(null);
+
+  const [errors, setErrors] = useState<{
+    content?: string;
+    productName?: string;
+    quantity?: string;
+    category?: string;
+    lossRate?: string;
+    unitPrice?: string;
+  }>({});
+
+  const validateField = (field: string, value: any) => {
+    let error = "";
+    switch (field) {
+      case "content":
+        if (!value.trim()) {
+          error = "Nội dung không được để trống.";
+        }
+        break;
+
+      case "productName":
+        if (!value.trim()) {
+          error = "Tên sản phẩm không được để trống.";
+        }
+        break;
+
+      case "quantity":
+        if (value <= 0) {
+          error = "Số lượng phải lớn hơn 0.";
+        }
+        break;
+
+      case "category":
+        if (value <= 0) {
+          error = "Danh mục không hợp lệ.";
+        }
+        break;
+
+      case "lossRate":
+        if (value < 1 || value > 99) {
+          error = "Tỷ lệ hao hụt phải nằm trong khoảng từ 1 đến 99.";
+        }
+        break;
+
+      case "unitPrice":
+        if (value <= 1000) {
+          error = "Đơn giá phải lớn hơn 1 000 đ.";
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    setErrors((prevErrors) => ({ ...prevErrors, [field]: error }));
+  };
 
   return (
     <>
+      <Toast ref={toast} />
       <div className="grid grid-cols-12 ">
         <div className="col-span-3 text-center hidden md:block"></div>
 
@@ -156,7 +307,7 @@ const HistoryFarmer = () => {
                       shape="circle"
                     />
                     <div>
-                      <div>
+                      <div className="text-start">
                         <strong className="mr-1">Người đăng bài:</strong>
                         {item?.createdBy}
                       </div>
@@ -292,28 +443,40 @@ const HistoryFarmer = () => {
         onHide={hideModal}
         className="h-[900px] w-[900px]"
       >
-        <div className="grid grid-cols-12 gap-2">
-          <div className="col-span-4">
+        <div className="grid md:grid-cols-12 gap-4 sm:grid-cols-1">
+          <div className="md:col-span-4 sm:col-span-full">
             <label className="mr-2">Tên nông sản:</label>
             <InputText
-              className="w-full"
               value={object?.productName}
               onChange={(e) =>
                 setObject({ ...object, productName: e.target.value })
               }
+              className={`mt-2 w-full ${
+                errors.productName ? "p-invalid border-red-500" : ""
+              }`}
+              onBlur={(e) => validateField("productName", e.target.value)}
             />
+            {errors.productName && (
+              <small className="text-red-500">{errors.productName}</small>
+            )}
           </div>
-          <div className="col-span-4">
-            <label className="mr-2">Số lượng:</label>
+          <div className="md:col-span-4 sm:col-span-full">
+            <label className="mr-2">Số lượng (kg):</label>
             <InputText
-              className="w-full"
+              className={`mt-2 w-full ${
+                errors.quantity ? "p-invalid border-red-500" : ""
+              }`}
+              onBlur={(e) => validateField("quantity", e.target.value)}
               value={object?.quantity}
               onChange={(e) =>
                 setObject({ ...object, quantity: e.target.value })
               }
             />
+            {errors.quantity && (
+              <small className="text-red-500">{errors.quantity}</small>
+            )}
           </div>
-          <div className="col-span-4">
+          <div className="md:col-span-4 sm:col-span-full">
             <label className="mr-2">Loại Hàng:</label>
             <Dropdown
               value={selectedCategory}
@@ -321,33 +484,51 @@ const HistoryFarmer = () => {
               optionLabel="name"
               onChange={(e) => setSelectedCategory(e.value)}
               placeholder="Chọn loại"
-              className="w-full"
+              onBlur={() => validateField("category", selectedCategory)}
+              className={`mt-2 w-full ${
+                errors.category ? "p-invalid border-red-500" : ""
+              }`}
             />
+            {errors.category && (
+              <small className="text-red-500">{errors.category}</small>
+            )}
           </div>
         </div>
-        <div className="grid grid-cols-12 gap-2">
-          <div className="col-span-6">
-            <label className="mr-2">Tỉ lệ thất thoát:</label>
+        <div className="grid md:grid-cols-12 gap-2 mt-2 sm:grid-cols-1">
+          <div className=" md:col-span-6 sm:col-span-full">
+            <label className="mr-2">Tỉ lệ thất thoát (1% - 99%):</label>
             <InputText
-              className="w-full"
+              onBlur={(e) => validateField("lossRate", e.target.value)}
+              className={`mt-2 w-full ${
+                errors.lossRate ? "p-invalid border-red-500" : ""
+              }`}
               value={object?.lossRate}
               onChange={(e) =>
                 setObject({ ...object, lossRate: e.target.value })
               }
             />
+            {errors.lossRate && (
+              <small className="text-red-500">{errors.lossRate}</small>
+            )}
           </div>
-          <div className="col-span-6">
-            <label className="mr-2">Giá tiền:</label>
+          <div className=" md:col-span-6 sm:col-span-full">
+            <label className="mr-2">Giá tiền (đ):</label>
             <InputText
-              className="w-full"
+              onBlur={(e) => validateField("unitPrice", e.target.value)}
+              className={`mt-2 w-full ${
+                errors.unitPrice ? "p-invalid border-red-500" : ""
+              }`}
               value={object?.unitPrice}
               onChange={(e) =>
                 setObject({ ...object, unitPrice: e.target.value })
               }
             />
+            {errors.unitPrice && (
+              <small className="text-red-500">{errors.unitPrice}</small>
+            )}
           </div>
         </div>
-        <div className="grid grid-cols-12 h-60">
+        <div className="grid grid-cols-12 h-60 mt-2 sm:grid-cols-1">
           <div className="col-span-full h-52">
             <label className=" col-span-3">Mô tả:</label>
             <Editor
@@ -360,9 +541,10 @@ const HistoryFarmer = () => {
             />
           </div>
         </div>
-        <div>Chọn hình ảnh</div>
-        <div className="card col-span-full">
-          <input id="file-upload" type="file" onChange={onFileChange} />
+        <Divider />
+        <div>Chứng từ đính kèm (Hình ảnh)</div>
+        <div className="card col-span-full sm:col-span-full">
+          <input id="file-upload" type="file" onChange={onImageChange} />
           <button
             onClick={onUploadImage}
             className="p-button p-component p-mt-2"
@@ -371,8 +553,8 @@ const HistoryFarmer = () => {
           </button>
         </div>
         <Divider />
-        <div>Chọn file</div>
-        <div className="card col-span-full">
+        <div>Chứng từ đính kèm (File)</div>
+        <div className="card col-span-full sm:col-span-full">
           <input id="file-upload" type="file" onChange={onFileChange} />
           <button
             onClick={onUploadFile}

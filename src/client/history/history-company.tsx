@@ -1,6 +1,6 @@
 import { Card } from "primereact/card";
 import { Avatar } from "primereact/avatar";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
@@ -17,10 +17,17 @@ import { Divider } from "primereact/divider";
 import FileCarousel from "../../common/carousel/FileCarousel";
 import ImageCarousel from "../../common/carousel/ImageCarousel";
 import moment from "moment";
-import { getFromLocalStorage, getStatus } from "../../constant/utils";
+import {
+  clearLocalStorage,
+  getFromLocalStorage,
+  getStatus,
+  role,
+} from "../../constant/utils";
 import { categories } from "../../constant/constant";
 import { Dropdown } from "primereact/dropdown";
 import { ConfirmDialog } from "primereact/confirmdialog";
+import { Toast } from "primereact/toast";
+import { useNavigate } from "react-router-dom";
 
 const HistoryCompany = () => {
   const [expandedItems, setExpandedItems] = useState<{
@@ -30,10 +37,10 @@ const HistoryCompany = () => {
   const toggleExpand = (id: number) => {
     setExpandedItems((prevState) => ({
       ...prevState,
-      [id]: !prevState[id], // Đảo trạng thái mở rộng của item hiện tại
+      [id]: !prevState[id],
     }));
   };
-  const [isModalVisible, setModalVisible] = useState(false); // State để quản lý modal
+  const [isModalVisible, setModalVisible] = useState(false);
 
   const [listObjects, setListObjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -46,6 +53,59 @@ const HistoryCompany = () => {
   const [selectedItemId, setSelectedItemId] = useState(null);
   const [visible, setVisible] = useState(false);
 
+  const [errors, setErrors] = useState<{
+    content?: string;
+    productName?: string;
+    quantity?: string;
+    category?: string;
+    unitPrice?: string;
+    standardRequirements?: string;
+    otherRequirement?: string;
+  }>({});
+
+  const validateProductFields = () => {
+    const newErrors: {
+      content?: string;
+      productName?: string;
+      quantity?: string;
+      category?: string;
+      unitPrice?: string;
+      standardRequirements?: string;
+      otherRequirement?: string;
+    } = {};
+
+    // Kiểm tra tên sản phẩm
+    if (!object.productName) {
+      newErrors.productName = "Vui lòng nhập tên sản phẩm.";
+    }
+
+    if (!object.content) {
+      newErrors.content = "Vui lòng nhập mô tả.";
+    }
+
+    // Kiểm tra số lượng
+    if (object.quantity <= 0) {
+      newErrors.quantity = "Số lượng phải lớn hơn 0.";
+    }
+
+    // Kiểm tra loại hàng (category)
+    if (!selectedCategory) {
+      newErrors.category = "Vui lòng chọn loại hàng.";
+    }
+
+    // Kiểm tra giá tiền
+    if (object.unitPrice <= 1000) {
+      newErrors.unitPrice = "Giá tiền phải lớn hơn 1 000 đ.";
+    }
+
+    // Kiểm tra yêu cầu tiêu chuẩn
+    if (!object.otherRequirement) {
+      newErrors.standardRequirements = "Vui lòng nhập yêu cầu tiêu chuẩn.";
+    }
+
+    setErrors(newErrors);
+  };
+
   const footerContent1 = (
     <>
       <Button
@@ -56,6 +116,15 @@ const HistoryCompany = () => {
       <Button label="Không" onClick={() => setVisible(false)} />
     </>
   );
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (role() !== 3) {
+      clearLocalStorage();
+      navigate("../");
+    }
+  });
 
   useEffect(() => {
     getBusinessHistory()
@@ -76,7 +145,6 @@ const HistoryCompany = () => {
 
   const showModal = (value: any) => {
     setObject(value);
-    console.log(value);
     const cate = categories?.find((x) => x.label === value?.category)?.value;
 
     setSelectedCategory(cate);
@@ -85,13 +153,26 @@ const HistoryCompany = () => {
 
   const hideModal = () => {
     setObject(null);
+    setErrors({});
     setModalVisible(false); // Đóng modal
   };
 
   const handleDelete = (id: number) => {
-    deletePost(id);
-    setLoading(true);
-    setVisible(false);
+    deletePost(id)
+      .then(() => {
+        toast.current?.show({
+          severity: "success",
+          summary: "Xóa bài đăng thành công",
+        });
+        setVisible(false);
+        setLoading(true);
+      })
+      .catch(() => {
+        toast.current?.show({
+          severity: "success",
+          summary: "Xóa bài đăng thất bại",
+        });
+      });
   };
 
   const [file, setFile] = useState<any>(null);
@@ -109,10 +190,21 @@ const HistoryCompany = () => {
     formData.append("File", file1); // Append the file
     formData.append("CustomFileName", "aaa"); // Append the custom file name
 
-    uploadImage(formData).then((x) => {
-      const id = x.data.data.data.id;
-      setImages((prv) => [...prv, id]);
-    });
+    uploadImage(formData)
+      .then((x) => {
+        toast.current?.show({
+          severity: "success",
+          summary: "Tải lên thành công",
+        });
+        const id = x.data.data.data.id;
+        setImages((prv) => [...prv, id]);
+      })
+      .catch(() => {
+        toast.current?.show({
+          severity: "error",
+          summary: "Tải lên thất bại",
+        });
+      });
   };
 
   const onUploadFile = async () => {
@@ -120,10 +212,21 @@ const HistoryCompany = () => {
     formData.append("File", file); // Append the file
     formData.append("CustomFileName", "aaa"); // Append the custom file name
 
-    uploadFile(formData).then((x) => {
-      const id = x.data.data.data.id;
-      setFiles((prv) => [...prv, id]);
-    });
+    uploadFile(formData)
+      .then((x) => {
+        toast.current?.show({
+          severity: "success",
+          summary: "Tải lên thành công",
+        });
+        const id = x.data.data.data.id;
+        setFiles((prv) => [...prv, id]);
+      })
+      .catch(() => {
+        toast.current?.show({
+          severity: "error",
+          summary: "Tải lên thất bại",
+        });
+      });
   };
 
   const update = () => {
@@ -137,25 +240,40 @@ const HistoryCompany = () => {
       standardRequirments: object?.standardRequirement,
       otherRequirement: object?.otherRequirement,
     };
-    UpdateBusinessPost(data).then(() => {
-      setLoading(true);
-      hideModal();
-    });
-    if (images.length > 0) {
-      const imagesData = {
-        postId: object?.id,
-        imageIds: images,
-      };
-      addImageToPost(imagesData);
-    }
-    if (files.length > 0) {
-      const filesData = {
-        postId: object?.id,
-        fileIds: files,
-      };
+    UpdateBusinessPost(data)
+      .then(() => {
+        toast.current?.show({
+          severity: "success",
+          summary: "Tạo bài đăng thành công",
+        });
+        if (images.length > 0) {
+          const imagesData = {
+            postId: object?.id,
+            imageIds: images,
+          };
+          addImageToPost(imagesData).then(() => {
+            setImages([]);
+          });
+        }
+        if (files.length > 0) {
+          const filesData = {
+            postId: object?.id,
+            fileIds: files,
+          };
 
-      addFileToPost(filesData);
-    }
+          addFileToPost(filesData).then(() => {
+            setFiles([]);
+          });
+        }
+        setLoading(true);
+        hideModal();
+      })
+      .catch(() => {
+        toast.current?.show({
+          severity: "error",
+          summary: "Tạo bài đăng thất bại",
+        });
+      });
   };
 
   const footerContent = (
@@ -174,9 +292,11 @@ const HistoryCompany = () => {
       </Button>
     </div>
   );
+  const toast = useRef<Toast>(null);
 
   return (
     <>
+      <Toast ref={toast} />
       <div className="grid grid-cols-12 ">
         <div className="col-span-3 text-center hidden md:block"></div>
 
@@ -239,7 +359,7 @@ const HistoryCompany = () => {
                   </span>
                 </div>
                 <div className="flex justify-start text-start">
-                  <strong className="mr-1">Yêu cầu phải có:</strong>{" "}
+                  <strong className="mr-1">Yêu cầu tiêu chuẩn:</strong>{" "}
                   {item?.standardRequirement}
                 </div>
                 <div className="flex justify-start text-start">
@@ -327,24 +447,36 @@ const HistoryCompany = () => {
               Tên nông sản: <span className="text-red-500">*</span>
             </label>
             <InputText
-              className="w-full mt-2"
+              className={`mt-2 w-full ${
+                errors.productName ? "p-invalid border-red-500" : ""
+              }`}
               value={object?.productName}
+              onBlur={validateProductFields}
               onChange={(e) =>
                 setObject({ ...object, productName: e.target.value })
               }
             />
+            {errors.productName && (
+              <small className="text-red-500">{errors.productName}</small>
+            )}
           </div>
           <div className="col-span-4">
             <label className="mr-2">
               Số lượng: <span className="text-red-500">*</span>
             </label>
             <InputText
-              className="w-full  mt-2"
+              className={`mt-2 w-full ${
+                errors.quantity ? "p-invalid border-red-500" : ""
+              }`}
+              onBlur={validateProductFields}
               value={object?.quantity}
               onChange={(e) =>
                 setObject({ ...object, quantity: e.target.value })
               }
             />
+            {errors.quantity && (
+              <small className="text-red-500">{errors.quantity}</small>
+            )}
           </div>
           <div className="col-span-4">
             <label className="mr-2  mt-2">
@@ -356,20 +488,36 @@ const HistoryCompany = () => {
               optionLabel="name"
               onChange={(e) => setSelectedCategory(e.value)}
               placeholder="Chọn loại"
-              className="w-full  mt-2"
-            />
+              onBlur={validateProductFields}
+              className={`mt-2 w-full ${
+                errors.category ? "p-invalid border-red-500" : ""
+              }`}
+            />{" "}
+            {errors.category && (
+              <small className="text-red-500">{errors.category}</small>
+            )}
           </div>
         </div>
         <div className="grid grid-cols-12 gap-2  mt-2">
           <div className="col-span-4">
-            <label className="mr-2">Yêu cầu tiêu chuẩn:</label>
+            <label className="mr-2">
+              Yêu cầu tiêu chuẩn: <span className="text-red-500">*</span>
+            </label>
             <InputText
-              className="w-full  mt-2"
+              onBlur={validateProductFields}
+              className={`mt-2 w-full ${
+                errors.standardRequirements ? "p-invalid border-red-500" : ""
+              }`}
               value={object?.standardRequirement}
               onChange={(e) =>
                 setObject({ ...object, standardRequirement: e.target.value })
               }
             />
+            {errors.standardRequirements && (
+              <small className="text-red-500">
+                {errors.standardRequirements}
+              </small>
+            )}
           </div>
           <div className="col-span-4">
             <label className="mr-2">Các yêu cầu khác:</label>
@@ -383,10 +531,13 @@ const HistoryCompany = () => {
           </div>
           <div className="col-span-4">
             <label className="mr-2">
-              Giá từng sản phẩm: <span className="text-red-500">*</span>
+              Giá từng sản phẩm (đ): <span className="text-red-500">*</span>
             </label>
             <InputText
-              className="w-full  mt-2"
+              onBlur={validateProductFields}
+              className={`mt-2 w-full ${
+                errors.unitPrice ? "p-invalid border-red-500" : ""
+              }`}
               type="number"
               value={object?.unitPrice}
               onChange={(e) =>
@@ -397,7 +548,12 @@ const HistoryCompany = () => {
         </div>
         <div className="grid grid-cols-12 h-60  mt-2">
           <div className="col-span-full h-52">
-            <label className=" col-span-3">Mô tả:</label>
+            <label className=" col-span-3">
+              Mô tả: <span className="text-red-500">*</span>
+            </label>
+            {errors.content && (
+              <small className="text-red-500">{errors.content}</small>
+            )}
             <Editor
               placeholder="Nhập nội dung"
               className="h-40  mt-2"
@@ -405,11 +561,12 @@ const HistoryCompany = () => {
               onTextChange={(e: any) =>
                 setObject({ ...object, content: e.htmlValue })
               }
+              onBlur={validateProductFields}
             />
           </div>
         </div>
         <Divider />
-        <div>Chọn hình ảnh</div>
+        <div>Chứng từ liên quan (hình ảnh)</div>
         <div className="card col-span-full">
           <input id="file-upload" type="file" onChange={onImageChange} />
           <button
@@ -420,7 +577,7 @@ const HistoryCompany = () => {
           </button>
         </div>
         <Divider />
-        <div>Chọn file</div>
+        <div>Chứng từ liên quan (file)</div>
         <div className="card col-span-full">
           <input id="file-upload" type="file" onChange={onFileChange} />
           <button

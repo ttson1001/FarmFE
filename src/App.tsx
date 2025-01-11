@@ -18,10 +18,11 @@ import AccountPage from "./layout/admin/account/farmer";
 import Forgot from "./client/password/forgot-password";
 import Resset from "./client/password/resest-pasword";
 import { useEffect } from "react";
+import AboutUs from "./client/profile/adbout";
 
 const App = () => {
   useEffect(() => {
-    document.title = "Farm APP"; // Đổi tiêu đề tab
+    document.title = "AP TEAM"; // Đổi tiêu đề tab
   }, []);
   return (
     <Routes>
@@ -36,15 +37,17 @@ const App = () => {
       <Route path="forgot" element={<Forgot />}></Route>
       <Route path="resset" element={<Resset />}></Route>
       <Route path="success" element={<Success />}></Route>
-      <Route path="error" element={<Error />}></Route>
+      <Route path="error" element={<Error />}></Route>  
       <Route path="/" element={<HomeLayout />}>
         <Route path="company-home" element={<HomeCompanyPage />}></Route>
+        <Route path="about" element={<AboutUs />}></Route>
         <Route path="farmer-home" element={<HomeFarmerPage />}></Route>
         <Route path="company-profile" element={<CompanyProfile />}></Route>
         <Route path="farmer-profile" element={<FarmerProfile />}></Route>
         <Route path="history-company" element={<HistoryCompany />}></Route>
         <Route path="history-farmer" element={<HistoryFarmer />}></Route>
       </Route>
+      <Route path="*" element={<Error />} />
     </Routes>
   );
 };

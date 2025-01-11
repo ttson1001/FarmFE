@@ -4,17 +4,17 @@ import { apiClient } from "./axios";
 export const getFarmerHistory = async () => {
   const payload = {
     pageIndex: 1,
-    pageSize: 10,
+    pageSize: 1000,
     keyword: "",
     orderDate: 0,
     totalRecord: 1,
     createdDate: {
       from: "2024-01-29",
-      to: "2025-12-30",
+      to: "2026-12-30",
     },
     totalPrice: {
-      from: 1,
-      to: 410000000,
+      from: 0,
+      to: 9999999,
     },
     status: null,
   };
@@ -34,7 +34,7 @@ export const getBusinessHistory = async () => {
     pageIndex: 1,
     pageSize: 10,
     keyword: "",
-    orderDate: 0,
+    orderDate: 1,
     totalRecord: 1,
     createdDate: {
       from: "2024-01-29",

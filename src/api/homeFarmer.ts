@@ -15,7 +15,7 @@ export const getBussinesPost = async (value: any) => {
     },
     totalPrice: {
       from: 1,
-      to: 410000000,
+      to: 99999999999999,
     },
     status: null,
   };

@@ -1,7 +1,7 @@
 import { Card } from "primereact/card";
 import { Avatar } from "primereact/avatar";
 import { InputText } from "primereact/inputtext";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "primereact/button";
 import { Divider } from "primereact/divider";
@@ -10,11 +10,25 @@ import { Calendar } from "primereact/calendar";
 import { getBussinesPost, updatePostStatus } from "../../../api/homeFarmer";
 import FileCarousel from "../../../common/carousel/FileCarousel";
 import ImageCarousel from "../../../common/carousel/ImageCarousel";
-import { categories } from "../../../constant/constant";
+import { categories, postStatusOption } from "../../../constant/constant";
+import { Toast } from "primereact/toast";
+import { Dropdown } from "primereact/dropdown";
+import { useNavigate } from "react-router-dom";
+import { clearLocalStorage, role } from "../../../constant/utils";
 
 const CompanyPage = () => {
   const [listObjects, setListObjects] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (role() !== 1) {
+      clearLocalStorage();
+      navigate("../");
+    }
+  });
+
   useEffect(() => {
     getBussinesPost(null)
       .then((response) => {
@@ -46,9 +60,13 @@ const CompanyPage = () => {
   const handleUpdateStatus = (id: number, newStatus: number) => {
     updatePostStatus(id, newStatus)
       .then((response) => {
-        console.log("Response from API:", response.data);
         if (response.data.success) {
-          // Cập nhật trạng thái của bài viết trong listObjects
+          toast.current?.show({
+            severity: "success",
+            summary: `${
+              newStatus === 2 ? "Chấp nhận" : "Từ chối"
+            } bài đăng thành công`,
+          });
           setListObjects((prevList: any) =>
             prevList.map((item: any) =>
               item.id === id
@@ -64,11 +82,13 @@ const CompanyPage = () => {
                 : item
             )
           );
-        } else {
-          throw new Error(response.data.message || "Failed to update status");
         }
       })
       .catch((err) => {
+        toast.current?.show({
+          severity: "error",
+          summary: "thất bại",
+        });
         console.error("Error occurred:", err.message || "An error occurred");
       });
   };
@@ -137,9 +157,11 @@ const CompanyPage = () => {
       maxPrice,
     });
   };
+  const toast = useRef<Toast>(null);
 
   return (
     <>
+      <Toast ref={toast} />
       <div className="grid grid-cols-12">
         <div className="col-span-3 p-4 h-screen text-center hidden md:block">
           <Card className="rounded-3xl sticky top-0">
@@ -170,13 +192,13 @@ const CompanyPage = () => {
             />
             <div className="text-start mt-2 font-bold">Trạng thái:</div>
             <div>
-              <InputText
-                type="number"
-                className="w-full mt-2"
-                value={status + ""}
-                onChange={(e) =>
-                  setStatus(e.target.value ? parseFloat(e.target.value) : 0)
-                }
+              <Dropdown
+                value={status}
+                options={postStatusOption}
+                optionLabel="name"
+                onChange={(e) => setStatus(e.value)}
+                placeholder="Chọn loại"
+                className={`mt-2 w-full  text-start`}
               />
             </div>
             <div className="flex justify-between mt-5">
@@ -200,7 +222,7 @@ const CompanyPage = () => {
                     <div className="flex items-center gap-3">
                       <Avatar
                         className="w-12 h-12 mx-auto sm:col-span-1" // Sử dụng col-span-2 trên màn hình nhỏ
-                        image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png"
+                        image={item.avatar}
                         shape="circle"
                       />
                       <div>
@@ -219,23 +241,35 @@ const CompanyPage = () => {
                       </div>
                     </div>
                     <div>
-                      <Button
-                        severity="help"
-                        className="mr-5"
-                        onClick={() => {
-                          handleUpdateStatus(item.id, 2);
-                        }}
-                      >
-                        Chấp nhận
-                      </Button>
-                      <Button
-                        severity="danger"
-                        onClick={() => {
-                          handleUpdateStatus(item.id, 3);
-                        }}
-                      >
-                        Từ chối
-                      </Button>
+                      {item?.status !== "Approved" ? (
+                        <>
+                          <Button
+                            severity="help"
+                            className="mr-5"
+                            onClick={() => {
+                              handleUpdateStatus(item.id, 2);
+                            }}
+                          >
+                            Chấp nhận
+                          </Button>
+                        </>
+                      ) : (
+                        <></>
+                      )}
+                      {item?.status !== "Rejected" ? (
+                        <>
+                          <Button
+                            severity="danger"
+                            onClick={() => {
+                              handleUpdateStatus(item.id, 3);
+                            }}
+                          >
+                            Từ chối
+                          </Button>
+                        </>
+                      ) : (
+                        <></>
+                      )}
                     </div>
                   </div>
                   <Divider />

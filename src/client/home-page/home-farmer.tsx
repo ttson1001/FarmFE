@@ -1,7 +1,7 @@
 import { Card } from "primereact/card";
 import { Avatar } from "primereact/avatar";
 import { InputText } from "primereact/inputtext";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { Editor } from "primereact/editor";
 import { Button } from "primereact/button";
@@ -12,9 +12,15 @@ import ImageCarousel from "../../common/carousel/ImageCarousel";
 import FileCarousel from "../../common/carousel/FileCarousel";
 import { Calendar } from "primereact/calendar";
 import { uploadFile, uploadImage } from "../../api/file";
-import { getFromLocalStorage } from "../../constant/utils";
+import {
+  clearLocalStorage,
+  getFromLocalStorage,
+  role,
+} from "../../constant/utils";
 import { categories } from "../../constant/constant";
 import { Dropdown } from "primereact/dropdown";
+import { Toast } from "primereact/toast";
+import { useNavigate } from "react-router-dom";
 
 const HomeFarmerPage = () => {
   const [isModalVisible, setModalVisible] = useState(false); // State để quản lý modal;
@@ -22,11 +28,11 @@ const HomeFarmerPage = () => {
   const [listObjects, setListObjects] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const [content, setContent] = useState("string");
-  const [productName, setProductName] = useState("string");
+  const [content, setContent] = useState("");
+  const [productName, setProductName] = useState("");
   const [quantity, setQuantity] = useState(0);
-  const [category, setCategory] = useState(1);
-  const [lossRate, setLossRate] = useState(0);
+  const [category, setCategory] = useState(0);
+  const [lossRate, setLossRate] = useState(0.0);
   const [unitPrice, setUnitPrice] = useState(0);
   const [images, setImages] = useState<number[]>([]);
   const [files, setFiles] = useState<number[]>([]);
@@ -55,18 +61,19 @@ const HomeFarmerPage = () => {
   const toggleExpand = (id: number) => {
     setExpandedItems((prevState) => ({
       ...prevState,
-      [id]: !prevState[id], // Đảo trạng thái mở rộng của item hiện tại
+      [id]: !prevState[id],
     }));
   };
 
   const showModal = () => {
     console.log(category);
-    setModalVisible(true); // Mở modal
+    setModalVisible(true);
   };
 
   const hideModal = () => {
     setCategory(0);
-    setModalVisible(false); // Đóng modal
+    setErrors({});
+    setModalVisible(false);
   };
 
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -77,6 +84,14 @@ const HomeFarmerPage = () => {
   const [selectedCategory, setSelectedCategory] = useState<number | undefined>(
     0
   );
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (role() !== 2) {
+      clearLocalStorage();
+      navigate("../");
+    }
+  });
 
   const handleReset = () => {
     setSearchTerm("");
@@ -120,8 +135,14 @@ const HomeFarmerPage = () => {
 
   const [file, setFile] = useState<any>(null);
 
+  const [file1, setFile1] = useState<any>(null);
+
   const onFileChange = (event: any) => {
     setFile(event.target.files[0]); // Get the first selected file
+  };
+
+  const onFile1Change = (event: any) => {
+    setFile1(event.target.files[0]); // Get the first selected file
   };
 
   const onUploadImage = async () => {
@@ -137,13 +158,25 @@ const HomeFarmerPage = () => {
 
   const onUploadFile = async () => {
     const formData = new FormData();
-    formData.append("File", file); // Append the file
+    formData.append("File", file1); // Append the file
     formData.append("CustomFileName", "aaa"); // Append the custom file name
 
     uploadFile(formData).then((x) => {
       const id = x.data.data.data.id;
       setFiles((prv) => [...prv, id]);
     });
+  };
+
+  const handleResetData = () => {
+    setContent("");
+    setProductName("");
+    setQuantity(0);
+    setCategory(0);
+    setSelectedCategory(0);
+    setLossRate(1.0);
+    setUnitPrice(0);
+    setImages([]);
+    setFiles([]);
   };
 
   const handleCreate = () => {
@@ -157,9 +190,21 @@ const HomeFarmerPage = () => {
       images,
       files,
     };
-    createFarmerPost(formData).then(() => {
-      hideModal();
-    });
+    createFarmerPost(formData)
+      .then(() => {
+        toast.current?.show({
+          severity: "success",
+          summary: "Tạo bài đăng thành công",
+        });
+        handleResetData();
+        hideModal();
+      })
+      .catch(() => {
+        toast.current?.show({
+          severity: "error",
+          summary: "Tạo bài đăng thất bại",
+        });
+      });
   };
 
   const footerContent = (
@@ -172,12 +217,72 @@ const HomeFarmerPage = () => {
       </Button>
     </div>
   );
+
+  const [errors, setErrors] = useState<{
+    content?: string;
+    productName?: string;
+    quantity?: string;
+    category?: string;
+    lossRate?: string;
+    unitPrice?: string;
+  }>({});
+
+  const validateField = (field: string, value: any) => {
+    let error = "";
+    switch (field) {
+      case "content":
+        if (!value.trim()) {
+          error = "Nội dung không được để trống.";
+        }
+        break;
+
+      case "productName":
+        if (!value.trim()) {
+          error = "Tên sản phẩm không được để trống.";
+        }
+        break;
+
+      case "quantity":
+        if (value <= 0) {
+          error = "Số lượng phải lớn hơn 0.";
+        }
+        break;
+
+      case "category":
+        if (value <= 0) {
+          error = "Danh mục không hợp lệ.";
+        }
+        break;
+
+      case "lossRate":
+        if (value < 1 || value > 99) {
+          error = "Tỷ lệ hao hụt phải nằm trong khoảng từ 1 đến 99.";
+        }
+        break;
+
+      case "unitPrice":
+        if (value <= 1000) {
+          error = "Đơn giá phải lớn hơn 1 000 VND.";
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    setErrors((prevErrors) => ({ ...prevErrors, [field]: error }));
+  };
+  const toast = useRef<Toast>(null);
+
   return (
     <>
+      <Toast ref={toast} />
       <div className="grid grid-cols-12 p-4">
         <div className="col-span-3 p-4 text-center hidden md:block">
           <Card className="rounded-3xl sticky top-28">
-            <div className="text-start font-bold">Tìm kiếm:</div>
+            <div className="text-start font-bold">
+              Tìm kiếm theo nội dung bài viết:
+            </div>
             <div>
               <InputText
                 type="text"
@@ -259,23 +364,39 @@ const HomeFarmerPage = () => {
                 onHide={hideModal}
                 className="h-[950px] w-[950px]"
               >
-                <div className="grid grid-cols-12 gap-4">
-                  <div className="col-span-4">
+                <div className="grid md:grid-cols-12 gap-4 sm:grid-cols-1">
+                  <div className="md:col-span-4 sm:col-span-full">
                     <label className="mr-2">Tên nông sản:</label>
                     <InputText
-                      className="mt-2  w-full"
-                      onChange={(e) => setProductName(e.target.value)}
+                      onChange={(e: any) => setProductName(e.target.value)}
+                      className={`mt-2 w-full ${
+                        errors.productName ? "p-invalid border-red-500" : ""
+                      }`}
+                      onBlur={(e) =>
+                        validateField("productName", e.target.value)
+                      }
                     />
+                    {errors.productName && (
+                      <small className="text-red-500">
+                        {errors.productName}
+                      </small>
+                    )}
                   </div>
-                  <div className="col-span-4">
-                    <label className="mr-2">Số lượng:</label>
+                  <div className="md:col-span-4 sm:col-span-full">
+                    <label className="mr-2">Số lượng (kg):</label>
                     <InputText
                       type="number"
                       onChange={(e) => setQuantity(Number(e.target.value))}
-                      className="mt-2 w-full"
+                      className={`mt-2 w-full ${
+                        errors.quantity ? "p-invalid border-red-500" : ""
+                      }`}
+                      onBlur={(e) => validateField("quantity", e.target.value)}
                     />
+                    {errors.quantity && (
+                      <small className="text-red-500">{errors.quantity}</small>
+                    )}
                   </div>
-                  <div className="col-span-4">
+                  <div className="md:col-span-4 sm:col-span-full">
                     <label className="mr-2">Loại Hàng:</label>
                     <Dropdown
                       value={selectedCategory}
@@ -283,29 +404,47 @@ const HomeFarmerPage = () => {
                       optionLabel="name"
                       onChange={(e: any) => setSelectedCategory(e.value)}
                       placeholder="Chọn loại"
-                      className="w-full mt-2"
+                      onBlur={() => validateField("category", selectedCategory)}
+                      className={`mt-2 w-full ${
+                        errors.category ? "p-invalid border-red-500" : ""
+                      }`}
                     />
+                    {errors.category && (
+                      <small className="text-red-500">{errors.category}</small>
+                    )}
                   </div>
                 </div>
-                <div className="grid grid-cols-12 gap-2 mt-2">
-                  <div className="col-span-6">
-                    <label className="mr-2">Tỉ lệ thất thoát:</label>
+                <div className="grid md:grid-cols-12 gap-2 mt-2 sm:grid-cols-1">
+                  <div className=" md:col-span-6 sm:col-span-full">
+                    <label className="mr-2">Tỉ lệ thất thoát (0% - 99%):</label>
                     <InputText
-                      className="w-full mt-2"
+                      onBlur={(e) => validateField("lossRate", e.target.value)}
+                      className={`mt-2 w-full ${
+                        errors.lossRate ? "p-invalid border-red-500" : ""
+                      }`}
                       type="number"
                       onChange={(e) => setLossRate(parseFloat(e.target.value))}
                     />
+                    {errors.lossRate && (
+                      <small className="text-red-500">{errors.lossRate}</small>
+                    )}
                   </div>
-                  <div className="col-span-6">
-                    <label className="mr-2">Giá tiền:</label>
+                  <div className="md:col-span-6 sm:col-span-full">
+                    <label className="mr-2">Giá tiền (VND):</label>
                     <InputText
-                      className="w-full mt-2"
+                      onBlur={(e) => validateField("unitPrice", e.target.value)}
+                      className={`mt-2 w-full ${
+                        errors.unitPrice ? "p-invalid border-red-500" : ""
+                      }`}
                       type="number"
                       onChange={(e) => setUnitPrice(parseFloat(e.target.value))}
                     />
+                    {errors.unitPrice && (
+                      <small className="text-red-500">{errors.unitPrice}</small>
+                    )}
                   </div>
                 </div>
-                <div className="grid grid-cols-12 h-60 mt-2">
+                <div className="grid grid-cols-12 h-60 mt-2 sm:grid-cols-1">
                   <div className="col-span-full h-52">
                     <label className=" col-span-3 ">Mô tả:</label>
                     <Editor
@@ -316,8 +455,8 @@ const HomeFarmerPage = () => {
                   </div>
                 </div>
                 <Divider />
-                <div>Chọn hình ảnh</div>
-                <div className="card col-span-full">
+                <div>Chứng từ đính kèm (Hình ảnh)</div>
+                <div className="card col-span-full sm:col-span-full">
                   <input id="file-upload" type="file" onChange={onFileChange} />
                   <button
                     onClick={onUploadImage}
@@ -327,9 +466,13 @@ const HomeFarmerPage = () => {
                   </button>
                 </div>
                 <Divider />
-                <div>Chọn file</div>
-                <div className="card col-span-full">
-                  <input id="file-upload" type="file" onChange={onFileChange} />
+                <div>Chứng từ đính kèm (File)</div>
+                <div className="card col-span-full sm:col-span-full">
+                  <input
+                    id="file-upload"
+                    type="file"
+                    onChange={onFile1Change}
+                  />
                   <button
                     onClick={onUploadFile}
                     className="p-button p-component p-mt-2"
@@ -351,8 +494,8 @@ const HomeFarmerPage = () => {
                       shape="circle"
                     />
                     <div>
-                      <div>
-                        <strong className="mr-1">Người đăng bài:</strong>
+                      <div className="text-start">
+                        <strong className="mr-1 ">Người đăng bài:</strong>
                         {item?.createdBy}
                       </div>
                       <div className="text-start">

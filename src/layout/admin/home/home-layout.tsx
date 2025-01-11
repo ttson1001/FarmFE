@@ -1,19 +1,25 @@
 import { Menu } from "primereact/menu";
 import { Outlet, useNavigate } from "react-router-dom";
-import { clearLocalStorage } from "../../../constant/utils";
+import { clearLocalStorage, role } from "../../../constant/utils";
+import logo from "../../../assets/logo.png";
+import { useEffect } from "react";
 
 const HomeAdminLayout = () => {
+  useEffect(() => {
+    if (role() !== 1) {
+      clearLocalStorage();
+      navigate("../");
+    }
+  });
   const navigate = useNavigate();
   const items = [
     {
       template: () => {
         return (
-          <span className="inline-flex align-items-center gap-1 px-2 py-2">
-            <img src={"/src/assets/logo.png"} width={75} height={75} alt="" />
-            <span className="text-xl font-semibold">
-              FARM <span className="text-primary">APP</span>
-            </span>
-          </span>
+          <div className="flex items-center gap-1 px-2 py-2">
+            <img src={logo} width={75} height={75} alt="" />
+            <div className="text-xl font-semibold">AP TEAM</div>
+          </div>
         );
       },
     },

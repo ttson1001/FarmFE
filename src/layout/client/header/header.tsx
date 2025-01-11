@@ -2,6 +2,7 @@ import { Menubar } from "primereact/menubar";
 import AvatarMenu from "./avatar";
 import { useNavigate } from "react-router-dom";
 import { role } from "../../../constant/utils";
+import logo from "../../../assets/logo.png";
 
 const ClientHeader = () => {
   const navigate = useNavigate();
@@ -17,17 +18,14 @@ const ClientHeader = () => {
     {
       label: "Giới thiệu",
       icon: "pi pi-star",
+      command: () => {
+        navigate("../about");
+      },
     },
   ];
 
   const start = (
-    <img
-      alt="logo"
-      src={"/src/assets/logo.png"}
-      width={70}
-      height={70}
-      className="mr-2"
-    ></img>
+    <img alt="logo" src={logo} width={70} height={70} className="mr-2"></img>
   );
   const end = (
     <div className="flex align-items-center gap-2">

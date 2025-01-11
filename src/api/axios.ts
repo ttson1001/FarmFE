@@ -8,7 +8,7 @@ export const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
-  const token = getFromLocalStorage("token"); // Lấy token từ localStorage
+  const token = getFromLocalStorage("token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -22,11 +22,9 @@ export const FileClient = axios.create({
 });
 
 FileClient.interceptors.request.use((config) => {
-  const token = getFromLocalStorage("token"); // Lấy token từ localStorage
+  const token = getFromLocalStorage("token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
-
-

@@ -7,6 +7,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { RegisterUserDto } from "../../dto/RegisterDto";
 import { register } from "../../api/apiLogin";
 import { Toast } from "primereact/toast";
+import farmer from "../../assets/farmer.png";
+import business from "../../assets/company.png";
+import eye from "../../assets/eye.svg";
+import hideEye from "../../assets/hideEye.svg";
 
 const Register = () => {
   const toast = useRef<Toast>(null);
@@ -15,7 +19,7 @@ const Register = () => {
   const [userName, setUserName] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const [userType, setUserType] = useState<number>(1);
+  const [userType, setUserType] = useState<number>(2);
   const navigate = useNavigate();
 
   const hanldeSumbmit = () => {
@@ -29,96 +33,216 @@ const Register = () => {
     };
 
     register(data)
-      .then((r: any) => {
-        const message = r?.data?.message || "Đăng ký thành công!";
+      .then(() => {
         toast.current?.show({
           severity: "success",
-          summary: message,
+          summary: "Đăng kí thành công",
         });
         setTimeout(() => {
           navigate("/");
         }, 1000);
       })
-      .catch((e) => {
-        const errorMessage = e?.response?.data?.message || "Có lỗi xảy ra!";
-        console.log(e);
+      .catch(() => {
         toast.current?.show({
           severity: "error",
-          summary: errorMessage,
+          summary: "Đăng kí thất bại",
         });
       });
+  };
+  const [errors, setErrors] = useState<{
+    phoneNumber?: string;
+    email?: string;
+    userName?: string;
+    password?: string;
+    confirmPassword?: string;
+  }>({});
+
+  const validateField = (field: string, value: string) => {
+    let error = "";
+    switch (field) {
+      case "phoneNumber": {
+        const phoneRegex = /^[0-9]{10,12}$/;
+        if (!value) {
+          error = "Số điện thoại là bắt buộc.";
+        } else if (!phoneRegex.test(value)) {
+          error = "Số điện thoại không hợp lệ (10-12 chữ số).";
+        }
+        break;
+      }
+
+      case "email": {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!value) {
+          error = "Email là bắt buộc.";
+        } else if (!emailRegex.test(value)) {
+          error = "Email không hợp lệ.";
+        }
+        break;
+      }
+
+      case "userName":
+        if (!value) {
+          error = "Tên người dùng là bắt buộc.";
+        }
+        break;
+
+      case "password":
+        if (!value) {
+          error = "Mật khẩu là bắt buộc.";
+        } else if (value.length < 6) {
+          error = "Mật khẩu phải có ít nhất 6 ký tự.";
+        }
+        break;
+
+      case "confirmPassword":
+        if (!value) {
+          error = "Xác nhận mật khẩu là bắt buộc.";
+        } else if (value !== password) {
+          error = "Mật khẩu không khớp.";
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    setErrors((prevErrors) => ({ ...prevErrors, [field]: error }));
+  };
+
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+
+  const togglePasswordVisibility = (value: number) => {
+    if (value === 1) {
+      setPasswordVisible(!passwordVisible);
+    } else {
+      setConfirmPasswordVisible(!confirmPasswordVisible);
+    }
   };
 
   return (
     <>
       <Toast ref={toast} />
-      <div className="grid grid-cols-2 h-screen">
+      <div className="grid md:grid-cols-2 h-screen sm:grid-cols-1">
         <div className="col bg-purple-200 h-full items-center justify-center flex">
-          <Card title="Đăng kí" className="w-2/3 h-3/3">
+          <Card title="Đăng kí" className="w-2/3 h-auto">
             <div className="font-bold mb-2">Bạn là:</div>
             <div className="flex flex-wrap gap-3">
               <div className="flex align-items-center">
                 <RadioButton
                   inputId="ingredient1"
-                  name="pizza"
-                  value={1}
+                  name="business"
+                  value={2}
                   onChange={(e) => setUserType(e.value)}
-                  checked={userType === 1}
+                  checked={userType === 2}
                 />
                 <label htmlFor="ingredient1" className="ml-2">
-                  Doanh nghiệp
+                  Nông dân
                 </label>
               </div>
               <div className="flex align-items-center">
                 <RadioButton
                   inputId="ingredient2"
-                  name="pizza"
-                  value={2}
+                  name="farmer"
+                  value={3}
                   onChange={(e) => setUserType(e.value)}
-                  checked={userType === 2}
+                  checked={userType === 3}
                 />
                 <label htmlFor="ingredient2" className="ml-2">
-                  Nông dân
+                  Doanh nghiệp
                 </label>
               </div>
             </div>
             <div className="mt-5">
               <div className="font-bold">Tên đăng nhập:</div>
               <InputText
-                onChange={(e: any) => setUserName(e.target.value)}
-                className="w-full"
+                onChange={(e) => setUserName(e.target.value)}
+                onBlur={() => validateField("userName", userName)}
+                className={`w-full ${errors.userName ? "border-red-500" : ""}`}
               />
+              {errors.userName && (
+                <div className="text-red-500 text-sm">{errors.userName}</div>
+              )}
             </div>
             <div className="mt-5">
               <div className="font-bold">Email:</div>
               <InputText
                 type="email"
-                onChange={(e: any) => setEmail(e.target.value)}
-                className="w-full"
+                onChange={(e) => setEmail(e.target.value)}
+                onBlur={() => validateField("email", email)}
+                className={`w-full ${errors.email ? "border-red-500" : ""}`}
               />
+              {errors.email && (
+                <div className="text-red-500 text-sm">{errors.email}</div>
+              )}
             </div>
             <div className="mt-5">
               <div className="font-bold">Số điện thoại:</div>
               <InputText
-                onChange={(e: any) => setPhoneNumber(e.target.value)}
-                className="w-full"
+                maxLength={12}
+                required={true}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                onBlur={() => validateField("phoneNumber", phoneNumber)}
+                className={`w-full ${
+                  errors.phoneNumber ? "border-red-500" : ""
+                }`}
               />
+              {errors.phoneNumber && (
+                <div className="text-red-500 text-sm">{errors.phoneNumber}</div>
+              )}
             </div>
             <div className="mt-5 w-full">
               <div className="font-bold">Mật khẩu:</div>
-              <InputText
-                type="password"
-                onChange={(e: any) => setPassword(e.target.value)}
-                className="w-full"
-              />
+              <div className="flex items-center">
+                <InputText
+                  type={passwordVisible ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onBlur={() => validateField("password", password)}
+                  className={`w-full ${
+                    errors.password ? "border-red-500" : ""
+                  }`}
+                />
+
+                <img
+                  className="ml-2 cursor-pointer"
+                  width={25}
+                  height={25}
+                  src={passwordVisible ? eye : hideEye}
+                  onClick={() => togglePasswordVisibility(1)}
+                />
+              </div>
+              {errors.password && (
+                <div className="text-red-500 text-sm">{errors.password}</div>
+              )}
             </div>
             <div className="mt-5 w-full">
               <div className="font-bold">Nhập lại mật khẩu:</div>
-              <InputText
-                type="password"
-                onChange={(e: any) => setConfirmPassword(e.target.value)}
-                className="w-full"
-              />
+              <div className="flex items-center">
+                <InputText
+                  type={confirmPasswordVisible ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onBlur={() =>
+                    validateField("confirmPassword", confirmPassword)
+                  }
+                  className={`w-full ${
+                    errors.confirmPassword ? "border-red-500" : ""
+                  }`}
+                />
+                <img
+                  className="ml-2 cursor-pointer"
+                  width={25}
+                  height={25}
+                  src={confirmPasswordVisible ? eye : hideEye}
+                  onClick={() => togglePasswordVisibility(2)}
+                />
+              </div>
+              {errors.confirmPassword && (
+                <div className="text-red-500 text-sm">
+                  {errors.confirmPassword}
+                </div>
+              )}
             </div>
             <div className="mt-5">
               <Button
@@ -136,13 +260,9 @@ const Register = () => {
             </div>
           </Card>
         </div>
-        <div className="col h-full flex justify-center items-center">
+        <div className="col h-full flex justify-center items-center sm:hidden md:flex">
           <img
-            src={
-              userType === 2
-                ? "/src/assets/farmer.png"
-                : "/src/assets/company.png"
-            }
+            src={userType === 2 ? farmer : business}
             alt="Farmer"
             className="h-2/3 w-2/3 object-contain"
           />

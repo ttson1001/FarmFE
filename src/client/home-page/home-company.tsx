@@ -1,7 +1,7 @@
 import { Card } from "primereact/card";
 import { Avatar } from "primereact/avatar";
 import { InputText } from "primereact/inputtext";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { Editor } from "primereact/editor";
 import { Button } from "primereact/button";
@@ -16,11 +16,18 @@ import {
 } from "../../api/homeFarmer";
 import { uploadFile, uploadImage } from "../../api/file";
 import moment from "moment";
-import { getFromLocalStorage } from "../../constant/utils";
+import {
+  clearLocalStorage,
+  getFromLocalStorage,
+  role,
+} from "../../constant/utils";
 import { categories } from "../../constant/constant";
+import { Dropdown } from "primereact/dropdown";
+import { Toast } from "primereact/toast";
+import { useNavigate } from "react-router-dom";
 
 const HomeCompanyPage = () => {
-  const [isModalVisible, setModalVisible] = useState(false); // State để quản lý modal;
+  const [isModalVisible, setModalVisible] = useState(false);
 
   const [listObjects, setListObjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,12 +35,73 @@ const HomeCompanyPage = () => {
   const [content, setContent] = useState("");
   const [productName, setProductName] = useState("");
   const [quantity, setQuantity] = useState(0);
-  const [category, setCategory] = useState(1);
   const [unitPrice, setUnitPrice] = useState(0);
   const [standardRequirements, setStandardRequirements] = useState("");
   const [otherRequirement, setOtherRequirement] = useState("");
   const [images, setImages] = useState<number[]>([]);
   const [files, setFiles] = useState<number[]>([]);
+
+  const [errors, setErrors] = useState<{
+    content?: string;
+    productName?: string;
+    quantity?: string;
+    category?: string;
+    unitPrice?: string;
+    standardRequirements?: string;
+    otherRequirement?: string;
+  }>({});
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (role() !== 3) {
+      clearLocalStorage();
+      navigate("../");
+    }
+  });
+
+  const validateProductFields = () => {
+    const newErrors: {
+      content?: string;
+      productName?: string;
+      quantity?: string;
+      category?: string;
+      unitPrice?: string;
+      standardRequirements?: string;
+      otherRequirement?: string;
+    } = {};
+
+    // Kiểm tra tên sản phẩm
+    if (!productName) {
+      newErrors.productName = "Vui lòng nhập tên sản phẩm.";
+    }
+
+    if (!content) {
+      newErrors.content = "Vui lòng nhập mô tả.";
+    }
+
+    // Kiểm tra số lượng
+    if (quantity <= 0) {
+      newErrors.quantity = "Số lượng phải lớn hơn 0.";
+    }
+
+    // Kiểm tra loại hàng (category)
+    if (!selectedCategory) {
+      newErrors.category = "Vui lòng chọn loại hàng.";
+    }
+
+    // Kiểm tra giá tiền
+    if (unitPrice <= 1000) {
+      newErrors.unitPrice = "Giá tiền phải lớn hơn 1000.";
+    }
+
+    // Kiểm tra yêu cầu tiêu chuẩn
+    if (!standardRequirements) {
+      newErrors.standardRequirements = "Vui lòng nhập yêu cầu tiêu chuẩn.";
+    }
+
+    setErrors(newErrors);
+  };
 
   useEffect(() => {
     getFarmerPost(null)
@@ -59,16 +127,17 @@ const HomeCompanyPage = () => {
   const toggleExpand = (id: number) => {
     setExpandedItems((prevState) => ({
       ...prevState,
-      [id]: !prevState[id], // Đảo trạng thái mở rộng của item hiện tại
+      [id]: !prevState[id],
     }));
   };
 
   const showModal = () => {
-    setModalVisible(true); // Mở modal
+    setModalVisible(true);
   };
 
   const hideModal = () => {
-    setModalVisible(false); // Đóng modal
+    setErrors({});
+    setModalVisible(false);
   };
 
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -76,6 +145,7 @@ const HomeCompanyPage = () => {
   const [toDate, setToDate] = useState<Date | null>(null);
   const [minPrice, setMinPrice] = useState<number>(0);
   const [maxPrice, setMaxPrice] = useState<number>(0);
+  const [selectedCategory, setSelectedCategory] = useState(0);
 
   const handleReset = () => {
     setSearchTerm("");
@@ -119,8 +189,14 @@ const HomeCompanyPage = () => {
 
   const [file, setFile] = useState<any>(null);
 
+  const [file1, setFile1] = useState<any>(null);
+
   const onFileChange = (event: any) => {
     setFile(event.target.files[0]); // Get the first selected file
+  };
+
+  const onFile1Change = (event: any) => {
+    setFile1(event.target.files[0]); // Get the first selected file
   };
 
   const onUploadImage = async () => {
@@ -136,7 +212,7 @@ const HomeCompanyPage = () => {
 
   const onUploadFile = async () => {
     const formData = new FormData();
-    formData.append("File", file); // Append the file
+    formData.append("File", file1); // Append the file
     formData.append("CustomFileName", "aaa"); // Append the custom file name
 
     uploadFile(formData).then((x) => {
@@ -145,22 +221,47 @@ const HomeCompanyPage = () => {
     });
   };
 
+  const handleResetData = () => {
+    setContent("");
+    setProductName("");
+    setQuantity(0);
+    setStandardRequirements("");
+    setOtherRequirement("");
+    setSelectedCategory(0);
+    setUnitPrice(0);
+    setImages([]);
+    setFiles([]);
+  };
+
   const handleCreate = () => {
     const formData = {
       content,
       productName,
       quantity,
-      category,
+      category: selectedCategory,
       unitPrice,
-      standardRequirements,
+      standardRequirments: standardRequirements,
       otherRequirement,
       images,
       files,
     };
-    createBussinesPost(formData).then(() => {
-      hideModal();
-    });
+    createBussinesPost(formData)
+      .then(() => {
+        toast.current?.show({
+          severity: "success",
+          summary: "Tạo bài đăng thành công",
+        });
+        handleResetData();
+        hideModal();
+      })
+      .catch(() => {
+        toast.current?.show({
+          severity: "error",
+          summary: "Tạo bài đăng thất bại",
+        });
+      });
   };
+  const toast = useRef<Toast>(null);
 
   const footerContent = (
     <div className="flex justify-end mt-10">
@@ -174,10 +275,13 @@ const HomeCompanyPage = () => {
   );
   return (
     <>
+      <Toast ref={toast} />
       <div className="grid grid-cols-12 p-4">
         <div className="col-span-3 p-4 text-center hidden md:block">
           <Card className="rounded-3xl sticky top-28">
-            <div className="text-start font-bold">Tìm kiếm:</div>
+            <div className="text-start font-bold">
+              Tìm kiếm theo nội dung bài viết:
+            </div>
             <div>
               <InputText
                 type="text"
@@ -263,62 +367,106 @@ const HomeCompanyPage = () => {
                   <div className="col-span-4">
                     <label className="mr-2">Tên nông sản:</label>
                     <InputText
-                      className="w-5/6"
+                      className={`mt-2 w-full ${
+                        errors.productName ? "p-invalid border-red-500" : ""
+                      }`}
+                      onBlur={validateProductFields}
                       onChange={(e) => setProductName(e.target.value)}
                     />
+                    {errors.productName && (
+                      <small className="text-red-500">
+                        {errors.productName}
+                      </small>
+                    )}
                   </div>
                   <div className="col-span-4">
-                    <label className="mr-2">Số lượng:</label>
+                    <label className="mr-2">Số lượng (kg):</label>
                     <InputText
-                      className="w-full"
+                      className={`mt-2 w-full ${
+                        errors.quantity ? "p-invalid border-red-500" : ""
+                      }`}
                       type="number"
+                      onBlur={validateProductFields}
                       onChange={(e) => setQuantity(Number(e.target.value))}
                     />
+                    {errors.quantity && (
+                      <small className="text-red-500">{errors.quantity}</small>
+                    )}
                   </div>
                   <div className="col-span-4">
                     <label className="mr-2">Loại Hàng:</label>
-                    <InputText
-                      className="w-full"
-                      onChange={(e) => setCategory(Number(e.target.value))}
+                    <Dropdown
+                      value={selectedCategory}
+                      options={categories}
+                      optionLabel="name"
+                      onChange={(e: any) => setSelectedCategory(e.value)}
+                      placeholder="Chọn loại"
+                      onBlur={validateProductFields}
+                      className={`mt-2 w-full ${
+                        errors.category ? "p-invalid border-red-500" : ""
+                      }`}
                     />
+                    {errors.category && (
+                      <small className="text-red-500">{errors.category}</small>
+                    )}
                   </div>
                 </div>
-                <div className="grid grid-cols-12 gap-2">
+                <div className="grid grid-cols-12 gap-2 mt-2">
                   <div className="col-span-4">
                     <label className="mr-2">Yêu cầu tiêu chuẩn:</label>
                     <InputText
-                      className="w-full"
+                      onBlur={validateProductFields}
+                      className={`mt-2 w-full ${
+                        errors.standardRequirements
+                          ? "p-invalid border-red-500"
+                          : ""
+                      }`}
                       onChange={(e) => setStandardRequirements(e.target.value)}
                     />
+                    {errors.standardRequirements && (
+                      <small className="text-red-500">
+                        {errors.standardRequirements}
+                      </small>
+                    )}
                   </div>
                   <div className="col-span-4">
                     <label className="mr-2">Các yêu cầu khác:</label>
                     <InputText
-                      className="w-full"
+                      className="w-full mt-2"
                       onChange={(e) => setOtherRequirement(e.target.value)}
                     />
                   </div>
                   <div className="col-span-4">
-                    <label className="mr-2">Giá từng sản phẩm:</label>
+                    <label className="mr-2">Giá từng sản phẩm (đ):</label>
                     <InputText
-                      className="w-full"
+                      onBlur={validateProductFields}
+                      className={`mt-2 w-full ${
+                        errors.unitPrice ? "p-invalid border-red-500" : ""
+                      }`}
                       type="number"
                       onChange={(e) => setUnitPrice(Number(e.target.value))}
                     />
+                    {errors.unitPrice && (
+                      <small className="text-red-500">{errors.unitPrice}</small>
+                    )}
                   </div>
                 </div>
-                <div className="grid grid-cols-12 h-60">
+                <div className="grid grid-cols-12 h-60 mt-2">
                   <div className="col-span-full h-52">
                     <label className=" col-span-3">Mô tả:</label>
+                    {errors.content && (
+                      <small className="text-red-500">{errors.content}</small>
+                    )}
                     <Editor
                       placeholder="Nhập nội dung"
-                      className="h-40"
+                      className="h-40 mt-2"
                       onTextChange={(e: any) => setContent(e.htmlValue)}
+                      onBlur={validateProductFields}
                     />
                   </div>
                 </div>
                 <Divider />
-                <div>Chọn hình ảnh</div>
+                <div>Chứng từ liên quan (hình ảnh)</div>
                 <div className="card col-span-full">
                   <input id="file-upload" type="file" onChange={onFileChange} />
                   <button
@@ -329,9 +477,13 @@ const HomeCompanyPage = () => {
                   </button>
                 </div>
                 <Divider />
-                <div>Chọn file</div>
+                <div>Chứng từ liên quan (file)</div>
                 <div className="card col-span-full">
-                  <input id="file-upload" type="file" onChange={onFileChange} />
+                  <input
+                    id="file-upload"
+                    type="file"
+                    onChange={onFile1Change}
+                  />
                   <button
                     onClick={onUploadFile}
                     className="p-button p-component p-mt-2"
@@ -387,7 +539,6 @@ const HomeCompanyPage = () => {
                 </div>
                 <div className="flex justify-start text-start">
                   <div>
-                    {/* Hiển thị nội dung văn bản */}
                     <p>
                       {expandedItems[item.id] ? (
                         <span

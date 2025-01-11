@@ -7,21 +7,24 @@ import { Link, useNavigate } from "react-router-dom";
 import { UserLoginData } from "../../dto/LoginDto";
 import { login } from "../../api/apiLogin";
 import { Toast } from "primereact/toast";
-import farmerImage from '../../assets/farmer.png';
-
-import {
-  getFromLocalStorage,
-  role,
-  saveToLocalStorage,
-} from "../../constant/utils";
+import { role, saveToLocalStorage } from "../../constant/utils";
 import { getBusinesProfile, getProfile } from "../../api/profileFarmer";
+import eye from "../../assets/eye.svg";
+import hideEye from "../../assets/hideEye.svg";
+import farmer from "../../assets/farmer.png";
+import f from "../../assets/face.svg";
+import g from "../../assets/x.svg";
+import x from "../../assets/gmail.svg";
 
 const Login = () => {
   const toast = useRef<Toast>(null);
 
   const [userNameOrEmail, setUserNameOrEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-
+  const [errors, setErrors] = useState<{
+    userNameOrEmail?: string;
+    password?: string;
+  }>({});
   const navigate = useNavigate();
 
   const hanldeSumbmit = () => {
@@ -35,12 +38,10 @@ const Login = () => {
 
     login(data)
       .then((r: any) => {
-        const message = r?.data?.message;
         saveToLocalStorage("token", r?.data?.data?.accessToken);
-        console.log(getFromLocalStorage("token"));
         toast.current?.show({
           severity: "success",
-          summary: message,
+          summary: "Đăng nhập thành công",
         });
         setTimeout(() => {
           if (role() === 1) {
@@ -75,10 +76,9 @@ const Login = () => {
         }, 1000);
       })
       .catch((e) => {
-        const errorMessage = e?.response?.data?.message;
         toast.current?.show({
           severity: "error",
-          summary: errorMessage,
+          summary: "Đăng nhập thất bạn",
         });
 
         if (e?.response?.status === 401) {
@@ -87,26 +87,84 @@ const Login = () => {
       });
   };
 
+  const validateField = (field: string, value: string) => {
+    let error = "";
+    switch (field) {
+      case "userNameOrEmail": {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!value) {
+          error = "Tên người dùng hoặc Email là bắt buộc.";
+        } else if (!emailRegex.test(value) && value.length < 3) {
+          error = "Nhập ít nhất 3 ký tự cho tên người dùng hoặc email hợp lệ.";
+        }
+        break;
+      }
+
+      case "password":
+        if (!value) {
+          error = "Mật khẩu là bắt buộc.";
+        } else if (value.length < 6) {
+          error = "Mật khẩu phải có ít nhất 6 ký tự.";
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    setErrors((prevErrors) => ({ ...prevErrors, [field]: error }));
+  };
+
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!passwordVisible);
+  };
+
   return (
     <>
       <Toast ref={toast} />
-      <div className="grid grid-cols-2 h-screen">
+      <div className="grid md:grid-cols-2 h-screen sm:grid-cols-1">
         <div className="col bg-purple-200 h-full items-center justify-center flex">
-          <Card title="Đăng nhập" className="w-2/3 h-2/3">
+          <Card title="Đăng nhập" className="w-2/3 h-auto">
             <div className="mt-5">
               <div className="font-bold">Tài khoản:</div>
               <InputText
-                onChange={(e: any) => setUserNameOrEmail(e.target.value)}
-                className="w-full"
+                onChange={(e) => setUserNameOrEmail(e.target.value)}
+                onBlur={() => validateField("userNameOrEmail", userNameOrEmail)}
+                className={`w-full border ${
+                  errors.userNameOrEmail ? "border-red-500" : "border-gray-300"
+                }`}
               />
+              {errors.userNameOrEmail && (
+                <div className="text-red-500 text-sm">
+                  {errors.userNameOrEmail}
+                </div>
+              )}
             </div>
             <div className="mt-5 w-full">
               <div className="font-bold">Mật khẩu:</div>
-              <InputText
-                onChange={(e: any) => setPassword(e.target.value)}
-                type="password"
-                className="w-full"
-              />
+              <div className="flex items-center">
+                <InputText
+                  type={passwordVisible ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onBlur={() => validateField("password", password)}
+                  className={`w-full ${
+                    errors.password ? "border-red-500" : ""
+                  }`}
+                />
+
+                <img
+                  className="ml-2 cursor-pointer"
+                  width={25}
+                  height={25}
+                  src={passwordVisible ? eye : hideEye}
+                  onClick={() => togglePasswordVisibility()}
+                />
+              </div>
+              {errors.password && (
+                <div className="text-red-500 text-sm">{errors.password}</div>
+              )}
             </div>
             <div className="mt-5">
               <Button
@@ -127,15 +185,15 @@ const Login = () => {
             </div>
             <Divider />
             <div className="flex gap-10 justify-center">
-              <img className="w-12 h-12" src="/src/assets/face.svg" alt="" />
-              <img className="w-12 h-12" src="/src/assets/gmail.svg" alt="" />
-              <img className="w-12 h-12" src="/src/assets/x.svg" alt="" />
+              <img className="w-12 h-12" src={f} alt="" />
+              <img className="w-12 h-12" src={g} alt="" />
+              <img className="w-12 h-12" src={x} alt="" />
             </div>
           </Card>
         </div>
-        <div className="col h-full flex justify-center items-center">
+        <div className="col h-full flex justify-center items-center sm:hidden md:flex">
           <img
-            src={farmerImage}
+            src={farmer}
             alt="Farmer"
             className="h-2/3 w-2/3 object-contain"
           />
