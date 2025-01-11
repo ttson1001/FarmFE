@@ -1,4 +1,4 @@
-export const SERVER_API = "https://localhost:7113/";
+export const SERVER_API = "https://farm-forum.techtheworld.id.vn/";
 
 export const categories = [
   { label: "Type1", value: 1, name: "Loại 1" },
