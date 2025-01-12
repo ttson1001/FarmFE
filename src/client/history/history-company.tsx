@@ -436,7 +436,7 @@ const HistoryCompany = () => {
               </div>
             ))
           ) : (
-            <Card>
+            <Card className="rounded-3xl mt-5">
               <img src={empty} className="w-auto h-auto" alt="" />
             </Card>
           )}
