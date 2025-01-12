@@ -6,7 +6,7 @@ export const getFarmerHistory = async () => {
     pageIndex: 1,
     pageSize: 1000,
     keyword: "",
-    orderDate: 0,
+    orderDate: 1,
     totalRecord: 1,
     createdDate: {
       from: "2024-01-29",

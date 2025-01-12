@@ -28,6 +28,7 @@ import { Dropdown } from "primereact/dropdown";
 import { ConfirmDialog } from "primereact/confirmdialog";
 import { Toast } from "primereact/toast";
 import { useNavigate } from "react-router-dom";
+import empty from "../../assets/empty.png";
 
 const HistoryCompany = () => {
   const [expandedItems, setExpandedItems] = useState<{
@@ -301,135 +302,144 @@ const HistoryCompany = () => {
         <div className="col-span-3 text-center hidden md:block"></div>
 
         <div className="col-span-12 md:col-span-6 text-center">
-          {listObjects?.map((item: any) => (
-            <div key={item?.id}>
-              <Card className="rounded-3xl mt-5">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-3">
-                    <Avatar
-                      className="w-12 h-12 mx-auto sm:col-span-1" // Sử dụng col-span-2 trên màn hình nhỏ
-                      image={getFromLocalStorage("avatar") ?? ""}
-                      shape="circle"
-                    />
-                    <div>
+          {listObjects.length > 0 ? (
+            listObjects?.map((item: any) => (
+              <div key={item?.id}>
+                <Card className="rounded-3xl mt-5">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                      <Avatar
+                        className="w-12 h-12 mx-auto sm:col-span-1" // Sử dụng col-span-2 trên màn hình nhỏ
+                        image={getFromLocalStorage("avatar") ?? ""}
+                        shape="circle"
+                      />
                       <div>
-                        <strong className="mr-1">Người đăng bài:</strong>
-                        {item?.createdBy}
+                        <div>
+                          <strong className="mr-1">Người đăng bài:</strong>
+                          {item?.createdBy}
+                        </div>
+                        <div className="text-start">
+                          <strong className="mr-1">Ngày đăng bài:</strong>
+                          {moment(item?.createdDate).format("DD.MM.YYYY")}
+                        </div>
                       </div>
-                      <div className="text-start">
-                        <strong className="mr-1">Ngày đăng bài:</strong>
-                        {moment(item?.createdDate).format("DD.MM.YYYY")}
-                      </div>
+                    </div>
+
+                    <div
+                      className={`rounded-md p-2 text-white ${
+                        item?.status === "Pending"
+                          ? "bg-blue-500"
+                          : item?.status === "Rejected"
+                          ? "bg-red-500"
+                          : item?.status === "Approved"
+                          ? "bg-green-500"
+                          : "bg-gray-400" // màu mặc định nếu không có trạng thái nào khớp
+                      }`}
+                    >
+                      {getStatus(item?.status)}
+                    </div>
+                  </div>
+                  <Divider />
+                  <div className="flex justify-start text-start">
+                    <strong className="mr-1">Tên sản phẩm:</strong>
+                    {item?.productName}
+                  </div>
+                  <div className="flex justify-start text-start">
+                    <strong className="mr-1"> Số lượng:</strong>{" "}
+                    {item?.quantity}
+                  </div>
+                  <div className="flex justify-start text-start">
+                    <strong className="mr-1">Loại sản phẩm:</strong>{" "}
+                    {categories.find((x) => x.label === item?.category)?.name}
+                  </div>
+                  <div className="flex justify-start text-start">
+                    <strong className="mr-1">Giá từng sản phẩm:</strong>{" "}
+                    <span>
+                      {new Intl.NumberFormat("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      }).format(item?.unitPrice || 0)}
+                    </span>
+                  </div>
+                  <div className="flex justify-start text-start">
+                    <strong className="mr-1">Yêu cầu tiêu chuẩn:</strong>{" "}
+                    {item?.standardRequirement}
+                  </div>
+                  <div className="flex justify-start text-start">
+                    <strong className="mr-1">Các yêu cầu khác:</strong>{" "}
+                    {item?.otherRequirement}
+                  </div>
+                  <div className="flex justify-start text-start">
+                    <div>
+                      {/* Hiển thị nội dung văn bản */}
+                      <p>
+                        {expandedItems[item.id] ? (
+                          <span
+                            dangerouslySetInnerHTML={{
+                              __html: item.content,
+                            }}
+                          ></span>
+                        ) : (
+                          <span
+                            dangerouslySetInnerHTML={{
+                              __html: item.content.slice(0, 100),
+                            }}
+                          ></span>
+                        )}
+                        {item.content.length > 100 && (
+                          <span
+                            className="text-blue-500 cursor-pointer ml-2"
+                            onClick={() => toggleExpand(item.id)}
+                          >
+                            {expandedItems[item.id]
+                              ? "Rút gọn"
+                              : "... Xem thêm"}
+                          </span>
+                        )}
+                      </p>
                     </div>
                   </div>
 
-                  <div
-                    className={`rounded-md p-2 text-white ${
-                      item?.status === "Pending"
-                        ? "bg-blue-500"
-                        : item?.status === "Rejected"
-                        ? "bg-red-500"
-                        : item?.status === "Approved"
-                        ? "bg-green-500"
-                        : "bg-gray-400" // màu mặc định nếu không có trạng thái nào khớp
-                    }`}
-                  >
-                    {getStatus(item?.status)}
-                  </div>
-                </div>
-                <Divider />
-                <div className="flex justify-start text-start">
-                  <strong className="mr-1">Tên sản phẩm:</strong>
-                  {item?.productName}
-                </div>
-                <div className="flex justify-start text-start">
-                  <strong className="mr-1"> Số lượng:</strong> {item?.quantity}
-                </div>
-                <div className="flex justify-start text-start">
-                  <strong className="mr-1">Loại sản phẩm:</strong>{" "}
-                  {categories.find((x) => x.label === item?.category)?.name}
-                </div>
-                <div className="flex justify-start text-start">
-                  <strong className="mr-1">Giá từng sản phẩm:</strong>{" "}
-                  <span>
-                    {new Intl.NumberFormat("vi-VN", {
-                      style: "currency",
-                      currency: "VND",
-                    }).format(item?.unitPrice || 0)}
-                  </span>
-                </div>
-                <div className="flex justify-start text-start">
-                  <strong className="mr-1">Yêu cầu tiêu chuẩn:</strong>{" "}
-                  {item?.standardRequirement}
-                </div>
-                <div className="flex justify-start text-start">
-                  <strong className="mr-1">Các yêu cầu khác:</strong>{" "}
-                  {item?.otherRequirement}
-                </div>
-                <div className="flex justify-start text-start">
-                  <div>
-                    {/* Hiển thị nội dung văn bản */}
-                    <p>
-                      {expandedItems[item.id] ? (
-                        <span
-                          dangerouslySetInnerHTML={{
-                            __html: item.content,
-                          }}
-                        ></span>
-                      ) : (
-                        <span
-                          dangerouslySetInnerHTML={{
-                            __html: item.content.slice(0, 100),
-                          }}
-                        ></span>
-                      )}
-                      {item.content.length > 100 && (
-                        <span
-                          className="text-blue-500 cursor-pointer ml-2"
-                          onClick={() => toggleExpand(item.id)}
-                        >
-                          {expandedItems[item.id] ? "Rút gọn" : "... Xem thêm"}
-                        </span>
-                      )}
-                    </p>
-                  </div>
-                </div>
+                  {item?.postFiles.length > 0 ? (
+                    <>
+                      <Divider />
+                      <FileCarousel files={item?.postFiles ?? []} />
+                    </>
+                  ) : (
+                    <></>
+                  )}
 
-                {item?.postFiles.length > 0 ? (
-                  <>
-                    <Divider />
-                    <FileCarousel files={item?.postFiles ?? []} />
-                  </>
-                ) : (
-                  <></>
-                )}
-
-                {item?.postImages.length > 0 ? (
-                  <>
-                    <Divider />
-                    <ImageCarousel images={item?.postImages ?? []} />
-                  </>
-                ) : (
-                  <></>
-                )}
-                <Divider />
-                <div className="flex justify-between mt-5">
-                  <Button severity="help" onClick={() => showModal(item)}>
-                    Chỉnh sửa bài đăng
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setVisible(true); // Hiển thị hộp thoại xác nhận
-                      setSelectedItemId(item.id);
-                    }}
-                    severity="danger"
-                  >
-                    Xóa bài đăng
-                  </Button>
-                </div>
-              </Card>
-            </div>
-          ))}
+                  {item?.postImages.length > 0 ? (
+                    <>
+                      <Divider />
+                      <ImageCarousel images={item?.postImages ?? []} />
+                    </>
+                  ) : (
+                    <></>
+                  )}
+                  <Divider />
+                  <div className="flex justify-between mt-5">
+                    <Button severity="help" onClick={() => showModal(item)}>
+                      Chỉnh sửa bài đăng
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setVisible(true); // Hiển thị hộp thoại xác nhận
+                        setSelectedItemId(item.id);
+                      }}
+                      severity="danger"
+                    >
+                      Xóa bài đăng
+                    </Button>
+                  </div>
+                </Card>
+              </div>
+            ))
+          ) : (
+            <Card>
+              <img src={empty} className="w-auto h-auto" alt="" />
+            </Card>
+          )}
         </div>
 
         <div className="col-span-3  p-4 text-center hidden md:block"></div>

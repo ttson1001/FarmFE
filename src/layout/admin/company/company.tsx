@@ -15,6 +15,7 @@ import { Toast } from "primereact/toast";
 import { Dropdown } from "primereact/dropdown";
 import { useNavigate } from "react-router-dom";
 import { clearLocalStorage, role } from "../../../constant/utils";
+import empty from "../../../assets/empty.png";
 
 const CompanyPage = () => {
   const [listObjects, setListObjects] = useState([]);
@@ -215,144 +216,152 @@ const CompanyPage = () => {
 
         <div className="col-span-12 md:col-span-9 text-center pr-4">
           <div className="overflow-y-auto h-screen">
-            {listObjects?.map((item: any) => (
-              <div key={item?.id}>
-                <Card className="mt-5 rounded-3xl">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-3">
-                      <Avatar
-                        className="w-12 h-12 mx-auto sm:col-span-1" // Sử dụng col-span-2 trên màn hình nhỏ
-                        image={item.avatar}
-                        shape="circle"
-                      />
-                      <div>
+            {listObjects.length > 0 ? (
+              listObjects?.map((item: any) => (
+                <div key={item?.id}>
+                  <Card className="mt-5 rounded-3xl">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-3">
+                        <Avatar
+                          className="w-12 h-12 mx-auto sm:col-span-1"
+                          image={item.avatar}
+                          shape="circle"
+                        />
                         <div>
-                          <strong className="mr-1">Người đăng bài:</strong>
-                          {item?.createdBy}
-                        </div>
-                        <div className="text-start">
-                          <strong className="mr-1">Ngày đăng bài:</strong>
-                          {moment(item?.createdDate).format("DD.MM.YYYY")}
-                        </div>
-                        <div className="text-start">
-                          <strong className="mr-1">Trạng thái:</strong>
-                          {getStatus(item?.status)}
+                          <div>
+                            <strong className="mr-1">Người đăng bài:</strong>
+                            {item?.createdBy}
+                          </div>
+                          <div className="text-start">
+                            <strong className="mr-1">Ngày đăng bài:</strong>
+                            {moment(item?.createdDate).format("DD.MM.YYYY")}
+                          </div>
+                          <div className="text-start">
+                            <strong className="mr-1">Trạng thái:</strong>
+                            {getStatus(item?.status)}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div>
-                      {item?.status !== "Approved" ? (
-                        <>
-                          <Button
-                            severity="help"
-                            className="mr-5"
-                            onClick={() => {
-                              handleUpdateStatus(item.id, 2);
-                            }}
-                          >
-                            Chấp nhận
-                          </Button>
-                        </>
-                      ) : (
-                        <></>
-                      )}
-                      {item?.status !== "Rejected" ? (
-                        <>
-                          <Button
-                            severity="danger"
-                            onClick={() => {
-                              handleUpdateStatus(item.id, 3);
-                            }}
-                          >
-                            Từ chối
-                          </Button>
-                        </>
-                      ) : (
-                        <></>
-                      )}
-                    </div>
-                  </div>
-                  <Divider />
-                  <div className="flex justify-start text-start">
-                    <strong className="mr-1">Tên sản phẩm:</strong>
-                    {item?.productName}
-                  </div>
-                  <div className="flex justify-start text-start">
-                    <strong className="mr-1"> Số lượng:</strong>{" "}
-                    {item?.quantity}
-                  </div>
-                  <div className="flex justify-start text-start">
-                    <strong className="mr-1">Loại sản phẩm:</strong>{" "}
-                    {categories.find((x) => x.label === item?.category)?.name}
-                  </div>
-                  <div className="flex justify-start text-start">
-                    <strong className="mr-1">Giá từng sản phẩm:</strong>{" "}
-                    <span>
-                      {new Intl.NumberFormat("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      }).format(item?.unitPrice || 0)}
-                    </span>
-                  </div>
-                  <div className="flex justify-start text-start">
-                    <strong className="mr-1">Yêu cầu phải có:</strong>{" "}
-                    {item?.standardRequirement}
-                  </div>
-                  <div className="flex justify-start text-start">
-                    <strong className="mr-1">Các yêu cầu khác:</strong>{" "}
-                    {item?.otherRequirement}
-                  </div>
-                  <div className="flex justify-start text-start">
-                    <div>
-                      {/* Hiển thị nội dung văn bản */}
-                      <p>
-                        {expandedItems[item.id] ? (
-                          <span
-                            dangerouslySetInnerHTML={{
-                              __html: item.content,
-                            }}
-                          ></span>
+                      <div>
+                        {item?.status !== "Approved" ? (
+                          <>
+                            <Button
+                              severity="help"
+                              className="mr-5"
+                              onClick={() => {
+                                handleUpdateStatus(item.id, 2);
+                              }}
+                            >
+                              Chấp nhận
+                            </Button>
+                          </>
                         ) : (
-                          <span
-                            dangerouslySetInnerHTML={{
-                              __html: item.content.slice(0, 100),
-                            }}
-                          ></span>
+                          <></>
                         )}
-                        {item.content.length > 100 && (
-                          <span
-                            className="text-blue-500 cursor-pointer ml-2"
-                            onClick={() => toggleExpand(item.id)}
-                          >
-                            {expandedItems[item.id]
-                              ? "Rút gọn"
-                              : "... Xem thêm"}
-                          </span>
+                        {item?.status !== "Rejected" ? (
+                          <>
+                            <Button
+                              severity="danger"
+                              onClick={() => {
+                                handleUpdateStatus(item.id, 3);
+                              }}
+                            >
+                              Từ chối
+                            </Button>
+                          </>
+                        ) : (
+                          <></>
                         )}
-                      </p>
+                      </div>
                     </div>
-                  </div>
+                    <Divider />
+                    <div className="flex justify-start text-start">
+                      <strong className="mr-1">Tên sản phẩm:</strong>
+                      {item?.productName}
+                    </div>
+                    <div className="flex justify-start text-start">
+                      <strong className="mr-1"> Số lượng:</strong>{" "}
+                      {item?.quantity}
+                    </div>
+                    <div className="flex justify-start text-start">
+                      <strong className="mr-1">Loại sản phẩm:</strong>{" "}
+                      {categories.find((x) => x.label === item?.category)?.name}
+                    </div>
+                    <div className="flex justify-start text-start">
+                      <strong className="mr-1">Giá từng sản phẩm:</strong>{" "}
+                      <span>
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(item?.unitPrice || 0)}
+                      </span>
+                    </div>
+                    <div className="flex justify-start text-start">
+                      <strong className="mr-1">Yêu cầu phải có:</strong>{" "}
+                      {item?.standardRequirement}
+                    </div>
+                    <div className="flex justify-start text-start">
+                      <strong className="mr-1">Các yêu cầu khác:</strong>{" "}
+                      {item?.otherRequirement}
+                    </div>
+                    <div className="flex justify-start text-start">
+                      <div>
+                        {/* Hiển thị nội dung văn bản */}
+                        <p>
+                          {expandedItems[item.id] ? (
+                            <span
+                              dangerouslySetInnerHTML={{
+                                __html: item.content,
+                              }}
+                            ></span>
+                          ) : (
+                            <span
+                              dangerouslySetInnerHTML={{
+                                __html: item.content.slice(0, 100),
+                              }}
+                            ></span>
+                          )}
+                          {item.content.length > 100 && (
+                            <span
+                              className="text-blue-500 cursor-pointer ml-2"
+                              onClick={() => toggleExpand(item.id)}
+                            >
+                              {expandedItems[item.id]
+                                ? "Rút gọn"
+                                : "... Xem thêm"}
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
 
-                  {item?.postFiles.length > 0 ? (
-                    <>
-                      <Divider />
-                      <FileCarousel files={item?.postFiles ?? []} />
-                    </>
-                  ) : (
-                    <></>
-                  )}
+                    {item?.postFiles.length > 0 ? (
+                      <>
+                        <Divider />
+                        <FileCarousel files={item?.postFiles ?? []} />
+                      </>
+                    ) : (
+                      <></>
+                    )}
 
-                  {item?.postImages.length > 0 ? (
-                    <>
-                      <Divider />
-                      <ImageCarousel images={item?.postImages ?? []} />
-                    </>
-                  ) : (
-                    <></>
-                  )}
+                    {item?.postImages.length > 0 ? (
+                      <>
+                        <Divider />
+                        <ImageCarousel images={item?.postImages ?? []} />
+                      </>
+                    ) : (
+                      <></>
+                    )}
+                  </Card>
+                </div>
+              ))
+            ) : (
+              <>
+                <Card>
+                  <img src={empty} className="w-auto h-auto" alt="" />
                 </Card>
-              </div>
-            ))}
+              </>
+            )}
           </div>
         </div>
       </div>

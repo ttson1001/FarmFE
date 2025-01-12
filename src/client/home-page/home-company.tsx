@@ -25,6 +25,7 @@ import { categories } from "../../constant/constant";
 import { Dropdown } from "primereact/dropdown";
 import { Toast } from "primereact/toast";
 import { useNavigate } from "react-router-dom";
+import empty from "../../assets/empty.png";
 
 const HomeCompanyPage = () => {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -494,97 +495,106 @@ const HomeCompanyPage = () => {
               </Dialog>
             </div>
           </Card>
-          {listObjects?.map((item: any) => (
-            <div key={item?.id}>
-              <Card className="mt-5 rounded-3xl">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-3">
-                    <Avatar
-                      className="w-12 h-12 mx-auto sm:col-span-1" // Sử dụng col-span-2 trên màn hình nhỏ
-                      image={item?.avatar}
-                      shape="circle"
-                    />
-                    <div>
+          {listObjects.length > 0 ? (
+            listObjects?.map((item: any) => (
+              <div key={item?.id}>
+                <Card className="mt-5 rounded-3xl">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                      <Avatar
+                        className="w-12 h-12 mx-auto sm:col-span-1" // Sử dụng col-span-2 trên màn hình nhỏ
+                        image={item?.avatar}
+                        shape="circle"
+                      />
                       <div>
-                        <strong className="mr-1">Người đăng bài:</strong>
-                        {item?.createdBy}
-                      </div>
-                      <div className="text-start">
-                        <strong className="mr-1">Ngày đăng bài:</strong>
-                        {moment(item?.createdDate).format("DD.MM.YYYY")}
+                        <div>
+                          <strong className="mr-1">Người đăng bài:</strong>
+                          {item?.createdBy}
+                        </div>
+                        <div className="text-start">
+                          <strong className="mr-1">Ngày đăng bài:</strong>
+                          {moment(item?.createdDate).format("DD.MM.YYYY")}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                <Divider />
-                <div className="flex justify-start text-start">
-                  <strong className="mr-1">Tên sản phẩm:</strong>
-                  {item?.productName}
-                </div>
-                <div className="flex justify-start text-start">
-                  <strong className="mr-1"> Số lượng:</strong> {item?.quantity}
-                </div>
-                <div className="flex justify-start text-start">
-                  <strong className="mr-1">Loại sản phẩm:</strong>{" "}
-                  {categories.find((x) => x.label === item?.category)?.name}
-                </div>
-                <div className="flex justify-start text-start">
-                  <strong className="mr-1">Giá từng sản phẩm:</strong>{" "}
-                  <span>
-                    {new Intl.NumberFormat("vi-VN", {
-                      style: "currency",
-                      currency: "VND",
-                    }).format(item?.unitPrice || 0)}
-                  </span>
-                </div>
-                <div className="flex justify-start text-start">
-                  <div>
-                    <p>
-                      {expandedItems[item.id] ? (
-                        <span
-                          dangerouslySetInnerHTML={{
-                            __html: item.content,
-                          }}
-                        ></span>
-                      ) : (
-                        <span
-                          dangerouslySetInnerHTML={{
-                            __html: item.content.slice(0, 100),
-                          }}
-                        ></span>
-                      )}
-                      {item.content.length > 100 && (
-                        <span
-                          className="text-blue-500 cursor-pointer ml-2"
-                          onClick={() => toggleExpand(item.id)}
-                        >
-                          {expandedItems[item.id] ? "Rút gọn" : "... Xem thêm"}
-                        </span>
-                      )}
-                    </p>
+                  <Divider />
+                  <div className="flex justify-start text-start">
+                    <strong className="mr-1">Tên sản phẩm:</strong>
+                    {item?.productName}
                   </div>
-                </div>
+                  <div className="flex justify-start text-start">
+                    <strong className="mr-1"> Số lượng:</strong>{" "}
+                    {item?.quantity}
+                  </div>
+                  <div className="flex justify-start text-start">
+                    <strong className="mr-1">Loại sản phẩm:</strong>{" "}
+                    {categories.find((x) => x.label === item?.category)?.name}
+                  </div>
+                  <div className="flex justify-start text-start">
+                    <strong className="mr-1">Giá từng sản phẩm:</strong>{" "}
+                    <span>
+                      {new Intl.NumberFormat("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      }).format(item?.unitPrice || 0)}
+                    </span>
+                  </div>
+                  <div className="flex justify-start text-start">
+                    <div>
+                      <p>
+                        {expandedItems[item.id] ? (
+                          <span
+                            dangerouslySetInnerHTML={{
+                              __html: item.content,
+                            }}
+                          ></span>
+                        ) : (
+                          <span
+                            dangerouslySetInnerHTML={{
+                              __html: item.content.slice(0, 100),
+                            }}
+                          ></span>
+                        )}
+                        {item.content.length > 100 && (
+                          <span
+                            className="text-blue-500 cursor-pointer ml-2"
+                            onClick={() => toggleExpand(item.id)}
+                          >
+                            {expandedItems[item.id]
+                              ? "Rút gọn"
+                              : "... Xem thêm"}
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
 
-                {item?.postFiles.length > 0 ? (
-                  <>
-                    <Divider />
-                    <FileCarousel files={item?.postFiles ?? []} />
-                  </>
-                ) : (
-                  <></>
-                )}
+                  {item?.postFiles.length > 0 ? (
+                    <>
+                      <Divider />
+                      <FileCarousel files={item?.postFiles ?? []} />
+                    </>
+                  ) : (
+                    <></>
+                  )}
 
-                {item?.postImages.length > 0 ? (
-                  <>
-                    <Divider />
-                    <ImageCarousel images={item?.postImages ?? []} />
-                  </>
-                ) : (
-                  <></>
-                )}
-              </Card>
-            </div>
-          ))}
+                  {item?.postImages.length > 0 ? (
+                    <>
+                      <Divider />
+                      <ImageCarousel images={item?.postImages ?? []} />
+                    </>
+                  ) : (
+                    <></>
+                  )}
+                </Card>
+              </div>
+            ))
+          ) : (
+            <Card>
+              <img src={empty} className="w-auto h-auto" alt="" />
+            </Card>
+          )}
         </div>
       </div>
     </>

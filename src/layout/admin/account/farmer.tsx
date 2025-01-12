@@ -119,7 +119,7 @@ const AccountPage = () => {
       pageIndex: 1,
       pageSize: 10000,
       keyword: searchTerm,
-      orderDate: 0,
+      orderDate: 1,
       totalRecord: 0,
       status: status,
       createdDate: {

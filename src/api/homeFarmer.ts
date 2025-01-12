@@ -7,7 +7,7 @@ export const getBussinesPost = async (value: any) => {
     pageIndex: 1,
     pageSize: 1000,
     keyword: "",
-    orderDate: 0,
+    orderDate: 1,
     totalRecord: 1,
     createdDate: {
       from: "2025-01-05",
@@ -24,7 +24,7 @@ export const getBussinesPost = async (value: any) => {
       pageIndex: 1,
       pageSize: 1000,
       keyword: value.searchTerm,
-      orderDate: 0,
+      orderDate: 1,
       totalRecord: 1,
       createdDate: {
         from: moment(value.fromDate).format("YYYY-MM-DD"),
@@ -50,7 +50,7 @@ export const getFarmerPost = async (value: any) => {
     pageIndex: 1,
     pageSize: 1000,
     keyword: "",
-    orderDate: 0,
+    orderDate: 1,
     totalRecord: 1,
     createdDate: {
       from: "2024-01-05",
@@ -58,7 +58,7 @@ export const getFarmerPost = async (value: any) => {
     },
     totalPrice: {
       from: 1,
-      to: 410000000,
+      to: 999999999999,
     },
     status: null,
   };
@@ -67,7 +67,7 @@ export const getFarmerPost = async (value: any) => {
       pageIndex: 1,
       pageSize: 1000,
       keyword: value.searchTerm,
-      orderDate: 0,
+      orderDate: 1,
       totalRecord: 1,
       createdDate: {
         from: moment(value.fromDate).format("YYYY-MM-DD"),

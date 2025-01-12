@@ -18,7 +18,7 @@ export const getAccounts = async (value: any) => {
       pageIndex: 1,
       pageSize: 1000,
       keyword: "",
-      orderDate: 0,
+      orderDate: 1,
       totalRecord: 0,
       status: 1,
       createdDate: {
