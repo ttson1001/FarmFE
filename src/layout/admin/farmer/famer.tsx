@@ -111,16 +111,16 @@ const FarmerPage = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [fromDate, setFromDate] = useState<Date | null>(null);
   const [toDate, setToDate] = useState<Date | null>(null);
-  const [status, setStatus] = useState<number>(0);
+  const [status, setStatus] = useState<number>(1);
   const [minPrice, setMinPrice] = useState<number>(0);
-  const [maxPrice, setMaxPrice] = useState<number>(0);
+  const [maxPrice, setMaxPrice] = useState<number>(999999999999999);
 
   const handleReset = () => {
     setSearchTerm("");
     setFromDate(null);
     setToDate(null);
     setMinPrice(0);
-    setMaxPrice(0);
+    setMaxPrice(9999999999999);
     getBussinesPost(null)
       .then((response) => {
         if (response.data.success) {
