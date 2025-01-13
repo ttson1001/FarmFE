@@ -32,6 +32,11 @@ const AvatarMenu = () => {
     confirmPassword?: string;
   }>({});
 
+  const handleReset = () => {
+    setPassword("");
+    setConfirmPassword("");
+    setNewPassword("");
+  };
   const handleSubmit = () => {
     const data = { password, newPassword, confirmPassword };
     changePassword(data)
@@ -56,7 +61,10 @@ const AvatarMenu = () => {
   const hideProfileModal = () => setProfileVisible(false);
 
   const showSettingsModal = () => setSettingsVisible(true);
-  const hideSettingsModal = () => setSettingsVisible(false);
+  const hideSettingsModal = () => {
+    setSettingsVisible(false);
+    handleReset();
+  };
 
   const items = [
     {
