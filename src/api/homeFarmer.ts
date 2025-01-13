@@ -31,8 +31,8 @@ export const getBussinesPost = async (value: any) => {
         to: moment(value.toDate).format("YYYY-MM-DD"),
       },
       totalPrice: {
-        from: value.minPrice,
-        to: value.maxPrice,
+        from: value.minPrice ?? 0,
+        to: value.maxPrice ?? 9999999999999,
       },
       status: value.status,
     };
@@ -74,8 +74,8 @@ export const getFarmerPost = async (value: any) => {
         to: moment(value.toDate).format("YYYY-MM-DD"),
       },
       totalPrice: {
-        from: value.minPrice,
-        to: value.maxPrice,
+        from: value.minPrice ?? 0,
+        to: value.maxPrice ?? 999999999999,
       },
       status: value.status,
     };

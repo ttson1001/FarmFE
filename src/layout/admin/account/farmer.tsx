@@ -220,6 +220,10 @@ const AccountPage = () => {
               paginator
               rows={10}
             >
+              <Column
+                header="Số thứ tự"
+                body={(_rowData, options) => options.rowIndex + 1}
+              />
               <Column field="username" header="Tên đăng nhập" />
               <Column field="email" header="Email" />
               <Column field="phoneNumber" header="Số điện thoại" />
