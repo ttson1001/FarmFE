@@ -10,7 +10,7 @@ export const statusOption = [
   { value: 1, name: "Đang hoạt động" },
   { value: 2, name: "Không hoạt động" },
   { value: 3, name: "Chờ duyệt" },
-  { value: 4, name: "Đã bị ban" },
+  { value: 4, name: "Đã xóa" },
 ];
 
 export const postStatusOption = [
