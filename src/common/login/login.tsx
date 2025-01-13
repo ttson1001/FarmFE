@@ -202,12 +202,6 @@ const Login = () => {
                 <Link to={"/forgot"}>Quên mật khẩu</Link>
               </div>
             </div>
-            <Divider />
-            <div className="flex gap-10 justify-center">
-              <img className="w-12 h-12" src={f} alt="" />
-              <img className="w-12 h-12" src={g} alt="" />
-              <img className="w-12 h-12" src={x} alt="" />
-            </div>
           </Card>
         </div>
         <div className="col h-full flex justify-center items-center sm:hidden md:flex">
