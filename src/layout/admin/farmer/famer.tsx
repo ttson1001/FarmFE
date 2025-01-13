@@ -143,7 +143,7 @@ const FarmerPage = () => {
       maxPrice,
       status,
     };
-    getBussinesPost(data)
+    getFarmerPost(data)
       .then((response) => {
         if (response.data.success) {
           setListObjects(response.data.data.listObjects);
