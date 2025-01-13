@@ -121,7 +121,7 @@ const FarmerPage = () => {
     setToDate(null);
     setMinPrice(0);
     setMaxPrice(9999999999999);
-    getBussinesPost(null)
+    getFarmerPost(null)
       .then((response) => {
         if (response.data.success) {
           setListObjects(response.data.data.listObjects);
