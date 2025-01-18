@@ -280,7 +280,7 @@ const HistoryFarmer = () => {
 
       case "unitPrice":
         if (value <= 1000) {
-          error = "Đơn giá phải lớn hơn 1 000 đ.";
+          error = "Đơn giá phải lớn hơn 1 000 VND.";
         }
         break;
 
@@ -297,7 +297,7 @@ const HistoryFarmer = () => {
       <div className="grid grid-cols-12 ">
         <div className="col-span-3 text-center hidden md:block"></div>
 
-        <div className="col-span-12 md:col-span-6 text-center">
+        <div className="col-span-12 md:col-span-6 mb-5  text-center">
           {listObjects.length > 0 ? (
             listObjects?.map((item: any) => (
               <div key={item?.id}>
@@ -352,24 +352,24 @@ const HistoryFarmer = () => {
                   </div>
                   <div className="flex justify-start text-start">
                     <strong className="mr-1">Tỉ lệ thất thoát:</strong>{" "}
-                    {item?.lossRate}
+                    {item?.lossRate} %
                   </div>
                   <div className="flex justify-start text-start">
                     <strong className="mr-1">Giá từng sản phẩm:</strong>{" "}
                     <span>
-                      {new Intl.NumberFormat("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      }).format(item?.unitPrice || 0)}
+                      {new Intl.NumberFormat("vi-VN").format(
+                        item?.unitPrice || 0
+                      )}{" "}
+                      VND
                     </span>
                   </div>
                   <div className="flex justify-start text-start">
                     <strong className="mr-1">Tổng giá tiền:</strong>{" "}
                     <span>
-                      {new Intl.NumberFormat("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      }).format(item?.totalPrice || 0)}
+                      {new Intl.NumberFormat("vi-VN").format(
+                        item?.unitPrice || 0
+                      )}{" "}
+                      VND
                     </span>
                   </div>
                   <div className="flex justify-start text-start">
@@ -488,7 +488,7 @@ const HistoryFarmer = () => {
             )}
           </div>
           <div className="md:col-span-4 sm:col-span-full">
-            <label className="mr-2">Loại Hàng:</label>
+            <label className="mr-2">Loại hàng:</label>
             <Dropdown
               value={selectedCategory}
               options={categories}
@@ -507,7 +507,7 @@ const HistoryFarmer = () => {
         </div>
         <div className="grid md:grid-cols-12 gap-2 mt-2 sm:grid-cols-1">
           <div className=" md:col-span-6 sm:col-span-full">
-            <label className="mr-2">Tỉ lệ thất thoát (1% - 99%):</label>
+            <label className="mr-2">Tỉ lệ thất thoát (%):</label>
             <InputText
               onBlur={(e) => validateField("lossRate", e.target.value)}
               className={`mt-2 w-full ${
@@ -523,7 +523,7 @@ const HistoryFarmer = () => {
             )}
           </div>
           <div className=" md:col-span-6 sm:col-span-full">
-            <label className="mr-2">Giá tiền (đ):</label>
+            <label className="mr-2">Giá tiền (VND):</label>
             <InputText
               onBlur={(e) => validateField("unitPrice", e.target.value)}
               className={`mt-2 w-full ${

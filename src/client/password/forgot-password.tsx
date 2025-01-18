@@ -15,7 +15,7 @@ const Forgot = () => {
   const hanldeSumbmit = () => {
     const data = {
       email: userNameOrEmail,
-      clientUri: "http://localhost:5174/resset",
+      clientUri: "https://farm-forum-fe.techtheworld.id.vn/resset",
     };
 
     forgotPassword(data).then(() => {

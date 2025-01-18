@@ -75,34 +75,52 @@ const HistoryCompany = () => {
       otherRequirement?: string;
     } = {};
 
-    // Kiểm tra tên sản phẩm
-    if (!object.productName) {
-      newErrors.productName = "Vui lòng nhập tên sản phẩm.";
-    }
+    const fieldsToValidate = [
+      { field: "productName", value: object.productName },
+      { field: "content", value: object.content },
+      { field: "quantity", value: object.quantity },
+      { field: "category", value: selectedCategory },
+      { field: "unitPrice", value: object.unitPrice },
+      { field: "standardRequirements", value: object.otherRequirement },
+    ];
 
-    if (!object.content) {
-      newErrors.content = "Vui lòng nhập mô tả.";
-    }
-
-    // Kiểm tra số lượng
-    if (object.quantity <= 0) {
-      newErrors.quantity = "Số lượng phải lớn hơn 0.";
-    }
-
-    // Kiểm tra loại hàng (category)
-    if (!selectedCategory) {
-      newErrors.category = "Vui lòng chọn loại hàng.";
-    }
-
-    // Kiểm tra giá tiền
-    if (object.unitPrice <= 1000) {
-      newErrors.unitPrice = "Giá tiền phải lớn hơn 1 000 đ.";
-    }
-
-    // Kiểm tra yêu cầu tiêu chuẩn
-    if (!object.otherRequirement) {
-      newErrors.standardRequirements = "Vui lòng nhập yêu cầu tiêu chuẩn.";
-    }
+    fieldsToValidate.forEach(({ field, value }) => {
+      switch (field) {
+        case "productName":
+          if (!value) {
+            newErrors.productName = "Vui lòng nhập tên sản phẩm.";
+          }
+          break;
+        case "content":
+          if (!value) {
+            newErrors.content = "Vui lòng nhập mô tả.";
+          }
+          break;
+        case "quantity":
+          if (value <= 0) {
+            newErrors.quantity = "Số lượng phải lớn hơn 0.";
+          }
+          break;
+        case "category":
+          if (!value) {
+            newErrors.category = "Vui lòng chọn loại hàng.";
+          }
+          break;
+        case "unitPrice":
+          if (value <= 1000) {
+            newErrors.unitPrice = "Giá tiền phải lớn hơn 1 000 đ.";
+          }
+          break;
+        case "standardRequirements":
+          if (!value) {
+            newErrors.standardRequirements =
+              "Vui lòng nhập yêu cầu tiêu chuẩn.";
+          }
+          break;
+        default:
+          break;
+      }
+    });
 
     setErrors(newErrors);
   };
@@ -301,7 +319,7 @@ const HistoryCompany = () => {
       <div className="grid grid-cols-12 ">
         <div className="col-span-3 text-center hidden md:block"></div>
 
-        <div className="col-span-12 md:col-span-6 text-center">
+        <div className="col-span-12 md:col-span-6 mb-5 text-center">
           {listObjects.length > 0 ? (
             listObjects?.map((item: any) => (
               <div key={item?.id}>
@@ -314,7 +332,7 @@ const HistoryCompany = () => {
                         shape="circle"
                       />
                       <div>
-                        <div>
+                        <div className="text-start">
                           <strong className="mr-1">Người đăng bài:</strong>
                           {item?.createdBy}
                         </div>
@@ -346,7 +364,7 @@ const HistoryCompany = () => {
                   </div>
                   <div className="flex justify-start text-start">
                     <strong className="mr-1"> Số lượng:</strong>{" "}
-                    {item?.quantity}
+                    {item?.quantity} kg
                   </div>
                   <div className="flex justify-start text-start">
                     <strong className="mr-1">Loại sản phẩm:</strong>{" "}
@@ -355,10 +373,10 @@ const HistoryCompany = () => {
                   <div className="flex justify-start text-start">
                     <strong className="mr-1">Giá từng sản phẩm:</strong>{" "}
                     <span>
-                      {new Intl.NumberFormat("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      }).format(item?.unitPrice || 0)}
+                      {new Intl.NumberFormat("vi-VN").format(
+                        item?.unitPrice || 0
+                      )}{" "}
+                      VND
                     </span>
                   </div>
                   <div className="flex justify-start text-start">
@@ -472,7 +490,7 @@ const HistoryCompany = () => {
           </div>
           <div className="col-span-4">
             <label className="mr-2">
-              Số lượng: <span className="text-red-500">*</span>
+              Số lượng (kg): <span className="text-red-500">*</span>
             </label>
             <InputText
               className={`mt-2 w-full ${
@@ -490,7 +508,7 @@ const HistoryCompany = () => {
           </div>
           <div className="col-span-4">
             <label className="mr-2  mt-2">
-              Loại Hàng: <span className="text-red-500">*</span>
+              Loại hàng: <span className="text-red-500">*</span>
             </label>
             <Dropdown
               value={selectedCategory}
@@ -541,7 +559,7 @@ const HistoryCompany = () => {
           </div>
           <div className="col-span-4">
             <label className="mr-2">
-              Giá từng sản phẩm (đ): <span className="text-red-500">*</span>
+              Giá từng sản phẩm (VND): <span className="text-red-500">*</span>
             </label>
             <InputText
               onBlur={validateProductFields}

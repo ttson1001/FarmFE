@@ -398,7 +398,7 @@ const HomeFarmerPage = () => {
                     )}
                   </div>
                   <div className="md:col-span-4 sm:col-span-full">
-                    <label className="mr-2">Loại Hàng:</label>
+                    <label className="mr-2">Loại hàng:</label>
                     <Dropdown
                       value={selectedCategory}
                       options={categories}
@@ -417,7 +417,7 @@ const HomeFarmerPage = () => {
                 </div>
                 <div className="grid md:grid-cols-12 gap-2 mt-2 sm:grid-cols-1">
                   <div className=" md:col-span-6 sm:col-span-full">
-                    <label className="mr-2">Tỉ lệ thất thoát (0% - 99%):</label>
+                    <label className="mr-2">Tỉ lệ thất thoát (%):</label>
                     <InputText
                       onBlur={(e) => validateField("lossRate", e.target.value)}
                       className={`mt-2 w-full ${
@@ -514,7 +514,7 @@ const HomeFarmerPage = () => {
                   </div>
                   <div className="flex justify-start text-start">
                     <strong className="mr-1"> Số lượng:</strong>{" "}
-                    {item?.quantity}
+                    {item?.quantity} kg
                   </div>
                   <div className="flex justify-start text-start">
                     <strong className="mr-1">Loại sản phẩm:</strong>{" "}
@@ -523,10 +523,10 @@ const HomeFarmerPage = () => {
                   <div className="flex justify-start text-start">
                     <strong className="mr-1">Giá từng sản phẩm:</strong>{" "}
                     <span>
-                      {new Intl.NumberFormat("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      }).format(item?.unitPrice || 0)}
+                      {new Intl.NumberFormat("vi-VN").format(
+                        item?.unitPrice || 0
+                      )}{" "}
+                      VND
                     </span>
                   </div>
                   <div className="flex justify-start text-start">

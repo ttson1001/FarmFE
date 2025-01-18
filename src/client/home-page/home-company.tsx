@@ -438,7 +438,7 @@ const HomeCompanyPage = () => {
                     />
                   </div>
                   <div className="col-span-4">
-                    <label className="mr-2">Giá từng sản phẩm (đ):</label>
+                    <label className="mr-2">Giá từng sản phẩm (VND):</label>
                     <InputText
                       onBlur={validateProductFields}
                       className={`mt-2 w-full ${
@@ -525,7 +525,7 @@ const HomeCompanyPage = () => {
                   </div>
                   <div className="flex justify-start text-start">
                     <strong className="mr-1"> Số lượng:</strong>{" "}
-                    {item?.quantity}
+                    {item?.quantity} kg
                   </div>
                   <div className="flex justify-start text-start">
                     <strong className="mr-1">Loại sản phẩm:</strong>{" "}
@@ -534,10 +534,10 @@ const HomeCompanyPage = () => {
                   <div className="flex justify-start text-start">
                     <strong className="mr-1">Giá từng sản phẩm:</strong>{" "}
                     <span>
-                      {new Intl.NumberFormat("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      }).format(item?.unitPrice || 0)}
+                      {new Intl.NumberFormat("vi-VN").format(
+                        item?.unitPrice || 0
+                      )}{" "}
+                      VND
                     </span>
                   </div>
                   <div className="flex justify-start text-start">

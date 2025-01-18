@@ -141,11 +141,23 @@ const FarmerProfile: React.FC<FarmerProfileProps> = ({ value }) => {
         } else {
           const birthDate = new Date(dateOfBirth);
           const today = new Date();
-          const age = today.getFullYear() - birthDate.getFullYear();
-          const monthDifference = today.getMonth() - birthDate.getMonth();
 
-          // Kiểm tra xem có đủ 18 tuổi hay không
-          if (age < 18 || (age === 18 && monthDifference < 0)) {
+          // Tính tuổi
+          let age = today.getFullYear() - birthDate.getFullYear();
+
+          // Kiểm tra tháng và ngày để điều chỉnh tuổi
+          const isBeforeBirthdayThisYear =
+            today.getMonth() < birthDate.getMonth() ||
+            (today.getMonth() === birthDate.getMonth() &&
+              today.getDate() < birthDate.getDate());
+
+          // Nếu sinh nhật chưa tới trong năm nay, giảm tuổi đi 1
+          if (isBeforeBirthdayThisYear) {
+            age--;
+          }
+
+          // Kiểm tra tuổi
+          if (age < 18) {
             errorMessage = "Bạn phải đủ 18 tuổi.";
           }
         }
@@ -230,7 +242,7 @@ const FarmerProfile: React.FC<FarmerProfileProps> = ({ value }) => {
           showIcon
           onSelect={(e: any) => setDateOfBirth(e.value)}
           className="w-full"
-          onBlur={() => validateField("dateOfBirth")}
+          onChange={() => validateField("dateOfBirth")}
         />
         {errors.dateOfBirth && (
           <span className="text-red-500">{errors.dateOfBirth}</span>

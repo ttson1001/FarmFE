@@ -7,11 +7,7 @@ import { Button } from "primereact/button";
 import { Divider } from "primereact/divider";
 import moment from "moment";
 import { Calendar } from "primereact/calendar";
-import {
-  getBussinesPost,
-  getFarmerPost,
-  updatePostStatus,
-} from "../../../api/homeFarmer";
+import { getFarmerPost, updatePostStatus } from "../../../api/homeFarmer";
 import FileCarousel from "../../../common/carousel/FileCarousel";
 import ImageCarousel from "../../../common/carousel/ImageCarousel";
 import { categories, postStatusOption } from "../../../constant/constant";
@@ -205,7 +201,7 @@ const FarmerPage = () => {
                 className={`mt-2 w-full  text-start`}
               />
             </div>
-            <div className="flex justify-between mt-5">
+            <div className="flex justify-between mt-5 gap-5">
               <Button className="" severity="help" onClick={handleSearch}>
                 Tìm kiếm
               </Button>
@@ -221,7 +217,7 @@ const FarmerPage = () => {
           <div className="overflow-y-auto h-screen">
             {listObjects?.map((item: any) => (
               <div key={item?.id}>
-                <Card className="mt-5 rounded-3xl">
+                <Card className="mt-5 rounded-3xl mb-3 mr-3">
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-3">
                       <Avatar
@@ -230,7 +226,7 @@ const FarmerPage = () => {
                         shape="circle"
                       />
                       <div>
-                        <div>
+                        <div className="text-start">
                           <strong className="mr-1">Người đăng bài:</strong>
                           {item?.createdBy}
                         </div>
@@ -283,7 +279,7 @@ const FarmerPage = () => {
                   </div>
                   <div className="flex justify-start text-start">
                     <strong className="mr-1"> Số lượng:</strong>{" "}
-                    {item?.quantity}
+                    {item?.quantity} kg
                   </div>
                   <div className="flex justify-start text-start">
                     <strong className="mr-1">Loại sản phẩm:</strong>{" "}
@@ -292,10 +288,10 @@ const FarmerPage = () => {
                   <div className="flex justify-start text-start">
                     <strong className="mr-1">Giá từng sản phẩm:</strong>{" "}
                     <span>
-                      {new Intl.NumberFormat("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      }).format(item?.unitPrice || 0)}
+                      {new Intl.NumberFormat("vi-VN").format(
+                        item?.unitPrice || 0
+                      )}{" "}
+                      VND
                     </span>
                   </div>
                   <div className="flex justify-start text-start">

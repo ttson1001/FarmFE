@@ -91,6 +91,14 @@ const Register = () => {
           error = "Mật khẩu là bắt buộc.";
         } else if (value.length < 6) {
           error = "Mật khẩu phải có ít nhất 6 ký tự.";
+        } else if (!/[A-Z]/.test(value)) {
+          error = "Mật khẩu phải chứa ít nhất một chữ hoa.";
+        } else if (!/[a-z]/.test(value)) {
+          error = "Mật khẩu phải chứa ít nhất một chữ thường.";
+        } else if (!/[0-9]/.test(value)) {
+          error = "Mật khẩu phải chứa ít nhất một số.";
+        } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) {
+          error = "Mật khẩu phải chứa ít nhất một ký tự đặc biệt.";
         }
         break;
 

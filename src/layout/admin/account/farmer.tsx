@@ -198,7 +198,7 @@ const AccountPage = () => {
               placeholder="Chọn status"
               className={`mt-2 w-full text-start`}
             />
-            <div className="flex justify-between mt-5">
+            <div className="flex justify-between gap-5 mt-5">
               <Button className="" severity="help" onClick={handleSearch}>
                 Tìm kiếm
               </Button>
@@ -211,12 +211,12 @@ const AccountPage = () => {
         </div>
 
         <div className="col-span-12 md:col-span-9 text-center">
-          <div className="overflow-x-auto rounded-3xl">
+          <div className="overflow-x-auto rounded-3xl mr-5">
             <DataTable
               value={listObjects}
               className="mt-5 custom-rounded"
               scrollable
-              scrollHeight="90vh"
+              scrollHeight="83vh"
               paginator
               rows={10}
             >

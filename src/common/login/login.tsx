@@ -93,7 +93,7 @@ const Login = () => {
       .catch((e) => {
         toast.current?.show({
           severity: "error",
-          summary: "Đăng nhập thất bạn",
+          summary: "Đăng nhập thất bại",
         });
 
         if (e?.response?.status === 401) {
@@ -138,7 +138,10 @@ const Login = () => {
   return (
     <>
       <Toast ref={toast} />
-      <div className="grid md:grid-cols-2 h-screen sm:grid-cols-1">
+      <div
+        onKeyDown={(e) => (e.key === "Enter" ? hanldeSumbmit() : "")}
+        className="grid md:grid-cols-2 h-screen sm:grid-cols-1"
+      >
         <div className="col bg-purple-200 h-full items-center justify-center flex">
           <Card title="Đăng nhập" className="w-2/3 h-auto">
             <div className="mt-5">
