@@ -43,7 +43,9 @@ const FarmerProfile: React.FC<FarmerProfileProps> = ({ value }) => {
         setLastName(farmer?.lastName);
         setIdentityCard(farmer?.identityCard);
         setDateOfBirth(farmer?.dateOfBirth);
-        setGender(farmer?.gender);
+        setGender(
+          farmer.gender === "Male" ? 1 : farmer.gender === "Female" ? 2 : 3
+        );
         setAvatar(farmer?.avatar);
         setLoad(false);
       })
@@ -240,6 +242,7 @@ const FarmerProfile: React.FC<FarmerProfileProps> = ({ value }) => {
         <Calendar
           value={moment(dateOfBirth, "DD/MM/YYYY").toDate()}
           showIcon
+          dateFormat="dd/mm/yy"
           onSelect={(e: any) => setDateOfBirth(e.value)}
           className="w-full"
           onChange={() => validateField("dateOfBirth")}

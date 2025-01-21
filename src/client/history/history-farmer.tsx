@@ -16,7 +16,6 @@ import {
 } from "../../api/historyFarmer";
 import ImageCarousel from "../../common/carousel/ImageCarousel";
 import FileCarousel from "../../common/carousel/FileCarousel";
-import moment from "moment";
 import { Divider } from "primereact/divider";
 import { uploadFile, uploadImage } from "../../api/file";
 import {
@@ -316,9 +315,7 @@ const HistoryFarmer = () => {
                         </div>
                         <div className="text-start">
                           <strong className="mr-1">Ngày đăng bài:</strong>
-                          {moment(item?.createdDate, "DD/MM/YYYY").format(
-                            "DD.MM.YYYY"
-                          )}
+                          {item?.createdDate}
                         </div>
                       </div>
                     </div>

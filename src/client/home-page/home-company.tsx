@@ -15,7 +15,6 @@ import {
   getFarmerPost,
 } from "../../api/homeFarmer";
 import { uploadFile, uploadImage } from "../../api/file";
-import moment from "moment";
 import {
   clearLocalStorage,
   getFromLocalStorage,
@@ -513,7 +512,7 @@ const HomeCompanyPage = () => {
                         </div>
                         <div className="text-start">
                           <strong className="mr-1">Ngày đăng bài:</strong>
-                          {moment(item?.createdDate).format("DD.MM.YYYY")}
+                          {item?.createdDate}
                         </div>
                       </div>
                     </div>

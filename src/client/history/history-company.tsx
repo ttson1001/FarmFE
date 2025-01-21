@@ -9,6 +9,8 @@ import {
   addFileToPost,
   addImageToPost,
   deletePost,
+  delFileFromPost,
+  delImageFromPost,
   getBusinessHistory,
   UpdateBusinessPost,
 } from "../../api/historyFarmer";
@@ -16,7 +18,6 @@ import { uploadFile, uploadImage } from "../../api/file";
 import { Divider } from "primereact/divider";
 import FileCarousel from "../../common/carousel/FileCarousel";
 import ImageCarousel from "../../common/carousel/ImageCarousel";
-import moment from "moment";
 import {
   clearLocalStorage,
   getFromLocalStorage,
@@ -29,6 +30,8 @@ import { ConfirmDialog } from "primereact/confirmdialog";
 import { Toast } from "primereact/toast";
 import { useNavigate } from "react-router-dom";
 import empty from "../../assets/empty.png";
+import ImageCarouselDel from "../../common/carousel/ImageCarouselDel";
+import FileCarouselDel from "../../common/carousel/FileCarouselDel";
 
 const HistoryCompany = () => {
   const [expandedItems, setExpandedItems] = useState<{
@@ -49,8 +52,8 @@ const HistoryCompany = () => {
   const [selectedCategory, setSelectedCategory] = useState<number | undefined>(
     0
   );
-  const [images, setImages] = useState<number[]>([]);
-  const [files, setFiles] = useState<number[]>([]);
+  const [images, setImages] = useState<{ id: number; url: string }[]>([]);
+  const [files, setFiles] = useState<{ id: number; filePath: string }[]>([]);
   const [selectedItemId, setSelectedItemId] = useState(null);
   const [visible, setVisible] = useState(false);
 
@@ -64,7 +67,7 @@ const HistoryCompany = () => {
     otherRequirement?: string;
   }>({});
 
-  const validateProductFields = () => {
+  const validateProductFields = (fieldToValidate: string) => {
     const newErrors: {
       content?: string;
       productName?: string;
@@ -73,55 +76,71 @@ const HistoryCompany = () => {
       unitPrice?: string;
       standardRequirements?: string;
       otherRequirement?: string;
-    } = {};
+    } = { ...errors }; // Giữ các lỗi trước đó
 
-    const fieldsToValidate = [
-      { field: "productName", value: object.productName },
-      { field: "content", value: object.content },
-      { field: "quantity", value: object.quantity },
-      { field: "category", value: selectedCategory },
-      { field: "unitPrice", value: object.unitPrice },
-      { field: "standardRequirements", value: object.otherRequirement },
-    ];
+    // Kiểm tra từng trường dựa trên `fieldToValidate`
+    switch (fieldToValidate) {
+      case "productName":
+        if (!object.productName) {
+          newErrors.productName = "Vui lòng nhập tên sản phẩm.";
+        } else {
+          delete newErrors.productName; // Xóa lỗi nếu hợp lệ
+        }
+        break;
 
-    fieldsToValidate.forEach(({ field, value }) => {
-      switch (field) {
-        case "productName":
-          if (!value) {
-            newErrors.productName = "Vui lòng nhập tên sản phẩm.";
-          }
-          break;
-        case "content":
-          if (!value) {
-            newErrors.content = "Vui lòng nhập mô tả.";
-          }
-          break;
-        case "quantity":
-          if (value <= 0) {
-            newErrors.quantity = "Số lượng phải lớn hơn 0.";
-          }
-          break;
-        case "category":
-          if (!value) {
-            newErrors.category = "Vui lòng chọn loại hàng.";
-          }
-          break;
-        case "unitPrice":
-          if (value <= 1000) {
-            newErrors.unitPrice = "Giá tiền phải lớn hơn 1 000 đ.";
-          }
-          break;
-        case "standardRequirements":
-          if (!value) {
-            newErrors.standardRequirements =
-              "Vui lòng nhập yêu cầu tiêu chuẩn.";
-          }
-          break;
-        default:
-          break;
-      }
-    });
+      case "content":
+        if (!object.content) {
+          newErrors.content = "Vui lòng nhập mô tả.";
+        } else {
+          delete newErrors.content;
+        }
+        break;
 
+      case "quantity":
+        if (!object.quantity || object.quantity <= 0) {
+          newErrors.quantity = "Số lượng phải lớn hơn 0.";
+        } else {
+          delete newErrors.quantity;
+        }
+        break;
+
+      case "category":
+        if (!selectedCategory) {
+          newErrors.category = "Vui lòng chọn loại hàng.";
+        } else {
+          delete newErrors.category;
+        }
+        break;
+
+      case "unitPrice":
+        if (!object.unitPrice || object.unitPrice <= 1000) {
+          newErrors.unitPrice = "Giá tiền phải lớn hơn 1 000 đ.";
+        } else {
+          delete newErrors.unitPrice;
+        }
+        break;
+
+      case "standardRequirements":
+        if (!object.standardRequirements) {
+          newErrors.standardRequirements = "Vui lòng nhập yêu cầu tiêu chuẩn.";
+        } else {
+          delete newErrors.standardRequirements;
+        }
+        break;
+
+      case "otherRequirement":
+        if (!object.otherRequirement) {
+          newErrors.otherRequirement = "Vui lòng nhập yêu cầu khác.";
+        } else {
+          delete newErrors.otherRequirement;
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    // Cập nhật lỗi
     setErrors(newErrors);
   };
 
@@ -163,6 +182,18 @@ const HistoryCompany = () => {
   }, [loading]);
 
   const showModal = (value: any) => {
+    const images = value?.postImages?.map((x: any) => ({
+      id: x.id,
+      url: x.url,
+    }));
+
+    const filesx = value?.postFiles?.map((x: any) => ({
+      id: x.id,
+      filePath: x.filePath,
+    }));
+    console.log(filesx);
+    setFiles(filesx);
+    setImages(images);
     setObject(value);
     const cate = categories?.find((x) => x.label === value?.category)?.value;
 
@@ -211,12 +242,21 @@ const HistoryCompany = () => {
 
     uploadImage(formData)
       .then((x) => {
-        toast.current?.show({
-          severity: "success",
-          summary: "Tải lên thành công",
+        const data = {
+          id: x.data.data.data.id,
+          url: x.data.data.data.imageUrl,
+        };
+        setImages((prv) => [...prv, data]);
+        const imagesData = {
+          postId: object?.id,
+          imageIds: [data.id],
+        };
+        addImageToPost(imagesData).then(() => {
+          toast.current?.show({
+            severity: "success",
+            summary: "Tải lên thành công",
+          });
         });
-        const id = x.data.data.data.id;
-        setImages((prv) => [...prv, id]);
       })
       .catch(() => {
         toast.current?.show({
@@ -224,6 +264,38 @@ const HistoryCompany = () => {
           summary: "Tải lên thất bại",
         });
       });
+  };
+
+  const handleRemoveImage = (id: number) => {
+    const updatedImages = images.filter((image) => image.id !== id);
+    const value = {
+      postId: object?.id,
+      imageIds: [id],
+    };
+    delImageFromPost(value.postId, value.imageIds).then(() => {
+      toast.current?.show({
+        severity: "success",
+        summary: "Xóa thành công",
+      });
+      setImages(updatedImages);
+      setLoading(true);
+    });
+  };
+
+  const handleRemoveFile = (id: number) => {
+    const filesx = files.filter((file) => file.id !== id);
+    const value = {
+      postId: object?.id,
+      fileIds: [id],
+    };
+    delFileFromPost(value.postId, value.fileIds).then(() => {
+      toast.current?.show({
+        severity: "success",
+        summary: "Xóa thành công",
+      });
+      setFiles(filesx);
+      setLoading(true);
+    });
   };
 
   const onUploadFile = async () => {
@@ -237,8 +309,21 @@ const HistoryCompany = () => {
           severity: "success",
           summary: "Tải lên thành công",
         });
-        const id = x.data.data.data.id;
-        setFiles((prv) => [...prv, id]);
+        const data = {
+          id: x.data.data.data.id,
+          filePath: x.data.data.data.filePath,
+        };
+        setFiles((prv) => [...prv, data]);
+        const filesData = {
+          postId: object?.id,
+          fileIds: [data.id],
+        };
+        addFileToPost(filesData).then(() => {
+          toast.current?.show({
+            severity: "success",
+            summary: "Tải lên thành công",
+          });
+        });
       })
       .catch(() => {
         toast.current?.show({
@@ -265,25 +350,8 @@ const HistoryCompany = () => {
           severity: "success",
           summary: "Tạo bài đăng thành công",
         });
-        if (images.length > 0) {
-          const imagesData = {
-            postId: object?.id,
-            imageIds: images,
-          };
-          addImageToPost(imagesData).then(() => {
-            setImages([]);
-          });
-        }
-        if (files.length > 0) {
-          const filesData = {
-            postId: object?.id,
-            fileIds: files,
-          };
-
-          addFileToPost(filesData).then(() => {
-            setFiles([]);
-          });
-        }
+        setFiles([]);
+        setImages([]);
         setLoading(true);
         hideModal();
       })
@@ -338,7 +406,7 @@ const HistoryCompany = () => {
                         </div>
                         <div className="text-start">
                           <strong className="mr-1">Ngày đăng bài:</strong>
-                          {moment(item?.createdDate).format("DD.MM.YYYY")}
+                          {item?.createdDate}
                         </div>
                       </div>
                     </div>
@@ -479,7 +547,7 @@ const HistoryCompany = () => {
                 errors.productName ? "p-invalid border-red-500" : ""
               }`}
               value={object?.productName}
-              onBlur={validateProductFields}
+              onBlur={() => validateProductFields("projectName")}
               onChange={(e) =>
                 setObject({ ...object, productName: e.target.value })
               }
@@ -496,7 +564,7 @@ const HistoryCompany = () => {
               className={`mt-2 w-full ${
                 errors.quantity ? "p-invalid border-red-500" : ""
               }`}
-              onBlur={validateProductFields}
+              onBlur={() => validateProductFields("quantity")}
               value={object?.quantity}
               onChange={(e) =>
                 setObject({ ...object, quantity: e.target.value })
@@ -516,7 +584,7 @@ const HistoryCompany = () => {
               optionLabel="name"
               onChange={(e) => setSelectedCategory(e.value)}
               placeholder="Chọn loại"
-              onBlur={validateProductFields}
+              onBlur={() => validateProductFields("category")}
               className={`mt-2 w-full ${
                 errors.category ? "p-invalid border-red-500" : ""
               }`}
@@ -532,7 +600,7 @@ const HistoryCompany = () => {
               Yêu cầu tiêu chuẩn: <span className="text-red-500">*</span>
             </label>
             <InputText
-              onBlur={validateProductFields}
+              onBlur={() => validateProductFields("standardRequirements")}
               className={`mt-2 w-full ${
                 errors.standardRequirements ? "p-invalid border-red-500" : ""
               }`}
@@ -562,7 +630,7 @@ const HistoryCompany = () => {
               Giá từng sản phẩm (VND): <span className="text-red-500">*</span>
             </label>
             <InputText
-              onBlur={validateProductFields}
+              onBlur={() => validateProductFields("unitPrice")}
               className={`mt-2 w-full ${
                 errors.unitPrice ? "p-invalid border-red-500" : ""
               }`}
@@ -589,12 +657,23 @@ const HistoryCompany = () => {
               onTextChange={(e: any) =>
                 setObject({ ...object, content: e.htmlValue })
               }
-              onBlur={validateProductFields}
+              onBlur={() => validateProductFields("content")}
             />
           </div>
         </div>
         <Divider />
         <div>Chứng từ liên quan (hình ảnh)</div>
+        {images?.length > 0 ? (
+          <div className="mt-1">
+            <ImageCarouselDel
+              images={images}
+              onRemoveImage={handleRemoveImage}
+            />
+          </div>
+        ) : (
+          <></>
+        )}
+
         <div className="card col-span-full">
           <input id="file-upload" type="file" onChange={onImageChange} />
           <button
@@ -606,6 +685,14 @@ const HistoryCompany = () => {
         </div>
         <Divider />
         <div>Chứng từ liên quan (file)</div>
+
+        {files?.length > 0 ? (
+          <div className="mt-1">
+            <FileCarouselDel files={files} onRemoveFile={handleRemoveFile} />
+          </div>
+        ) : (
+          <></>
+        )}
         <div className="card col-span-full">
           <input id="file-upload" type="file" onChange={onFileChange} />
           <button

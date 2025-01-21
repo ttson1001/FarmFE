@@ -65,6 +65,42 @@ export const addImageToPost = async (value: any) => {
   return await apiClient.post<any>(`${SERVER_API}add-images-to-post`, value);
 };
 
+export const delImageFromPost = async (postId: number, imageIds: number[]) => {
+  try {
+    const response = await apiClient.delete<any>(
+      `${SERVER_API}delete-images-from-post`,
+      {
+        data: {
+          postId,
+          imageIds,
+        },
+      }
+    );
+    return response.data; // Trả về dữ liệu từ phản hồi
+  } catch (error) {
+    console.error("Error deleting image from post:", error);
+    throw error; // Ném lại lỗi để xử lý tại nơi gọi
+  }
+};
+
+export const delFileFromPost = async (postId: number, fileIds: number[]) => {
+  try {
+    const response = await apiClient.delete<any>(
+      `${SERVER_API}delete-files-from-post`,
+      {
+        data: {
+          postId,
+          fileIds,
+        },
+      }
+    );
+    return response.data; // Trả về dữ liệu từ phản hồi
+  } catch (error) {
+    console.error("Error deleting image from post:", error);
+    throw error; // Ném lại lỗi để xử lý tại nơi gọi
+  }
+};
+
 export const addFileToPost = async (value: any) => {
   return await apiClient.post<any>(`${SERVER_API}add-files-to-post`, value);
 };

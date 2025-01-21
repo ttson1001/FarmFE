@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from "react";
 
 import { Button } from "primereact/button";
 import { Divider } from "primereact/divider";
-import moment from "moment";
 import { Calendar } from "primereact/calendar";
 import { getFarmerPost, updatePostStatus } from "../../../api/homeFarmer";
 import FileCarousel from "../../../common/carousel/FileCarousel";
@@ -232,7 +231,7 @@ const FarmerPage = () => {
                         </div>
                         <div className="text-start">
                           <strong className="mr-1">Ngày đăng bài:</strong>
-                          {moment(item?.createdDate).format("DD.MM.YYYY")}
+                          {item?.createdDate}
                         </div>
                         <div className="text-start">
                           <strong className="mr-1">Trạng thái:</strong>
