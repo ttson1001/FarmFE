@@ -19,6 +19,7 @@ import Forgot from "./client/password/forgot-password";
 import Resset from "./client/password/resest-pasword";
 import { useEffect } from "react";
 import AboutUs from "./client/profile/adbout";
+import ReportPage from "./layout/admin/report/report";
 
 const App = () => {
   useEffect(() => {
@@ -32,6 +33,7 @@ const App = () => {
         <Route path="farmer" element={<FarmerPage />}></Route>
         <Route path="company" element={<CompanyPage />}></Route>
         <Route path="account" element={<AccountPage />}></Route>
+        <Route path="report" element={<ReportPage />}></Route>
       </Route>
       <Route path="verify" element={<Verify />}></Route>
       <Route path="forgot" element={<Forgot />}></Route>

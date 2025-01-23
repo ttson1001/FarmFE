@@ -61,11 +61,11 @@ const Register = () => {
     let error = "";
     switch (field) {
       case "phoneNumber": {
-        const phoneRegex = /^[0-9]{10,12}$/;
+        const phoneRegex = /^[0-9]{10,11}$/;
         if (!value) {
           error = "Số điện thoại là bắt buộc.";
         } else if (!phoneRegex.test(value)) {
-          error = "Số điện thoại không hợp lệ (10-12 chữ số).";
+          error = "Số điện thoại không hợp lệ (10-11 chữ số).";
         }
         break;
       }
@@ -89,8 +89,8 @@ const Register = () => {
       case "password":
         if (!value) {
           error = "Mật khẩu là bắt buộc.";
-        } else if (value.length < 6) {
-          error = "Mật khẩu phải có ít nhất 6 ký tự.";
+        } else if (value.length < 8) {
+          error = "Mật khẩu phải có ít nhất 8 ký tự.";
         } else if (!/[A-Z]/.test(value)) {
           error = "Mật khẩu phải chứa ít nhất một chữ hoa.";
         } else if (!/[a-z]/.test(value)) {

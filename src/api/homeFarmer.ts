@@ -15,7 +15,7 @@ export const getBussinesPost = async (value: any) => {
     },
     totalPrice: {
       from: 1,
-      to: 99999999999999,
+      to: Number.MIN_SAFE_INTEGER,
     },
     status: null,
   };
@@ -32,7 +32,7 @@ export const getBussinesPost = async (value: any) => {
       },
       totalPrice: {
         from: value.minPrice ?? 0,
-        to: value.maxPrice ?? 9999999999999,
+        to: value.maxPrice ?? Number.MIN_SAFE_INTEGER,
       },
       status: value.status,
     };

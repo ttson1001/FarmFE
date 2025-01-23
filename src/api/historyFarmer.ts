@@ -14,7 +14,7 @@ export const getFarmerHistory = async () => {
     },
     totalPrice: {
       from: 0,
-      to: 9999999,
+      to: Number.MAX_SAFE_INTEGER,
     },
     status: null,
   };
@@ -42,7 +42,7 @@ export const getBusinessHistory = async () => {
     },
     totalPrice: {
       from: 1,
-      to: 410000000,
+      to: Number.MIN_SAFE_INTEGER,
     },
     status: null,
   };
@@ -79,7 +79,6 @@ export const delImageFromPost = async (postId: number, imageIds: number[]) => {
     return response.data; // Trả về dữ liệu từ phản hồi
   } catch (error) {
     console.error("Error deleting image from post:", error);
-    throw error; // Ném lại lỗi để xử lý tại nơi gọi
   }
 };
 
@@ -97,7 +96,6 @@ export const delFileFromPost = async (postId: number, fileIds: number[]) => {
     return response.data; // Trả về dữ liệu từ phản hồi
   } catch (error) {
     console.error("Error deleting image from post:", error);
-    throw error; // Ném lại lỗi để xử lý tại nơi gọi
   }
 };
 

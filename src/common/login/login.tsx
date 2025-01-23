@@ -118,8 +118,8 @@ const Login = () => {
       case "password":
         if (!value) {
           error = "Mật khẩu là bắt buộc.";
-        } else if (value.length < 6) {
-          error = "Mật khẩu phải có ít nhất 6 ký tự.";
+        } else if (value.length < 8) {
+          error = "Mật khẩu phải có ít nhất 8 ký tự.";
         }
         break;
 

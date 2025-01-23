@@ -122,33 +122,46 @@ const AvatarMenu = () => {
     }
   };
 
-  const validatePasswordFields = () => {
-    const newErrors: {
-      password?: string;
-      newPassword?: string;
-      confirmPassword?: string;
-    } = {};
+  const validateField = (field: string) => {
+    let error: string | undefined;
 
-    // Kiểm tra mật khẩu hiện tại
-    if (!password) {
-      newErrors.password = "Vui lòng nhập mật khẩu hiện tại.";
+    switch (field) {
+      case "password":
+        if (!password) {
+          error = "Vui lòng nhập mật khẩu hiện tại.";
+        }
+        break;
+
+      case "newPassword":
+        if (!newPassword) {
+          error = "Vui lòng nhập mật khẩu mới.";
+        } else if (newPassword.length < 8) {
+          error = "Mật khẩu phải có ít nhất 8 ký tự.";
+        } else if (!/[A-Z]/.test(newPassword)) {
+          error = "Mật khẩu phải chứa ít nhất một chữ hoa.";
+        } else if (!/[a-z]/.test(newPassword)) {
+          error = "Mật khẩu phải chứa ít nhất một chữ thường.";
+        } else if (!/[0-9]/.test(newPassword)) {
+          error = "Mật khẩu phải chứa ít nhất một số.";
+        } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(newPassword)) {
+          error = "Mật khẩu phải chứa ít nhất một ký tự đặc biệt.";
+        }
+        break;
+
+      case "confirmPassword":
+        if (!confirmPassword) {
+          error = "Vui lòng xác nhận mật khẩu mới.";
+        } else if (confirmPassword !== newPassword) {
+          error = "Mật khẩu xác nhận không khớp.";
+        }
+        break;
+
+      default:
+        break;
     }
 
-    // Kiểm tra mật khẩu mới
-    if (!newPassword) {
-      newErrors.newPassword = "Vui lòng nhập mật khẩu mới.";
-    } else if (newPassword.length < 6) {
-      newErrors.newPassword = "Mật khẩu mới phải có ít nhất 6 ký tự.";
-    }
-
-    // Kiểm tra xác nhận mật khẩu
-    if (!confirmPassword) {
-      newErrors.confirmPassword = "Vui lòng xác nhận mật khẩu mới.";
-    } else if (confirmPassword !== newPassword) {
-      newErrors.confirmPassword = "Mật khẩu xác nhận không khớp.";
-    }
-
-    setErrors(newErrors);
+    // Cập nhật lỗi vào state
+    setErrors((prevErrors) => ({ ...prevErrors, [field]: error }));
   };
   const toast = useRef<Toast>(null);
 
@@ -218,7 +231,7 @@ const AvatarMenu = () => {
                   type={oldPasswordVisible ? "text" : "password"}
                   onChange={(e: any) => setPassword(e.target.value)}
                   className="w-full"
-                  onBlur={validatePasswordFields} // Gọi hàm kiểm tra khi trường mất tiêu điểm
+                  onBlur={() => validateField("password")} // Gọi hàm kiểm tra khi trường mất tiêu điểm
                 />
 
                 <img
@@ -230,7 +243,7 @@ const AvatarMenu = () => {
                 />
               </div>
               {errors.password && (
-                <span className="text-red-500">{errors.password}</span>
+                <span className="text-red-500 text-sm">{errors.password}</span>
               )}
             </div>
             <div className="mt-5">
@@ -240,7 +253,7 @@ const AvatarMenu = () => {
                   type={passwordVisible ? "text" : "password"}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  onBlur={validatePasswordFields}
+                  onBlur={() => validateField("newPassword")}
                   className={`w-full ${
                     errors.newPassword ? "border-red-500" : ""
                   }`}
@@ -264,7 +277,7 @@ const AvatarMenu = () => {
                   type={confirmPasswordVisible ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  onBlur={validatePasswordFields}
+                  onBlur={() => validateField("confirmPassword")}
                   className={`w-full ${
                     errors.confirmPassword ? "border-red-500" : ""
                   }`}

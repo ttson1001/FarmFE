@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from "react";
 
 import { Button } from "primereact/button";
 import { Calendar } from "primereact/calendar";
-import { getBussinesPost } from "../../../api/homeFarmer";
 import {
   approvedAccount,
   deleteAccount,
@@ -16,7 +15,7 @@ import { Column } from "primereact/column";
 import { ConfirmDialog } from "primereact/confirmdialog";
 import moment from "moment";
 import { Dropdown } from "primereact/dropdown";
-import { statusOption } from "../../../constant/constant";
+import { nextYear, prvYear, statusOption } from "../../../constant/constant";
 import { Toast } from "primereact/toast";
 import { useNavigate } from "react-router-dom";
 import { clearLocalStorage, role } from "../../../constant/utils";
@@ -41,8 +40,6 @@ const AccountPage = () => {
       .then((response) => {
         if (response.data.success) {
           setListObjects(response.data.data.listObjects);
-        } else {
-          throw new Error(response.data.message || "Failed to fetch data");
         }
       })
       .catch((err) => {
@@ -89,24 +86,22 @@ const AccountPage = () => {
   };
 
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [fromDate, setFromDate] = useState<Date | null>(null);
-  const [toDate, setToDate] = useState<Date | null>(null);
+  const [fromDate, setFromDate] = useState<Date | null>(prvYear);
+  const [toDate, setToDate] = useState<Date | null>(nextYear);
   const [status, setStatus] = useState<number>(0);
   const [minPrice, setMinPrice] = useState<number>(0);
   const [maxPrice, setMaxPrice] = useState<number>(0);
 
   const handleReset = () => {
     setSearchTerm("");
-    setFromDate(null);
-    setToDate(null);
+    setFromDate(prvYear);
+    setToDate(nextYear);
     setMinPrice(0);
     setMaxPrice(0);
-    getBussinesPost(null)
+    getAccounts(null)
       .then((response) => {
         if (response.data.success) {
           setListObjects(response.data.data.listObjects);
-        } else {
-          throw new Error(response.data.message || "Failed to fetch data");
         }
       })
       .catch((err) => {
@@ -131,8 +126,6 @@ const AccountPage = () => {
       .then((response) => {
         if (response.data.success) {
           setListObjects(response.data.data.listObjects);
-        } else {
-          throw new Error(response.data.message || "Failed to fetch data");
         }
       })
       .catch((err) => {

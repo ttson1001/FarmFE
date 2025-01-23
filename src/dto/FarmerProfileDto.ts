@@ -5,4 +5,5 @@ export interface FarmerProfileDto {
   dateOfBirth: string; // Có thể sử dụng Date nếu bạn muốn
   gender: number;
   avatar: string;
+  phoneNumber: string;
 }

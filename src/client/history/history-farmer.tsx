@@ -11,6 +11,8 @@ import {
   addFileToPost,
   addImageToPost,
   deletePost,
+  delFileFromPost,
+  delImageFromPost,
   getFarmerHistory,
   UpdateFarmerPost,
 } from "../../api/historyFarmer";
@@ -29,6 +31,8 @@ import { Dropdown } from "primereact/dropdown";
 import { categories } from "../../constant/constant";
 import { Toast } from "primereact/toast";
 import { useNavigate } from "react-router-dom";
+import FileCarouselDel from "../../common/carousel/FileCarouselDel";
+import ImageCarouselDel from "../../common/carousel/ImageCarouselDel";
 
 const HistoryFarmer = () => {
   const [expandedItems, setExpandedItems] = useState<{
@@ -64,8 +68,6 @@ const HistoryFarmer = () => {
       .then((response) => {
         if (response.data.success) {
           setListObjects(response.data.data.listObjects);
-        } else {
-          throw new Error(response.data.message || "Failed to fetch data");
         }
       })
       .catch((err) => {
@@ -78,6 +80,17 @@ const HistoryFarmer = () => {
 
   const showModal = (value: any) => {
     setObject(value);
+    const images = value?.postImages?.map((x: any) => ({
+      id: x.id,
+      url: x.url,
+    }));
+
+    const filesx = value?.postFiles?.map((x: any) => ({
+      id: x.id,
+      filePath: x.filePath,
+    }));
+    setFiles(filesx);
+    setImages(images);
     const cate = categories?.find((x) => x.label === value?.category)?.value;
 
     setSelectedCategory(cate);
@@ -86,6 +99,8 @@ const HistoryFarmer = () => {
 
   const hideModal = () => {
     setObject(null);
+    setImages([]);
+    setFiles([]);
     setErrors({});
     setModalVisible(false); // Đóng modal
   };
@@ -111,8 +126,8 @@ const HistoryFarmer = () => {
   const [file, setFile] = useState<any>(null);
   const [file1, setFile1] = useState<any>(null);
 
-  const [images, setImages] = useState<number[]>([]);
-  const [files, setFiles] = useState<number[]>([]);
+  const [images, setImages] = useState<{ id: number; url: string }[]>([]);
+  const [files, setFiles] = useState<{ id: number; filePath: string }[]>([]);
 
   const onFileChange = (event: any) => {
     setFile(event.target.files[0]); // Get the first selected file
@@ -128,12 +143,21 @@ const HistoryFarmer = () => {
 
     uploadImage(formData)
       .then((x) => {
-        toast.current?.show({
-          severity: "success",
-          summary: "Tải lên thành công",
+        const data = {
+          id: x.data.data.data.id,
+          url: x.data.data.data.imageUrl,
+        };
+        setImages((prv) => [...prv, data]);
+        const imagesData = {
+          postId: object?.id,
+          imageIds: [data.id],
+        };
+        addImageToPost(imagesData).then(() => {
+          toast.current?.show({
+            severity: "success",
+            summary: "Tải lên thành công",
+          });
         });
-        const id = x.data.data.data.id;
-        setImages((prv) => [...prv, id]);
       })
       .catch(() => {
         toast.current?.show({
@@ -141,6 +165,38 @@ const HistoryFarmer = () => {
           summary: "Tải lên thất bại",
         });
       });
+  };
+
+  const handleRemoveImage = (id: number) => {
+    const updatedImages = images.filter((image) => image.id !== id);
+    const value = {
+      postId: object?.id,
+      imageIds: [id],
+    };
+    delImageFromPost(value.postId, value.imageIds).then(() => {
+      toast.current?.show({
+        severity: "success",
+        summary: "Xóa thành công",
+      });
+      setImages(updatedImages);
+      setLoading(true);
+    });
+  };
+
+  const handleRemoveFile = (id: number) => {
+    const filesx = files.filter((file) => file.id !== id);
+    const value = {
+      postId: object?.id,
+      fileIds: [id],
+    };
+    delFileFromPost(value.postId, value.fileIds).then(() => {
+      toast.current?.show({
+        severity: "success",
+        summary: "Xóa thành công",
+      });
+      setFiles(filesx);
+      setLoading(true);
+    });
   };
 
   const onUploadFile = async () => {
@@ -154,8 +210,21 @@ const HistoryFarmer = () => {
           severity: "success",
           summary: "Tải lên thành công",
         });
-        const id = x.data.data.data.id;
-        setFiles((prv) => [...prv, id]);
+        const data = {
+          id: x.data.data.data.id,
+          filePath: x.data.data.data.filePath,
+        };
+        setFiles((prv) => [...prv, data]);
+        const filesData = {
+          postId: object?.id,
+          fileIds: [data.id],
+        };
+        addFileToPost(filesData).then(() => {
+          toast.current?.show({
+            severity: "success",
+            summary: "Tải lên thành công",
+          });
+        });
       })
       .catch(() => {
         toast.current?.show({
@@ -182,6 +251,8 @@ const HistoryFarmer = () => {
           summary: "Chỉnh sửa bài đăng thành công",
         });
 
+        setFiles([]);
+        setImages([]);
         setLoading(true);
         hideModal();
       })
@@ -191,25 +262,6 @@ const HistoryFarmer = () => {
           summary: "Chỉnh sửa bài đăng thất bại",
         });
       });
-    if (images.length > 0) {
-      const imagesData = {
-        postId: object?.id,
-        imageIds: images,
-      };
-      addImageToPost(imagesData).then(() => {
-        setImages([]);
-      });
-    }
-    if (files.length > 0) {
-      const filesData = {
-        postId: object?.id,
-        fileIds: files,
-      };
-
-      addFileToPost(filesData).then(() => {
-        setFiles([]);
-      });
-    }
   };
 
   const footerContent = (
@@ -341,7 +393,7 @@ const HistoryFarmer = () => {
                   </div>
                   <div className="flex justify-start text-start">
                     <strong className="mr-1"> Số lượng:</strong>{" "}
-                    {item?.quantity}
+                    {item?.quantity} kg
                   </div>
                   <div className="flex justify-start text-start">
                     <strong className="mr-1">Loại sản phẩm:</strong>{" "}
@@ -551,6 +603,16 @@ const HistoryFarmer = () => {
         </div>
         <Divider />
         <div>Chứng từ đính kèm (Hình ảnh)</div>
+        {images?.length > 0 ? (
+          <div className="mt-1">
+            <ImageCarouselDel
+              images={images}
+              onRemoveImage={handleRemoveImage}
+            />
+          </div>
+        ) : (
+          <></>
+        )}
         <div className="card col-span-full sm:col-span-full">
           <input id="file-upload" type="file" onChange={onImageChange} />
           <button
@@ -562,6 +624,13 @@ const HistoryFarmer = () => {
         </div>
         <Divider />
         <div>Chứng từ đính kèm (File)</div>
+        {files?.length > 0 ? (
+          <div className="mt-1">
+            <FileCarouselDel files={files} onRemoveFile={handleRemoveFile} />
+          </div>
+        ) : (
+          <></>
+        )}
         <div className="card col-span-full sm:col-span-full">
           <input id="file-upload" type="file" onChange={onFileChange} />
           <button

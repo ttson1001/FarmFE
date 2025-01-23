@@ -24,3 +24,6 @@ export const genderOption = [
   { value: 2, name: "Nữ" },
   { value: 3, name: "Khác" },
 ];
+
+export const prvYear = new Date(new Date().getFullYear() - 1, 0, 1);
+export const nextYear = new Date(new Date().getFullYear() + 1, 0, 1);

@@ -27,11 +27,15 @@ const HomeAdminLayout = () => {
       separator: true,
     },
     {
-      label: "Quản lý tài khoản",
+      label: "Quản lý",
       items: [
         {
           label: "Tài khoản",
           command: () => navigate("../admin/account"),
+        },
+        {
+          label: "Báo cáo",
+          command: () => navigate("../admin/report"),
         },
       ],
     },

@@ -25,6 +25,8 @@ import { Dropdown } from "primereact/dropdown";
 import { Toast } from "primereact/toast";
 import { useNavigate } from "react-router-dom";
 import empty from "../../assets/empty.png";
+import ImageCarouselDel from "../../common/carousel/ImageCarouselDel";
+import FileCarouselDel from "../../common/carousel/FileCarouselDel";
 
 const HomeCompanyPage = () => {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -38,8 +40,8 @@ const HomeCompanyPage = () => {
   const [unitPrice, setUnitPrice] = useState(0);
   const [standardRequirements, setStandardRequirements] = useState("");
   const [otherRequirement, setOtherRequirement] = useState("");
-  const [images, setImages] = useState<number[]>([]);
-  const [files, setFiles] = useState<number[]>([]);
+  const [images, setImages] = useState<{ id: number; url: string }[]>([]);
+  const [files, setFiles] = useState<{ id: number; filePath: string }[]>([]);
 
   const [errors, setErrors] = useState<{
     content?: string;
@@ -60,7 +62,7 @@ const HomeCompanyPage = () => {
     }
   });
 
-  const validateProductFields = () => {
+  const validateProductFields = (fieldToValidate: string) => {
     const newErrors: {
       content?: string;
       productName?: string;
@@ -69,37 +71,71 @@ const HomeCompanyPage = () => {
       unitPrice?: string;
       standardRequirements?: string;
       otherRequirement?: string;
-    } = {};
+    } = { ...errors }; // Giữ các lỗi trước đó
 
-    // Kiểm tra tên sản phẩm
-    if (!productName) {
-      newErrors.productName = "Vui lòng nhập tên sản phẩm.";
+    // Kiểm tra từng trường dựa trên `fieldToValidate`
+    switch (fieldToValidate) {
+      case "productName":
+        if (!productName) {
+          newErrors.productName = "Vui lòng nhập tên sản phẩm.";
+        } else {
+          delete newErrors.productName; // Xóa lỗi nếu hợp lệ
+        }
+        break;
+
+      case "content":
+        if (!content) {
+          newErrors.content = "Vui lòng nhập mô tả.";
+        } else {
+          delete newErrors.content;
+        }
+        break;
+
+      case "quantity":
+        if (!quantity || quantity <= 0) {
+          newErrors.quantity = "Số lượng phải lớn hơn 0.";
+        } else {
+          delete newErrors.quantity;
+        }
+        break;
+
+      case "category":
+        if (!selectedCategory) {
+          newErrors.category = "Vui lòng chọn loại hàng.";
+        } else {
+          delete newErrors.category;
+        }
+        break;
+
+      case "unitPrice":
+        if (!unitPrice || unitPrice <= 1000) {
+          newErrors.unitPrice = "Giá tiền phải lớn hơn 1 000 VND.";
+        } else {
+          delete newErrors.unitPrice;
+        }
+        break;
+
+      case "standardRequirements":
+        if (!standardRequirements) {
+          newErrors.standardRequirements = "Vui lòng nhập yêu cầu tiêu chuẩn.";
+        } else {
+          delete newErrors.standardRequirements;
+        }
+        break;
+
+      case "otherRequirement":
+        if (!otherRequirement) {
+          newErrors.otherRequirement = "Vui lòng nhập yêu cầu khác.";
+        } else {
+          delete newErrors.otherRequirement;
+        }
+        break;
+
+      default:
+        break;
     }
 
-    if (!content) {
-      newErrors.content = "Vui lòng nhập mô tả.";
-    }
-
-    // Kiểm tra số lượng
-    if (quantity <= 0) {
-      newErrors.quantity = "Số lượng phải lớn hơn 0.";
-    }
-
-    // Kiểm tra loại hàng (category)
-    if (!selectedCategory) {
-      newErrors.category = "Vui lòng chọn loại hàng.";
-    }
-
-    // Kiểm tra giá tiền
-    if (unitPrice <= 1000) {
-      newErrors.unitPrice = "Giá tiền phải lớn hơn 1000.";
-    }
-
-    // Kiểm tra yêu cầu tiêu chuẩn
-    if (!standardRequirements) {
-      newErrors.standardRequirements = "Vui lòng nhập yêu cầu tiêu chuẩn.";
-    }
-
+    // Cập nhật lỗi
     setErrors(newErrors);
   };
 
@@ -108,8 +144,6 @@ const HomeCompanyPage = () => {
       .then((response) => {
         if (response.data.success) {
           setListObjects(response.data.data.listObjects);
-        } else {
-          throw new Error(response.data.message || "Failed to fetch data");
         }
       })
       .catch((err) => {
@@ -136,29 +170,29 @@ const HomeCompanyPage = () => {
   };
 
   const hideModal = () => {
+    setImages([]);
+    setFiles([]);
     setErrors({});
     setModalVisible(false);
   };
 
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [fromDate, setFromDate] = useState<Date | null>(null);
-  const [toDate, setToDate] = useState<Date | null>(null);
+  const [fromDate, setFromDate] = useState<Date | null>(new Date("2000/01/01"));
+  const [toDate, setToDate] = useState<Date | null>(new Date("2100/01/01"));
   const [minPrice, setMinPrice] = useState<number>(0);
-  const [maxPrice, setMaxPrice] = useState<number>(0);
+  const [maxPrice, setMaxPrice] = useState<number>(9999999999);
   const [selectedCategory, setSelectedCategory] = useState(0);
 
   const handleReset = () => {
     setSearchTerm("");
-    setFromDate(null);
-    setToDate(null);
+    setFromDate(new Date("2000/01/01"));
+    setToDate(new Date("2100/01/01"));
     setMinPrice(0);
-    setMaxPrice(0);
+    setMaxPrice(9999999999);
     getBussinesPost(null)
       .then((response) => {
         if (response.data.success) {
           setListObjects(response.data.data.listObjects);
-        } else {
-          throw new Error(response.data.message || "Failed to fetch data");
         }
       })
       .catch((err) => {
@@ -178,8 +212,6 @@ const HomeCompanyPage = () => {
       .then((response) => {
         if (response.data.success) {
           setListObjects(response.data.data.listObjects);
-        } else {
-          throw new Error(response.data.message || "Failed to fetch data");
         }
       })
       .catch((err) => {
@@ -205,9 +237,26 @@ const HomeCompanyPage = () => {
     formData.append("CustomFileName", "aaa"); // Append the custom file name
 
     uploadImage(formData).then((x) => {
-      const id = x.data.data.data.id;
-      setImages((prv) => [...prv, id]);
+      const data = {
+        id: x.data.data.data.id,
+        url: x.data.data.data.imageUrl,
+      };
+      setImages((prv) => [...prv, data]);
+      toast.current?.show({
+        severity: "success",
+        summary: "Tải lên thành công",
+      });
     });
+  };
+
+  const handleRemoveImage = (id: number) => {
+    const updatedImages = images.filter((image) => image.id !== id);
+    setImages(updatedImages);
+  };
+
+  const handleRemoveFile = (id: number) => {
+    const filesx = files.filter((file) => file.id !== id);
+    setFiles(filesx);
   };
 
   const onUploadFile = async () => {
@@ -216,8 +265,15 @@ const HomeCompanyPage = () => {
     formData.append("CustomFileName", "aaa"); // Append the custom file name
 
     uploadFile(formData).then((x) => {
-      const id = x.data.data.data.id;
-      setFiles((prv) => [...prv, id]);
+      toast.current?.show({
+        severity: "success",
+        summary: "Tải lên thành công",
+      });
+      const data = {
+        id: x.data.data.data.id,
+        filePath: x.data.data.data.filePath,
+      };
+      setFiles((prv) => [...prv, data]);
     });
   };
 
@@ -234,6 +290,9 @@ const HomeCompanyPage = () => {
   };
 
   const handleCreate = () => {
+    const filesx = files?.map((x) => x.id);
+    const imagesx = images?.map((x) => x.id);
+
     const formData = {
       content,
       productName,
@@ -242,8 +301,8 @@ const HomeCompanyPage = () => {
       unitPrice,
       standardRequirments: standardRequirements,
       otherRequirement,
-      images,
-      files,
+      images: imagesx,
+      files: filesx,
     };
     createBussinesPost(formData)
       .then(() => {
@@ -370,7 +429,7 @@ const HomeCompanyPage = () => {
                       className={`mt-2 w-full ${
                         errors.productName ? "p-invalid border-red-500" : ""
                       }`}
-                      onBlur={validateProductFields}
+                      onBlur={() => validateProductFields("productName")}
                       onChange={(e) => setProductName(e.target.value)}
                     />
                     {errors.productName && (
@@ -386,7 +445,7 @@ const HomeCompanyPage = () => {
                         errors.quantity ? "p-invalid border-red-500" : ""
                       }`}
                       type="number"
-                      onBlur={validateProductFields}
+                      onBlur={() => validateProductFields("quantity")}
                       onChange={(e) => setQuantity(Number(e.target.value))}
                     />
                     {errors.quantity && (
@@ -401,7 +460,7 @@ const HomeCompanyPage = () => {
                       optionLabel="name"
                       onChange={(e: any) => setSelectedCategory(e.value)}
                       placeholder="Chọn loại"
-                      onBlur={validateProductFields}
+                      onBlur={() => validateProductFields("category")}
                       className={`mt-2 w-full ${
                         errors.category ? "p-invalid border-red-500" : ""
                       }`}
@@ -415,7 +474,9 @@ const HomeCompanyPage = () => {
                   <div className="col-span-4">
                     <label className="mr-2">Yêu cầu tiêu chuẩn:</label>
                     <InputText
-                      onBlur={validateProductFields}
+                      onBlur={() =>
+                        validateProductFields("standardRequirements")
+                      }
                       className={`mt-2 w-full ${
                         errors.standardRequirements
                           ? "p-invalid border-red-500"
@@ -439,7 +500,7 @@ const HomeCompanyPage = () => {
                   <div className="col-span-4">
                     <label className="mr-2">Giá từng sản phẩm (VND):</label>
                     <InputText
-                      onBlur={validateProductFields}
+                      onBlur={() => validateProductFields("unitPrice")}
                       className={`mt-2 w-full ${
                         errors.unitPrice ? "p-invalid border-red-500" : ""
                       }`}
@@ -461,12 +522,22 @@ const HomeCompanyPage = () => {
                       placeholder="Nhập nội dung"
                       className="h-40 mt-2"
                       onTextChange={(e: any) => setContent(e.htmlValue)}
-                      onBlur={validateProductFields}
+                      onBlur={() => validateProductFields("content")}
                     />
                   </div>
                 </div>
                 <Divider />
                 <div>Chứng từ liên quan (hình ảnh)</div>
+                {images?.length > 0 ? (
+                  <div className="mt-1">
+                    <ImageCarouselDel
+                      images={images}
+                      onRemoveImage={handleRemoveImage}
+                    />
+                  </div>
+                ) : (
+                  <></>
+                )}
                 <div className="card col-span-full">
                   <input id="file-upload" type="file" onChange={onFileChange} />
                   <button
@@ -478,6 +549,16 @@ const HomeCompanyPage = () => {
                 </div>
                 <Divider />
                 <div>Chứng từ liên quan (file)</div>
+                {files?.length > 0 ? (
+                  <div className="mt-1">
+                    <FileCarouselDel
+                      files={files}
+                      onRemoveFile={handleRemoveFile}
+                    />
+                  </div>
+                ) : (
+                  <></>
+                )}
                 <div className="card col-span-full">
                   <input
                     id="file-upload"

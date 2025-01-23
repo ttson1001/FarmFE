@@ -17,10 +17,12 @@ import {
   getFromLocalStorage,
   role,
 } from "../../constant/utils";
-import { categories } from "../../constant/constant";
+import { categories, nextYear, prvYear } from "../../constant/constant";
 import { Dropdown } from "primereact/dropdown";
 import { Toast } from "primereact/toast";
 import { useNavigate } from "react-router-dom";
+import ImageCarouselDel from "../../common/carousel/ImageCarouselDel";
+import FileCarouselDel from "../../common/carousel/FileCarouselDel";
 
 const HomeFarmerPage = () => {
   const [isModalVisible, setModalVisible] = useState(false); // State để quản lý modal;
@@ -34,16 +36,14 @@ const HomeFarmerPage = () => {
   const [category, setCategory] = useState(0);
   const [lossRate, setLossRate] = useState(0.0);
   const [unitPrice, setUnitPrice] = useState(0);
-  const [images, setImages] = useState<number[]>([]);
-  const [files, setFiles] = useState<number[]>([]);
+  const [images, setImages] = useState<{ id: number; url: string }[]>([]);
+  const [files, setFiles] = useState<{ id: number; filePath: string }[]>([]);
 
   useEffect(() => {
     getBussinesPost(null)
       .then((response) => {
         if (response.data.success) {
           setListObjects(response.data.data.listObjects);
-        } else {
-          throw new Error(response.data.message || "Failed to fetch data");
         }
       })
       .catch((err) => {
@@ -66,6 +66,8 @@ const HomeFarmerPage = () => {
   };
 
   const showModal = () => {
+    setFiles([]);
+    setImages([]);
     console.log(category);
     setModalVisible(true);
   };
@@ -77,10 +79,10 @@ const HomeFarmerPage = () => {
   };
 
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [fromDate, setFromDate] = useState<Date | null>(null);
-  const [toDate, setToDate] = useState<Date | null>(null);
+  const [fromDate, setFromDate] = useState<Date | null>(prvYear);
+  const [toDate, setToDate] = useState<Date | null>(nextYear);
   const [minPrice, setMinPrice] = useState<number>(0);
-  const [maxPrice, setMaxPrice] = useState<number>(0);
+  const [maxPrice, setMaxPrice] = useState<number>(Number.MAX_SAFE_INTEGER);
   const [selectedCategory, setSelectedCategory] = useState<number | undefined>(
     0
   );
@@ -95,16 +97,14 @@ const HomeFarmerPage = () => {
 
   const handleReset = () => {
     setSearchTerm("");
-    setFromDate(null);
-    setToDate(null);
+    setFromDate(prvYear);
+    setToDate(nextYear);
     setMinPrice(0);
-    setMaxPrice(0);
+    setMaxPrice(Number.MAX_SAFE_INTEGER);
     getBussinesPost(null)
       .then((response) => {
         if (response.data.success) {
           setListObjects(response.data.data.listObjects);
-        } else {
-          throw new Error(response.data.message || "Failed to fetch data");
         }
       })
       .catch((err) => {
@@ -124,8 +124,6 @@ const HomeFarmerPage = () => {
       .then((response) => {
         if (response.data.success) {
           setListObjects(response.data.data.listObjects);
-        } else {
-          throw new Error(response.data.message || "Failed to fetch data");
         }
       })
       .catch((err) => {
@@ -151,9 +149,26 @@ const HomeFarmerPage = () => {
     formData.append("CustomFileName", "aaa"); // Append the custom file name
 
     uploadImage(formData).then((x) => {
-      const id = x.data.data.data.id;
-      setImages((prv) => [...prv, id]);
+      const data = {
+        id: x.data.data.data.id,
+        url: x.data.data.data.imageUrl,
+      };
+      setImages((prv) => [...prv, data]);
+      toast.current?.show({
+        severity: "success",
+        summary: "Tải lên thành công",
+      });
     });
+  };
+
+  const handleRemoveImage = (id: number) => {
+    const updatedImages = images.filter((image) => image.id !== id);
+    setImages(updatedImages);
+  };
+
+  const handleRemoveFile = (id: number) => {
+    const filesx = files.filter((file) => file.id !== id);
+    setFiles(filesx);
   };
 
   const onUploadFile = async () => {
@@ -162,8 +177,15 @@ const HomeFarmerPage = () => {
     formData.append("CustomFileName", "aaa"); // Append the custom file name
 
     uploadFile(formData).then((x) => {
-      const id = x.data.data.data.id;
-      setFiles((prv) => [...prv, id]);
+      toast.current?.show({
+        severity: "success",
+        summary: "Tải lên thành công",
+      });
+      const data = {
+        id: x.data.data.data.id,
+        filePath: x.data.data.data.filePath,
+      };
+      setFiles((prv) => [...prv, data]);
     });
   };
 
@@ -187,8 +209,8 @@ const HomeFarmerPage = () => {
       category: selectedCategory,
       lossRate,
       unitPrice,
-      images,
-      files,
+      images: images?.map((x) => x.id),
+      files: files?.map((x) => x.id),
     };
     createFarmerPost(formData)
       .then(() => {
@@ -447,15 +469,29 @@ const HomeFarmerPage = () => {
                 <div className="grid grid-cols-12 h-60 mt-2 sm:grid-cols-1">
                   <div className="col-span-full h-52">
                     <label className=" col-span-3 ">Mô tả:</label>
+                    {errors.content && (
+                      <small className="text-red-500">{errors.content}</small>
+                    )}
                     <Editor
                       placeholder="Nhập nội dung"
                       className="h-40 mt-2"
+                      onBlur={() => validateField("content", content)}
                       onTextChange={(e: any) => setContent(e.htmlValue)}
                     />
                   </div>
                 </div>
                 <Divider />
                 <div>Chứng từ đính kèm (Hình ảnh)</div>
+                {images?.length > 0 ? (
+                  <div className="mt-1">
+                    <ImageCarouselDel
+                      images={images}
+                      onRemoveImage={handleRemoveImage}
+                    />
+                  </div>
+                ) : (
+                  <></>
+                )}
                 <div className="card col-span-full sm:col-span-full">
                   <input id="file-upload" type="file" onChange={onFileChange} />
                   <button
@@ -467,6 +503,16 @@ const HomeFarmerPage = () => {
                 </div>
                 <Divider />
                 <div>Chứng từ đính kèm (File)</div>
+                {files?.length > 0 ? (
+                  <div className="mt-1">
+                    <FileCarouselDel
+                      files={files}
+                      onRemoveFile={handleRemoveFile}
+                    />
+                  </div>
+                ) : (
+                  <></>
+                )}
                 <div className="card col-span-full sm:col-span-full">
                   <input
                     id="file-upload"

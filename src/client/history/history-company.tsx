@@ -114,7 +114,7 @@ const HistoryCompany = () => {
 
       case "unitPrice":
         if (!object.unitPrice || object.unitPrice <= 1000) {
-          newErrors.unitPrice = "Giá tiền phải lớn hơn 1 000 đ.";
+          newErrors.unitPrice = "Giá tiền phải lớn hơn 1 000 VND.";
         } else {
           delete newErrors.unitPrice;
         }
@@ -169,8 +169,6 @@ const HistoryCompany = () => {
       .then((response) => {
         if (response.data.success) {
           setListObjects(response.data.data.listObjects);
-        } else {
-          throw new Error(response.data.message || "Failed to fetch data");
         }
       })
       .catch((err) => {

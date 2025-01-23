@@ -9,7 +9,12 @@ import { Calendar } from "primereact/calendar";
 import { getBussinesPost, updatePostStatus } from "../../../api/homeFarmer";
 import FileCarousel from "../../../common/carousel/FileCarousel";
 import ImageCarousel from "../../../common/carousel/ImageCarousel";
-import { categories, postStatusOption } from "../../../constant/constant";
+import {
+  categories,
+  nextYear,
+  postStatusOption,
+  prvYear,
+} from "../../../constant/constant";
 import { Toast } from "primereact/toast";
 import { Dropdown } from "primereact/dropdown";
 import { useNavigate } from "react-router-dom";
@@ -34,8 +39,6 @@ const CompanyPage = () => {
       .then((response) => {
         if (response.data.success) {
           setListObjects(response.data.data.listObjects);
-        } else {
-          throw new Error(response.data.message || "Failed to fetch data");
         }
       })
       .catch((err) => {
@@ -104,24 +107,22 @@ const CompanyPage = () => {
   };
 
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [fromDate, setFromDate] = useState<Date | null>(null);
-  const [toDate, setToDate] = useState<Date | null>(null);
+  const [fromDate, setFromDate] = useState<Date | null>(prvYear);
+  const [toDate, setToDate] = useState<Date | null>(nextYear);
   const [status, setStatus] = useState<number>(1);
   const [minPrice, setMinPrice] = useState<number>(0);
-  const [maxPrice, setMaxPrice] = useState<number>(9999999999999);
+  const [maxPrice, setMaxPrice] = useState<number>(Number.MAX_SAFE_INTEGER);
 
   const handleReset = () => {
     setSearchTerm("");
-    setFromDate(null);
-    setToDate(null);
+    setFromDate(prvYear);
+    setToDate(nextYear);
     setMinPrice(0);
-    setMaxPrice(9999999999999);
+    setMaxPrice(Number.MAX_SAFE_INTEGER);
     getBussinesPost(null)
       .then((response) => {
         if (response.data.success) {
           setListObjects(response.data.data.listObjects);
-        } else {
-          throw new Error(response.data.message || "Failed to fetch data");
         }
       })
       .catch((err) => {
@@ -142,8 +143,6 @@ const CompanyPage = () => {
       .then((response) => {
         if (response.data.success) {
           setListObjects(response.data.data.listObjects);
-        } else {
-          throw new Error(response.data.message || "Failed to fetch data");
         }
       })
       .catch((err) => {

@@ -11,7 +11,11 @@ import { uploadImage } from "../../api/file";
 import { Dropdown } from "primereact/dropdown";
 import { genderOption } from "../../constant/constant";
 import { useNavigate } from "react-router-dom";
-import { clearLocalStorage, role } from "../../constant/utils";
+import {
+  clearLocalStorage,
+  role,
+  saveToLocalStorage,
+} from "../../constant/utils";
 
 interface FarmerProfileProps {
   value: string; // Gán kiểu string cho prop value
@@ -19,7 +23,7 @@ interface FarmerProfileProps {
 const FarmerProfile: React.FC<FarmerProfileProps> = ({ value }) => {
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
-  const [identityCard, setIdentityCard] = useState<string>("");
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [dateOfBirth, setDateOfBirth] = useState<string>("");
   const [gender, setGender] = useState<number>(1);
   const [avatar, setAvatar] = useState<string>("");
@@ -41,7 +45,7 @@ const FarmerProfile: React.FC<FarmerProfileProps> = ({ value }) => {
         const farmer = req?.data?.data;
         setFirstName(farmer?.firstName);
         setLastName(farmer?.lastName);
-        setIdentityCard(farmer?.identityCard);
+        setPhoneNumber(farmer?.phoneNumber);
         setDateOfBirth(farmer?.dateOfBirth);
         setGender(
           farmer.gender === "Male" ? 1 : farmer.gender === "Female" ? 2 : 3
@@ -66,7 +70,8 @@ const FarmerProfile: React.FC<FarmerProfileProps> = ({ value }) => {
       avatar,
       dateOfBirth: dob,
       gender: 1,
-      identityCard,
+      identityCard: "00",
+      phoneNumber,
     };
 
     updateProfile(data).then((x) => {
@@ -77,7 +82,9 @@ const FarmerProfile: React.FC<FarmerProfileProps> = ({ value }) => {
       if (value === "login") {
         navigate("/profile-farmer");
       }
+      saveToLocalStorage("avatar", avatar);
       setLoad(true);
+      window.location.reload();
     });
   };
 
@@ -108,7 +115,7 @@ const FarmerProfile: React.FC<FarmerProfileProps> = ({ value }) => {
   const [errors, setErrors] = useState<{
     firstName?: string;
     lastName?: string;
-    identityCard?: string;
+    phoneNumber?: string;
     dateOfBirth?: string;
     gender?: string;
   }>({});
@@ -129,11 +136,11 @@ const FarmerProfile: React.FC<FarmerProfileProps> = ({ value }) => {
         }
         break;
 
-      case "identityCard":
-        if (!identityCard) {
-          errorMessage = "Vui lòng nhập số CCCD.";
-        } else if (!/^\d+$/.test(identityCard)) {
-          errorMessage = "Số CCCD phải là số.";
+      case "phoneNumber":
+        if (!phoneNumber) {
+          errorMessage = "Vui lòng nhập số điện thoại.";
+        } else if (!/^\d{10,11}$/.test(phoneNumber)) {
+          errorMessage = "Số điện thoại phải là số và có độ dài 10-11 ký tự.";
         }
         break;
 
@@ -185,7 +192,7 @@ const FarmerProfile: React.FC<FarmerProfileProps> = ({ value }) => {
       <div className="flex justify-center">
         <label htmlFor="avatar-upload" className="cursor-pointer">
           <Avatar
-            className="w-40 h-40"
+            className="w-32 h-32"
             image={avatar} // Đặt đường dẫn đến hình ảnh mặc định nếu không có hình ảnh
             shape="circle"
           />
@@ -252,15 +259,15 @@ const FarmerProfile: React.FC<FarmerProfileProps> = ({ value }) => {
         )}
       </div>
       <div className=" gap-10 items-center mt-5">
-        <div className="w-24 font-bold">số CCCD:</div>
+        <div className="w-full font-bold">Số điện thoại:</div>
         <InputText
-          onChange={(e: any) => setIdentityCard(e.target.value)}
-          value={identityCard}
+          onChange={(e: any) => setPhoneNumber(e.target.value)}
+          value={phoneNumber}
           className="w-full"
-          onBlur={() => validateField("identityCard")}
+          onBlur={() => validateField("phoneNumber")}
         />
-        {errors.identityCard && (
-          <span className="text-red-500">{errors.identityCard}</span>
+        {errors.phoneNumber && (
+          <span className="text-red-500">{errors.phoneNumber}</span>
         )}
       </div>
       <div className="flex justify-center mt-5">

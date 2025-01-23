@@ -9,7 +9,11 @@ import { Toast } from "primereact/toast";
 import { Button } from "primereact/button";
 import { uploadImage } from "../../api/file";
 import { useNavigate } from "react-router-dom";
-import { clearLocalStorage, role } from "../../constant/utils";
+import {
+  clearLocalStorage,
+  role,
+  saveToLocalStorage,
+} from "../../constant/utils";
 interface CompanyProfileProps {
   value: string; // Gán kiểu string cho prop value
 }
@@ -95,7 +99,9 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ value }) => {
       if (value === "login") {
         navigate("/profile-farmer");
       }
+      saveToLocalStorage("avatar", avatar);
       setLoad(true);
+      window.location.reload();
     });
   };
 
