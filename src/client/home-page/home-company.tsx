@@ -9,18 +9,14 @@ import { Divider } from "primereact/divider";
 import FileCarousel from "../../common/carousel/FileCarousel";
 import ImageCarousel from "../../common/carousel/ImageCarousel";
 import { Calendar } from "primereact/calendar";
-import {
-  createBussinesPost,
-  getBussinesPost,
-  getFarmerPost,
-} from "../../api/homeFarmer";
+import { createBussinesPost, getFarmerPost } from "../../api/homeFarmer";
 import { uploadFile, uploadImage } from "../../api/file";
 import {
   clearLocalStorage,
   getFromLocalStorage,
   role,
 } from "../../constant/utils";
-import { categories } from "../../constant/constant";
+import { categories, nextYear, prvYear } from "../../constant/constant";
 import { Dropdown } from "primereact/dropdown";
 import { Toast } from "primereact/toast";
 import { useNavigate } from "react-router-dom";
@@ -177,19 +173,19 @@ const HomeCompanyPage = () => {
   };
 
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [fromDate, setFromDate] = useState<Date | null>(new Date("2000/01/01"));
-  const [toDate, setToDate] = useState<Date | null>(new Date("2100/01/01"));
+  const [fromDate, setFromDate] = useState<Date | null>(prvYear);
+  const [toDate, setToDate] = useState<Date | null>(nextYear);
   const [minPrice, setMinPrice] = useState<number>(0);
-  const [maxPrice, setMaxPrice] = useState<number>(9999999999);
+  const [maxPrice, setMaxPrice] = useState<number>(Number.MAX_SAFE_INTEGER);
   const [selectedCategory, setSelectedCategory] = useState(0);
 
   const handleReset = () => {
     setSearchTerm("");
-    setFromDate(new Date("2000/01/01"));
-    setToDate(new Date("2100/01/01"));
+    setFromDate(prvYear);
+    setToDate(nextYear);
     setMinPrice(0);
-    setMaxPrice(9999999999);
-    getBussinesPost(null)
+    setMaxPrice(Number.MAX_SAFE_INTEGER);
+    getFarmerPost(null)
       .then((response) => {
         if (response.data.success) {
           setListObjects(response.data.data.listObjects);
