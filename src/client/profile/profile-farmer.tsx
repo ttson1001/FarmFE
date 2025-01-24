@@ -127,12 +127,16 @@ const FarmerProfile: React.FC<FarmerProfileProps> = ({ value }) => {
       case "firstName":
         if (!firstName) {
           errorMessage = "Vui lòng nhập tên.";
+        } else if (firstName.length > 20) {
+          errorMessage = "Tên không quá 20 kí tụ.";
         }
         break;
 
       case "lastName":
         if (!lastName) {
           errorMessage = "Vui lòng nhập họ.";
+        } else if (lastName.length > 20) {
+          errorMessage = "Họ không quá 20 kí tụ.";
         }
         break;
 

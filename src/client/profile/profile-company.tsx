@@ -50,11 +50,15 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ value }) => {
     // Kiểm tra tên công ty
     if (!companyName) {
       newErrors.companyName = "Vui lòng nhập tên công ty.";
+    } else if (companyName.length > 255) {
+      newErrors.companyName = "Tên công ty không được quá 255 ký tự";
     }
 
     // Kiểm tra địa chỉ
     if (!address) {
       newErrors.address = "Vui lòng nhập địa chỉ.";
+    } else if (address.length > 255) {
+      newErrors.address = "Tên công ty không được quá 255 ký tự";
     }
 
     // Kiểm tra mã số thuế
