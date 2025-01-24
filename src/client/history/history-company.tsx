@@ -455,6 +455,10 @@ const HistoryCompany = () => {
                     </span>
                   </div>
                   <div className="flex justify-start text-start">
+                    <strong className="mr-1">Số điện thoại:</strong>
+                    {item?.phoneNumber}
+                  </div>
+                  <div className="flex justify-start text-start">
                     <strong className="mr-1">Yêu cầu tiêu chuẩn:</strong>{" "}
                     {item?.standardRequirement}
                   </div>

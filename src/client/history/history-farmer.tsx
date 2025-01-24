@@ -423,6 +423,10 @@ const HistoryFarmer = () => {
                     </span>
                   </div>
                   <div className="flex justify-start text-start">
+                    <strong className="mr-1">Số điện thoại:</strong>
+                    {item?.phoneNumber}
+                  </div>
+                  <div className="flex justify-start text-start">
                     <div>
                       {/* Hiển thị nội dung văn bản */}
                       <p>

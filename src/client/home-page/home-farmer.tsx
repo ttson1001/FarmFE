@@ -589,6 +589,10 @@ const HomeFarmerPage = () => {
                     </span>
                   </div>
                   <div className="flex justify-start text-start">
+                    <strong className="mr-1">Số điện thoại:</strong>
+                    {item?.phoneNumber}
+                  </div>
+                  <div className="flex justify-start text-start">
                     <strong className="mr-1">Yêu cầu phải có:</strong>{" "}
                     {item?.standardRequirement}
                   </div>
