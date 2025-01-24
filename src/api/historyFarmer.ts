@@ -16,6 +16,10 @@ export const getFarmerHistory = async () => {
       from: 0,
       to: maximumPrice,
     },
+    unitPrice: {
+      from: 0,
+      to: maximumPrice,
+    },
     status: null,
   };
 
@@ -43,6 +47,10 @@ export const getBusinessHistory = async () => {
     totalPrice: {
       from: 1,
       to: Number.MIN_SAFE_INTEGER,
+    },
+    unitPrice: {
+      from: 0,
+      to: maximumPrice,
     },
     status: null,
   };

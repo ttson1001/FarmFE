@@ -1,5 +1,5 @@
 import moment from "moment";
-import { SERVER_API } from "../constant/constant";
+import { maximumPrice, SERVER_API } from "../constant/constant";
 import { apiClient } from "./axios";
 
 export const getBussinesPost = async (value: any) => {
@@ -17,6 +17,10 @@ export const getBussinesPost = async (value: any) => {
       from: 1,
       to: Number.MIN_SAFE_INTEGER,
     },
+    unitPrice: {
+      from: 0,
+      to: maximumPrice,
+    },
     status: null,
   };
   if (value) {
@@ -29,6 +33,10 @@ export const getBussinesPost = async (value: any) => {
       createdDate: {
         from: moment(value.fromDate).format("YYYY-MM-DD"),
         to: moment(value.toDate).format("YYYY-MM-DD"),
+      },
+      unitPrice: {
+        from: 0,
+        to: value.maxPrice ?? Number.MIN_SAFE_INTEGER,
       },
       totalPrice: {
         from: value.minPrice ?? 0,
@@ -58,7 +66,11 @@ export const getFarmerPost = async (value: any) => {
     },
     totalPrice: {
       from: 1,
-      to: 999999999999,
+      to: maximumPrice,
+    },
+    unitPrice: {
+      from: 0,
+      to: maximumPrice,
     },
     status: null,
   };
@@ -73,9 +85,13 @@ export const getFarmerPost = async (value: any) => {
         from: moment(value.fromDate).format("YYYY-MM-DD"),
         to: moment(value.toDate).format("YYYY-MM-DD"),
       },
+      unitPrice: {
+        from: 0,
+        to: value.maxPrice ?? maximumPrice,
+      },
       totalPrice: {
         from: value.minPrice ?? 0,
-        to: value.maxPrice ?? 999999999999,
+        to: value.maxPrice ?? maximumPrice,
       },
       status: value.status,
     };
