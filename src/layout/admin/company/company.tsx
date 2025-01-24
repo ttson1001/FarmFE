@@ -11,6 +11,7 @@ import FileCarousel from "../../../common/carousel/FileCarousel";
 import ImageCarousel from "../../../common/carousel/ImageCarousel";
 import {
   categories,
+  maximumPrice,
   nextYear,
   postStatusOption,
   prvYear,
@@ -111,14 +112,14 @@ const CompanyPage = () => {
   const [toDate, setToDate] = useState<Date | null>(nextYear);
   const [status, setStatus] = useState<number>(1);
   const [minPrice, setMinPrice] = useState<number>(0);
-  const [maxPrice, setMaxPrice] = useState<number>(Number.MAX_SAFE_INTEGER);
+  const [maxPrice, setMaxPrice] = useState<number>(maximumPrice);
 
   const handleReset = () => {
     setSearchTerm("");
     setFromDate(prvYear);
     setToDate(nextYear);
     setMinPrice(0);
-    setMaxPrice(Number.MAX_SAFE_INTEGER);
+    setMaxPrice(maximumPrice);
     getBussinesPost(null)
       .then((response) => {
         if (response.data.success) {
@@ -177,6 +178,7 @@ const CompanyPage = () => {
             <Calendar
               className="w-full mt-2"
               showIcon
+              dateFormat="dd/mm/yy"
               value={fromDate}
               maxDate={toDate ?? new Date()}
               onChange={(e) => setFromDate(e.value as Date)}
@@ -185,6 +187,7 @@ const CompanyPage = () => {
             <Calendar
               className="w-full mt-2"
               showIcon
+              dateFormat="dd/mm/yy"
               minDate={fromDate ?? new Date()}
               value={toDate}
               onChange={(e) => setToDate(e.value as Date)}
@@ -286,7 +289,7 @@ const CompanyPage = () => {
                       {categories.find((x) => x.label === item?.category)?.name}
                     </div>
                     <div className="flex justify-start text-start">
-                      <strong className="mr-1">Giá từng sản phẩm:</strong>{" "}
+                      <strong className="mr-1">Giá đề xuất :</strong>{" "}
                       <span>
                         {new Intl.NumberFormat("vi-VN").format(
                           item?.unitPrice || 0

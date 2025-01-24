@@ -14,7 +14,7 @@ import Success from "./client/verify/success";
 import Error from "./client/verify/error";
 import FarmerPage from "./layout/admin/farmer/famer";
 import CompanyPage from "./layout/admin/company/company";
-import AccountPage from "./layout/admin/account/farmer";
+import AccountPage from "./layout/admin/account/account";
 import Forgot from "./client/password/forgot-password";
 import Resset from "./client/password/resest-pasword";
 import { useEffect } from "react";

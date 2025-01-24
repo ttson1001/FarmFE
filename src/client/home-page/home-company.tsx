@@ -16,7 +16,12 @@ import {
   getFromLocalStorage,
   role,
 } from "../../constant/utils";
-import { categories, nextYear, prvYear } from "../../constant/constant";
+import {
+  categories,
+  maximumPrice,
+  nextYear,
+  prvYear,
+} from "../../constant/constant";
 import { Dropdown } from "primereact/dropdown";
 import { Toast } from "primereact/toast";
 import { useNavigate } from "react-router-dom";
@@ -88,8 +93,8 @@ const HomeCompanyPage = () => {
         break;
 
       case "quantity":
-        if (!quantity || quantity <= 0) {
-          newErrors.quantity = "Số lượng phải lớn hơn 0.";
+        if (!quantity || quantity <= 0 || quantity > 1000000) {
+          newErrors.quantity = "Số lượng phải trong khoảng 1 đén 1000000.";
         } else {
           delete newErrors.quantity;
         }
@@ -104,8 +109,9 @@ const HomeCompanyPage = () => {
         break;
 
       case "unitPrice":
-        if (!unitPrice || unitPrice <= 1000) {
-          newErrors.unitPrice = "Giá tiền phải lớn hơn 1 000 VND.";
+        if (!unitPrice || unitPrice < 1000 || unitPrice > 1000000000000) {
+          newErrors.unitPrice =
+            "Giá tiền phải nằm trong khoảng từ 1 000 VND đến 1 000 000 000 000 VND.";
         } else {
           delete newErrors.unitPrice;
         }
@@ -176,7 +182,7 @@ const HomeCompanyPage = () => {
   const [fromDate, setFromDate] = useState<Date | null>(prvYear);
   const [toDate, setToDate] = useState<Date | null>(nextYear);
   const [minPrice, setMinPrice] = useState<number>(0);
-  const [maxPrice, setMaxPrice] = useState<number>(Number.MAX_SAFE_INTEGER);
+  const [maxPrice, setMaxPrice] = useState<number>(maximumPrice);
   const [selectedCategory, setSelectedCategory] = useState(0);
 
   const handleReset = () => {
@@ -184,7 +190,7 @@ const HomeCompanyPage = () => {
     setFromDate(prvYear);
     setToDate(nextYear);
     setMinPrice(0);
-    setMaxPrice(Number.MAX_SAFE_INTEGER);
+    setMaxPrice(maximumPrice);
     getFarmerPost(null)
       .then((response) => {
         if (response.data.success) {
@@ -304,7 +310,8 @@ const HomeCompanyPage = () => {
       .then(() => {
         toast.current?.show({
           severity: "success",
-          summary: "Tạo bài đăng thành công",
+          summary:
+            "Cảm ơn bạn đã gửi bài viết. Bài viết của bạn đang chờ quản trị viên duyệt",
         });
         handleResetData();
         hideModal();
@@ -349,6 +356,7 @@ const HomeCompanyPage = () => {
             <Calendar
               className="w-full mt-2"
               showIcon
+              dateFormat="dd/mm/yy"
               value={fromDate}
               maxDate={toDate ?? new Date()}
               onChange={(e) => setFromDate(e.value as Date)}
@@ -357,6 +365,7 @@ const HomeCompanyPage = () => {
             <Calendar
               className="w-full mt-2"
               showIcon
+              dateFormat="dd/mm/yy"
               minDate={fromDate ?? new Date()}
               value={toDate}
               onChange={(e) => setToDate(e.value as Date)}
@@ -494,7 +503,7 @@ const HomeCompanyPage = () => {
                     />
                   </div>
                   <div className="col-span-4">
-                    <label className="mr-2">Giá từng sản phẩm (VND):</label>
+                    <label className="mr-2">Giá đề xuất (VND):</label>
                     <InputText
                       onBlur={() => validateProductFields("unitPrice")}
                       className={`mt-2 w-full ${
@@ -608,7 +617,7 @@ const HomeCompanyPage = () => {
                     {categories.find((x) => x.label === item?.category)?.name}
                   </div>
                   <div className="flex justify-start text-start">
-                    <strong className="mr-1">Giá từng sản phẩm:</strong>{" "}
+                    <strong className="mr-1">Giá đề xuất :</strong>{" "}
                     <span>
                       {new Intl.NumberFormat("vi-VN").format(
                         item?.unitPrice || 0

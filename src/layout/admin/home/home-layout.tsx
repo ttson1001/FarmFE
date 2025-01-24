@@ -34,7 +34,7 @@ const HomeAdminLayout = () => {
           command: () => navigate("../admin/account"),
         },
         {
-          label: "Báo cáo",
+          label: "Thống kê",
           command: () => navigate("../admin/report"),
         },
       ],

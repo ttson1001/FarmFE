@@ -27,3 +27,4 @@ export const genderOption = [
 
 export const prvYear = new Date(new Date().getFullYear() - 1, 0, 1);
 export const nextYear = new Date(new Date().getFullYear() + 1, 0, 1);
+export const maximumPrice = 9000000000000000;

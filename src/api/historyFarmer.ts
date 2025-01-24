@@ -1,4 +1,4 @@
-import { SERVER_API } from "../constant/constant";
+import { maximumPrice, SERVER_API } from "../constant/constant";
 import { apiClient } from "./axios";
 
 export const getFarmerHistory = async () => {
@@ -14,7 +14,7 @@ export const getFarmerHistory = async () => {
     },
     totalPrice: {
       from: 0,
-      to: Number.MAX_SAFE_INTEGER,
+      to: maximumPrice,
     },
     status: null,
   };

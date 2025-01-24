@@ -18,7 +18,12 @@ import { Dropdown } from "primereact/dropdown";
 import { nextYear, prvYear, statusOption } from "../../../constant/constant";
 import { Toast } from "primereact/toast";
 import { useNavigate } from "react-router-dom";
-import { clearLocalStorage, role } from "../../../constant/utils";
+import {
+  clearLocalStorage,
+  role,
+  translateRole,
+  translateStatus,
+} from "../../../constant/utils";
 
 const AccountPage = () => {
   const [listObjects, setListObjects] = useState([]);
@@ -170,6 +175,7 @@ const AccountPage = () => {
             <Calendar
               className="w-full mt-2"
               showIcon
+              dateFormat="dd/mm/yy"
               value={fromDate}
               maxDate={toDate ?? new Date()}
               onChange={(e) => setFromDate(e.value as Date)}
@@ -178,6 +184,7 @@ const AccountPage = () => {
             <Calendar
               className="w-full mt-2"
               showIcon
+              dateFormat="dd/mm/yy"
               minDate={fromDate ?? new Date()}
               value={toDate}
               onChange={(e) => setToDate(e.value as Date)}
@@ -214,18 +221,23 @@ const AccountPage = () => {
               rows={10}
             >
               <Column
+                className="text-center"
                 header="Số thứ tự"
                 body={(_rowData, options) => options.rowIndex + 1}
               />
               <Column field="username" header="Tên đăng nhập" />
               <Column field="email" header="Email" />
               <Column field="phoneNumber" header="Số điện thoại" />
-              <Column field="status" header="Trạng thái" />
+              <Column
+                field="status"
+                header="Trạng thái"
+                body={(x) => translateStatus(x.status)}
+              />
               <Column
                 header="Vai trò"
                 body={(rowData) =>
                   rowData.roles && rowData.roles.length > 0
-                    ? rowData.roles[0]
+                    ? translateRole(rowData.roles[0])
                     : "Chưa có vai trò"
                 }
               />
@@ -250,15 +262,21 @@ const AccountPage = () => {
                     ) : (
                       <></>
                     )}
-                    <Button
-                      severity="danger"
-                      onClick={() => {
-                        setVisible(true); // Hiển thị hộp thoại xác nhận
-                        setSelectedItemId(rowData.id); // Lưu ID của item để xóa
-                      }}
-                    >
-                      Xóa
-                    </Button>
+                    {rowData.roles[0] !== "Admin" ? (
+                      <>
+                        <Button
+                          severity="danger"
+                          onClick={() => {
+                            setVisible(true); // Hiển thị hộp thoại xác nhận
+                            setSelectedItemId(rowData.id); // Lưu ID của item để xóa
+                          }}
+                        >
+                          Xóa
+                        </Button>
+                      </>
+                    ) : (
+                      <></>
+                    )}
                   </div>
                 )}
               />

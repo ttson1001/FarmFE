@@ -45,3 +45,32 @@ export const getStatus = (value: any) => {
 export const getURL = (value: any) => {
   return `/src/assets${value}.svg`;
 };
+
+export const translateRole = (role: string): string => {
+  if (role === "Admin") {
+    return "Quản trị viên";
+  } else if (role === "Farmer") {
+    return "Nông dân";
+  } else if (role === "Business") {
+    return "Doanh nghiệp";
+  } else {
+    return "Vai trò không xác định";
+  }
+};
+
+export const translateStatus = (status: string): string => {
+  switch (status) {
+    case "None":
+      return "Không xác định";
+    case "Online":
+      return "Đang hoạt động";
+    case "Offline":
+      return "Ngưng hoạt động";
+    case "Pending":
+      return "Đang chờ duyệt";
+    case "Deleted":
+      return "Đã xóa";
+    default:
+      return "Trạng thái không hợp lệ"; // Nếu có trạng thái không hợp lệ
+  }
+};

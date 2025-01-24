@@ -97,8 +97,12 @@ const HistoryCompany = () => {
         break;
 
       case "quantity":
-        if (!object.quantity || object.quantity <= 0) {
-          newErrors.quantity = "Số lượng phải lớn hơn 0.";
+        if (
+          !object.quantity ||
+          object.quantity <= 0 ||
+          object.quantity > 1000000
+        ) {
+          newErrors.quantity = "Số lượng phải trong khoảng 1 đến 1000000.";
         } else {
           delete newErrors.quantity;
         }
@@ -113,8 +117,13 @@ const HistoryCompany = () => {
         break;
 
       case "unitPrice":
-        if (!object.unitPrice || object.unitPrice <= 1000) {
-          newErrors.unitPrice = "Giá tiền phải lớn hơn 1 000 VND.";
+        if (
+          !object.unitPrice ||
+          object.unitPrice < 1000 ||
+          object.unitPrice > 1000000000000
+        ) {
+          newErrors.unitPrice =
+            "Giá tiền phải nằm trong khoảng từ 1 000 VND đến 1 000 000 000 000 VND.";
         } else {
           delete newErrors.unitPrice;
         }
@@ -437,7 +446,7 @@ const HistoryCompany = () => {
                     {categories.find((x) => x.label === item?.category)?.name}
                   </div>
                   <div className="flex justify-start text-start">
-                    <strong className="mr-1">Giá từng sản phẩm:</strong>{" "}
+                    <strong className="mr-1">Giá đề xuất :</strong>{" "}
                     <span>
                       {new Intl.NumberFormat("vi-VN").format(
                         item?.unitPrice || 0
@@ -625,7 +634,7 @@ const HistoryCompany = () => {
           </div>
           <div className="col-span-4">
             <label className="mr-2">
-              Giá từng sản phẩm (VND): <span className="text-red-500">*</span>
+              Giá đề xuất (VND): <span className="text-red-500">*</span>
             </label>
             <InputText
               onBlur={() => validateProductFields("unitPrice")}

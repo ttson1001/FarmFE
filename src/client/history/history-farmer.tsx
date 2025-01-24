@@ -312,8 +312,8 @@ const HistoryFarmer = () => {
         break;
 
       case "quantity":
-        if (value <= 0) {
-          error = "Số lượng phải lớn hơn 0.";
+        if (value <= 0 || value > 1000000) {
+          error = "Số lượng phải trong khoảng 1 đến 1000000.";
         }
         break;
 
@@ -330,8 +330,9 @@ const HistoryFarmer = () => {
         break;
 
       case "unitPrice":
-        if (value <= 1000) {
-          error = "Đơn giá phải lớn hơn 1 000 VND.";
+        if (!value || value < 1000 || value > 1000000000000) {
+          error =
+            "Giá tiền phải nằm trong khoảng từ 1 000 VND đến 1 000 000 000 000 VND.";
         }
         break;
 
@@ -404,7 +405,7 @@ const HistoryFarmer = () => {
                     {item?.lossRate} %
                   </div>
                   <div className="flex justify-start text-start">
-                    <strong className="mr-1">Giá từng sản phẩm:</strong>{" "}
+                    <strong className="mr-1">Giá đề xuất :</strong>{" "}
                     <span>
                       {new Intl.NumberFormat("vi-VN").format(
                         item?.unitPrice || 0

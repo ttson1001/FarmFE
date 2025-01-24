@@ -17,7 +17,12 @@ import {
   getFromLocalStorage,
   role,
 } from "../../constant/utils";
-import { categories, nextYear, prvYear } from "../../constant/constant";
+import {
+  categories,
+  maximumPrice,
+  nextYear,
+  prvYear,
+} from "../../constant/constant";
 import { Dropdown } from "primereact/dropdown";
 import { Toast } from "primereact/toast";
 import { useNavigate } from "react-router-dom";
@@ -82,7 +87,7 @@ const HomeFarmerPage = () => {
   const [fromDate, setFromDate] = useState<Date | null>(prvYear);
   const [toDate, setToDate] = useState<Date | null>(nextYear);
   const [minPrice, setMinPrice] = useState<number>(0);
-  const [maxPrice, setMaxPrice] = useState<number>(Number.MAX_SAFE_INTEGER);
+  const [maxPrice, setMaxPrice] = useState<number>(maximumPrice);
   const [selectedCategory, setSelectedCategory] = useState<number | undefined>(
     0
   );
@@ -100,7 +105,7 @@ const HomeFarmerPage = () => {
     setFromDate(prvYear);
     setToDate(nextYear);
     setMinPrice(0);
-    setMaxPrice(Number.MAX_SAFE_INTEGER);
+    setMaxPrice(maximumPrice);
     getBussinesPost(null)
       .then((response) => {
         if (response.data.success) {
@@ -216,7 +221,8 @@ const HomeFarmerPage = () => {
       .then(() => {
         toast.current?.show({
           severity: "success",
-          summary: "Tạo bài đăng thành công",
+          summary:
+            "Cảm ơn bạn đã gửi bài viết. Bài viết của bạn đang chờ quản trị viên duyệt.",
         });
         handleResetData();
         hideModal();
@@ -265,8 +271,8 @@ const HomeFarmerPage = () => {
         break;
 
       case "quantity":
-        if (value <= 0) {
-          error = "Số lượng phải lớn hơn 0.";
+        if (value <= 0 || value > 1000000) {
+          error = "Số lượng phải trong khoảng từ 1 đến 1000000.";
         }
         break;
 
@@ -283,8 +289,9 @@ const HomeFarmerPage = () => {
         break;
 
       case "unitPrice":
-        if (value <= 1000) {
-          error = "Đơn giá phải lớn hơn 1 000 VND.";
+        if (!value || value < 1000 || value > 1000000000000) {
+          error =
+            "Giá tiền phải nằm trong khoảng từ 1 000 VND đến 1 000 000 000 000 VND.";
         }
         break;
 
@@ -317,6 +324,7 @@ const HomeFarmerPage = () => {
             <Calendar
               className="w-full mt-2"
               showIcon
+              dateFormat="dd/mm/yy"
               value={fromDate}
               maxDate={toDate ?? new Date()}
               onChange={(e) => setFromDate(e.value as Date)}
@@ -325,6 +333,7 @@ const HomeFarmerPage = () => {
             <Calendar
               className="w-full mt-2"
               showIcon
+              dateFormat="dd/mm/yy"
               minDate={fromDate ?? new Date()}
               value={toDate}
               onChange={(e) => setToDate(e.value as Date)}
@@ -566,7 +575,7 @@ const HomeFarmerPage = () => {
                     {categories.find((x) => x.label === item?.category)?.name}
                   </div>
                   <div className="flex justify-start text-start">
-                    <strong className="mr-1">Giá từng sản phẩm:</strong>{" "}
+                    <strong className="mr-1">Giá đề xuất :</strong>{" "}
                     <span>
                       {new Intl.NumberFormat("vi-VN").format(
                         item?.unitPrice || 0
