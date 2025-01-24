@@ -375,6 +375,7 @@ const HomeCompanyPage = () => {
               <InputText
                 type="number"
                 className="w-full mt-2"
+                min={0}
                 value={minPrice + ""}
                 onChange={(e) =>
                   setMinPrice(e.target.value ? parseFloat(e.target.value) : 0)
@@ -387,6 +388,7 @@ const HomeCompanyPage = () => {
                 type="number"
                 className="w-full mt-2"
                 value={maxPrice + ""}
+                min={0}
                 onChange={(e) =>
                   setMaxPrice(e.target.value ? parseFloat(e.target.value) : 0)
                 }
@@ -450,6 +452,7 @@ const HomeCompanyPage = () => {
                         errors.quantity ? "p-invalid border-red-500" : ""
                       }`}
                       type="number"
+                      min={0}
                       onBlur={() => validateProductFields("quantity")}
                       onChange={(e) => setQuantity(Number(e.target.value))}
                     />
@@ -510,6 +513,7 @@ const HomeCompanyPage = () => {
                         errors.unitPrice ? "p-invalid border-red-500" : ""
                       }`}
                       type="number"
+                      min={0}
                       onChange={(e) => setUnitPrice(Number(e.target.value))}
                     />
                     {errors.unitPrice && (

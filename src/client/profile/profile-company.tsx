@@ -60,8 +60,14 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ value }) => {
     // Kiểm tra mã số thuế
     if (!taxNumber) {
       newErrors.taxNumber = "Vui lòng nhập mã số thuế.";
-    } else if (taxNumber <= 0) {
-      newErrors.taxNumber = "Mã số thuế phải lớn hơn 0.";
+    } else if (
+      typeof taxNumber !== "string" ||
+      !/^\d{10}$|^\d{13}$/.test(taxNumber)
+    ) {
+      newErrors.taxNumber = "Mã số thuế phải có 10 hoặc 13 chữ số.";
+    } else {
+      // Nếu không có lỗi, có thể xóa lỗi đã tồn tại
+      delete newErrors.taxNumber;
     }
 
     setErrors(newErrors);
@@ -90,7 +96,6 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ value }) => {
       taxNumber,
       avatar,
     };
-
     updateBusinessProfile(companyData).then((x) => {
       toast.current?.show({
         severity: "success",

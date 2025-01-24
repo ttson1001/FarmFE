@@ -342,6 +342,7 @@ const HomeFarmerPage = () => {
             <div>
               <InputText
                 type="number"
+                min={0}
                 className="w-full mt-2"
                 value={minPrice + ""}
                 onChange={(e) =>
@@ -353,6 +354,7 @@ const HomeFarmerPage = () => {
             <div>
               <InputText
                 type="number"
+                min={0}
                 className="w-full mt-2"
                 value={maxPrice + ""}
                 onChange={(e) =>
@@ -417,6 +419,7 @@ const HomeFarmerPage = () => {
                     <label className="mr-2">Số lượng (kg):</label>
                     <InputText
                       type="number"
+                      min={0}
                       onChange={(e) => setQuantity(Number(e.target.value))}
                       className={`mt-2 w-full ${
                         errors.quantity ? "p-invalid border-red-500" : ""
@@ -454,6 +457,7 @@ const HomeFarmerPage = () => {
                         errors.lossRate ? "p-invalid border-red-500" : ""
                       }`}
                       type="number"
+                      min={0}
                       onChange={(e) => setLossRate(parseFloat(e.target.value))}
                     />
                     {errors.lossRate && (
@@ -468,6 +472,7 @@ const HomeFarmerPage = () => {
                         errors.unitPrice ? "p-invalid border-red-500" : ""
                       }`}
                       type="number"
+                      min={0}
                       onChange={(e) => setUnitPrice(parseFloat(e.target.value))}
                     />
                     {errors.unitPrice && (

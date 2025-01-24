@@ -36,7 +36,8 @@ const Register = () => {
       .then(() => {
         toast.current?.show({
           severity: "success",
-          summary: "Đăng kí thành công",
+          summary:
+            "Đăng ký thành công! Tài khoản của bạn đang chờ phê duyệt từ quản trị viên. Vui lòng đợi thông báo qua email.",
         });
         setTimeout(() => {
           navigate("/");

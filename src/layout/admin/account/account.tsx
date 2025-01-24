@@ -262,7 +262,24 @@ const AccountPage = () => {
                     ) : (
                       <></>
                     )}
-                    {rowData.roles[0] !== "Admin" ? (
+
+                    {rowData.status === "Deleted" ? (
+                      <>
+                        <Button
+                          severity="help"
+                          className="mr-2"
+                          onClick={() => {
+                            handleUpdateStatus(rowData.id);
+                          }}
+                        >
+                          Kích hoạt
+                        </Button>
+                      </>
+                    ) : (
+                      <></>
+                    )}
+                    {rowData.roles[0] !== "Admin" &&
+                    rowData.status !== "Deleted" ? (
                       <>
                         <Button
                           severity="danger"

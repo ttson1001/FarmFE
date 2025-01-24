@@ -69,7 +69,7 @@ const FarmerProfile: React.FC<FarmerProfileProps> = ({ value }) => {
       lastName,
       avatar,
       dateOfBirth: dob,
-      gender: 1,
+      gender,
       identityCard: "00",
       phoneNumber,
     };
