@@ -25,13 +25,13 @@ import {
   role,
 } from "../../constant/utils";
 import { categories } from "../../constant/constant";
-import { Dropdown } from "primereact/dropdown";
 import { ConfirmDialog } from "primereact/confirmdialog";
 import { Toast } from "primereact/toast";
 import { useNavigate } from "react-router-dom";
 import empty from "../../assets/empty.png";
 import ImageCarouselDel from "../../common/carousel/ImageCarouselDel";
 import FileCarouselDel from "../../common/carousel/FileCarouselDel";
+import { MultiSelect } from "primereact/multiselect";
 
 const HistoryCompany = () => {
   const [expandedItems, setExpandedItems] = useState<{
@@ -49,9 +49,7 @@ const HistoryCompany = () => {
   const [listObjects, setListObjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [object, setObject] = useState<any>(null);
-  const [selectedCategory, setSelectedCategory] = useState<number | undefined>(
-    0
-  );
+  const [selectedCategory, setSelectedCategory] = useState<number[]>([]);
   const [images, setImages] = useState<{ id: number; url: string }[]>([]);
   const [files, setFiles] = useState<{ id: number; filePath: string }[]>([]);
   const [selectedItemId, setSelectedItemId] = useState(null);
@@ -67,7 +65,7 @@ const HistoryCompany = () => {
     otherRequirement?: string;
   }>({});
 
-  const validateProductFields = (fieldToValidate: string) => {
+  const validateProductFields = (fieldToValidate: string, value?: any) => {
     const newErrors: {
       content?: string;
       productName?: string;
@@ -109,7 +107,8 @@ const HistoryCompany = () => {
         break;
 
       case "category":
-        if (!selectedCategory) {
+        console.log(value); // Kiểm tra giá trị
+        if (!value || value.length === 0) {
           newErrors.category = "Vui lòng chọn loại hàng.";
         } else {
           delete newErrors.category;
@@ -130,7 +129,7 @@ const HistoryCompany = () => {
         break;
 
       case "standardRequirements":
-        if (!object.standardRequirements) {
+        if (!object.standardRequirement) {
           newErrors.standardRequirements = "Vui lòng nhập yêu cầu tiêu chuẩn.";
         } else {
           delete newErrors.standardRequirements;
@@ -198,11 +197,12 @@ const HistoryCompany = () => {
       id: x.id,
       filePath: x.filePath,
     }));
-    console.log(filesx);
     setFiles(filesx);
     setImages(images);
     setObject(value);
-    const cate = categories?.find((x) => x.label === value?.category)?.value;
+    const cate = categories
+      ?.filter((item) => value?.category.includes(item.label))
+      .map((item) => item.value);
 
     setSelectedCategory(cate);
     setModalVisible(true); // Mở modal
@@ -346,7 +346,7 @@ const HistoryCompany = () => {
       content: object?.content,
       productName: object?.productName,
       quantity: object?.quantity,
-      category: selectedCategory,
+      categories: selectedCategory,
       unitPrice: object?.unitPrice,
       standardRequirments: object?.standardRequirement,
       otherRequirement: object?.otherRequirement,
@@ -443,7 +443,10 @@ const HistoryCompany = () => {
                   </div>
                   <div className="flex justify-start text-start">
                     <strong className="mr-1">Loại sản phẩm:</strong>{" "}
-                    {categories.find((x) => x.label === item?.category)?.name}
+                    {categories
+                      .filter((x) => item.category.includes(x.label))
+                      .map((item) => item.name)
+                      .join(", ")}
                   </div>
                   <div className="flex justify-start text-start">
                     <strong className="mr-1">Giá đề xuất :</strong>{" "}
@@ -589,17 +592,19 @@ const HistoryCompany = () => {
             <label className="mr-2  mt-2">
               Loại hàng: <span className="text-red-500">*</span>
             </label>
-            <Dropdown
-              value={selectedCategory}
+            <MultiSelect
+              value={selectedCategory} // Đổi sang mảng
               options={categories}
               optionLabel="name"
-              onChange={(e) => setSelectedCategory(e.value)}
+              onChange={(e: any) => {
+                setSelectedCategory(e.value);
+                validateProductFields("category", e.value);
+              }} // Cập nhật danh sách chọn
               placeholder="Chọn loại"
-              onBlur={() => validateProductFields("category")}
               className={`mt-2 w-full ${
                 errors.category ? "p-invalid border-red-500" : ""
               }`}
-            />{" "}
+            />
             {errors.category && (
               <small className="text-red-500">{errors.category}</small>
             )}

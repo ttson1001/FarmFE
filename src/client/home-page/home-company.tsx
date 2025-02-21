@@ -22,12 +22,12 @@ import {
   nextYear,
   prvYear,
 } from "../../constant/constant";
-import { Dropdown } from "primereact/dropdown";
 import { Toast } from "primereact/toast";
 import { useNavigate } from "react-router-dom";
 import empty from "../../assets/empty.png";
 import ImageCarouselDel from "../../common/carousel/ImageCarouselDel";
 import FileCarouselDel from "../../common/carousel/FileCarouselDel";
+import { MultiSelect } from "primereact/multiselect";
 
 const HomeCompanyPage = () => {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -63,7 +63,7 @@ const HomeCompanyPage = () => {
     }
   });
 
-  const validateProductFields = (fieldToValidate: string) => {
+  const validateProductFields = (fieldToValidate: string, value?: any) => {
     const newErrors: {
       content?: string;
       productName?: string;
@@ -101,7 +101,7 @@ const HomeCompanyPage = () => {
         break;
 
       case "category":
-        if (!selectedCategory) {
+        if (!value || value.length === 0) {
           newErrors.category = "Vui lòng chọn loại hàng.";
         } else {
           delete newErrors.category;
@@ -183,7 +183,7 @@ const HomeCompanyPage = () => {
   const [toDate, setToDate] = useState<Date | null>(nextYear);
   const [minPrice, setMinPrice] = useState<number>(0);
   const [maxPrice, setMaxPrice] = useState<number>(maximumPrice);
-  const [selectedCategory, setSelectedCategory] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState([]);
 
   const handleReset = () => {
     setSearchTerm("");
@@ -285,7 +285,7 @@ const HomeCompanyPage = () => {
     setQuantity(0);
     setStandardRequirements("");
     setOtherRequirement("");
-    setSelectedCategory(0);
+    setSelectedCategory([]);
     setUnitPrice(0);
     setImages([]);
     setFiles([]);
@@ -299,7 +299,7 @@ const HomeCompanyPage = () => {
       content,
       productName,
       quantity,
-      category: selectedCategory,
+      categories: selectedCategory,
       unitPrice,
       standardRequirments: standardRequirements,
       otherRequirement,
@@ -462,13 +462,15 @@ const HomeCompanyPage = () => {
                   </div>
                   <div className="col-span-4">
                     <label className="mr-2">Loại Hàng:</label>
-                    <Dropdown
-                      value={selectedCategory}
+                    <MultiSelect
+                      value={selectedCategory} // Đổi sang mảng
                       options={categories}
                       optionLabel="name"
-                      onChange={(e: any) => setSelectedCategory(e.value)}
+                      onChange={(e: any) => {
+                        setSelectedCategory(e.value);
+                        validateProductFields("category", e.value);
+                      }} // Cập nhật danh sách chọn
                       placeholder="Chọn loại"
-                      onBlur={() => validateProductFields("category")}
                       className={`mt-2 w-full ${
                         errors.category ? "p-invalid border-red-500" : ""
                       }`}

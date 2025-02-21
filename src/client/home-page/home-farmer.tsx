@@ -2,19 +2,22 @@ import { Card } from "primereact/card";
 import { Avatar } from "primereact/avatar";
 import { InputText } from "primereact/inputtext";
 import { useEffect, useRef, useState } from "react";
-import { Dialog } from "primereact/dialog";
-import { Editor } from "primereact/editor";
+// import { Dialog } from "primereact/dialog";
+// import { Editor } from "primereact/editor";
 import { Button } from "primereact/button";
-import { createFarmerPost, getBussinesPost } from "../../api/homeFarmer";
+import {
+  // createFarmerPost,
+  getBussinesPost,
+} from "../../api/homeFarmer";
 import { Divider } from "primereact/divider";
 import ImageCarousel from "../../common/carousel/ImageCarousel";
 import FileCarousel from "../../common/carousel/FileCarousel";
 import { Calendar } from "primereact/calendar";
-import { uploadFile, uploadImage } from "../../api/file";
+// import { uploadFile, uploadImage } from "../../api/file";
 import empty from "../../assets/empty.png";
 import {
   clearLocalStorage,
-  getFromLocalStorage,
+  // getFromLocalStorage,
   role,
 } from "../../constant/utils";
 import {
@@ -23,26 +26,26 @@ import {
   nextYear,
   prvYear,
 } from "../../constant/constant";
-import { Dropdown } from "primereact/dropdown";
+// import { Dropdown } from "primereact/dropdown";
 import { Toast } from "primereact/toast";
 import { useNavigate } from "react-router-dom";
-import ImageCarouselDel from "../../common/carousel/ImageCarouselDel";
-import FileCarouselDel from "../../common/carousel/FileCarouselDel";
+// import ImageCarouselDel from "../../common/carousel/ImageCarouselDel";
+// import FileCarouselDel from "../../common/carousel/FileCarouselDel";
 
 const HomeFarmerPage = () => {
-  const [isModalVisible, setModalVisible] = useState(false); // State để quản lý modal;
+  // const [isModalVisible, setModalVisible] = useState(false); // State để quản lý modal;
 
   const [listObjects, setListObjects] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const [content, setContent] = useState("");
-  const [productName, setProductName] = useState("");
-  const [quantity, setQuantity] = useState(0);
-  const [category, setCategory] = useState(0);
-  const [lossRate, setLossRate] = useState(0.0);
-  const [unitPrice, setUnitPrice] = useState(0);
-  const [images, setImages] = useState<{ id: number; url: string }[]>([]);
-  const [files, setFiles] = useState<{ id: number; filePath: string }[]>([]);
+  // const [content, setContent] = useState("");
+  // const [productName, setProductName] = useState("");
+  // const [quantity, setQuantity] = useState(0);
+  // const [category, setCategory] = useState(0);
+  // const [lossRate, setLossRate] = useState(0.0);
+  // const [unitPrice, setUnitPrice] = useState(0);
+  // const [images, setImages] = useState<{ id: number; url: string }[]>([]);
+  // const [files, setFiles] = useState<{ id: number; filePath: string }[]>([]);
 
   useEffect(() => {
     getBussinesPost(null)
@@ -70,27 +73,27 @@ const HomeFarmerPage = () => {
     }));
   };
 
-  const showModal = () => {
-    setFiles([]);
-    setImages([]);
-    console.log(category);
-    setModalVisible(true);
-  };
+  // const showModal = () => {
+  //   setFiles([]);
+  //   setImages([]);
+  //   console.log(category);
+  //   setModalVisible(true);
+  // };
 
-  const hideModal = () => {
-    setCategory(0);
-    setErrors({});
-    setModalVisible(false);
-  };
+  // const hideModal = () => {
+  //   setCategory(0);
+  //   setErrors({});
+  //   setModalVisible(false);
+  // };
 
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [fromDate, setFromDate] = useState<Date | null>(prvYear);
   const [toDate, setToDate] = useState<Date | null>(nextYear);
   const [minPrice, setMinPrice] = useState<number>(0);
   const [maxPrice, setMaxPrice] = useState<number>(maximumPrice);
-  const [selectedCategory, setSelectedCategory] = useState<number | undefined>(
-    0
-  );
+  // const [selectedCategory, setSelectedCategory] = useState<number | undefined>(
+  //   0
+  // );
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -136,171 +139,171 @@ const HomeFarmerPage = () => {
       });
   };
 
-  const [file, setFile] = useState<any>(null);
+  // const [file, setFile] = useState<any>(null);
 
-  const [file1, setFile1] = useState<any>(null);
+  // const [file1, setFile1] = useState<any>(null);
 
-  const onFileChange = (event: any) => {
-    setFile(event.target.files[0]); // Get the first selected file
-  };
+  // const onFileChange = (event: any) => {
+  //   setFile(event.target.files[0]); // Get the first selected file
+  // };
 
-  const onFile1Change = (event: any) => {
-    setFile1(event.target.files[0]); // Get the first selected file
-  };
+  // const onFile1Change = (event: any) => {
+  //   setFile1(event.target.files[0]); // Get the first selected file
+  // };
 
-  const onUploadImage = async () => {
-    const formData = new FormData();
-    formData.append("File", file); // Append the file
-    formData.append("CustomFileName", "aaa"); // Append the custom file name
+  // const onUploadImage = async () => {
+  //   const formData = new FormData();
+  //   formData.append("File", file); // Append the file
+  //   formData.append("CustomFileName", "aaa"); // Append the custom file name
 
-    uploadImage(formData).then((x) => {
-      const data = {
-        id: x.data.data.data.id,
-        url: x.data.data.data.imageUrl,
-      };
-      setImages((prv) => [...prv, data]);
-      toast.current?.show({
-        severity: "success",
-        summary: "Tải lên thành công",
-      });
-    });
-  };
+  //   uploadImage(formData).then((x) => {
+  //     const data = {
+  //       id: x.data.data.data.id,
+  //       url: x.data.data.data.imageUrl,
+  //     };
+  //     setImages((prv) => [...prv, data]);
+  //     toast.current?.show({
+  //       severity: "success",
+  //       summary: "Tải lên thành công",
+  //     });
+  //   });
+  // };
 
-  const handleRemoveImage = (id: number) => {
-    const updatedImages = images.filter((image) => image.id !== id);
-    setImages(updatedImages);
-  };
+  // const handleRemoveImage = (id: number) => {
+  //   const updatedImages = images.filter((image) => image.id !== id);
+  //   setImages(updatedImages);
+  // };
 
-  const handleRemoveFile = (id: number) => {
-    const filesx = files.filter((file) => file.id !== id);
-    setFiles(filesx);
-  };
+  // const handleRemoveFile = (id: number) => {
+  //   const filesx = files.filter((file) => file.id !== id);
+  //   setFiles(filesx);
+  // };
 
-  const onUploadFile = async () => {
-    const formData = new FormData();
-    formData.append("File", file1); // Append the file
-    formData.append("CustomFileName", "aaa"); // Append the custom file name
+  // const onUploadFile = async () => {
+  //   const formData = new FormData();
+  //   formData.append("File", file1); // Append the file
+  //   formData.append("CustomFileName", "aaa"); // Append the custom file name
 
-    uploadFile(formData).then((x) => {
-      toast.current?.show({
-        severity: "success",
-        summary: "Tải lên thành công",
-      });
-      const data = {
-        id: x.data.data.data.id,
-        filePath: x.data.data.data.filePath,
-      };
-      setFiles((prv) => [...prv, data]);
-    });
-  };
+  //   uploadFile(formData).then((x) => {
+  //     toast.current?.show({
+  //       severity: "success",
+  //       summary: "Tải lên thành công",
+  //     });
+  //     const data = {
+  //       id: x.data.data.data.id,
+  //       filePath: x.data.data.data.filePath,
+  //     };
+  //     setFiles((prv) => [...prv, data]);
+  //   });
+  // };
 
-  const handleResetData = () => {
-    setContent("");
-    setProductName("");
-    setQuantity(0);
-    setCategory(0);
-    setSelectedCategory(0);
-    setLossRate(1.0);
-    setUnitPrice(0);
-    setImages([]);
-    setFiles([]);
-  };
+  // const handleResetData = () => {
+  //   setContent("");
+  //   setProductName("");
+  //   setQuantity(0);
+  //   setCategory(0);
+  //   setSelectedCategory(0);
+  //   setLossRate(1.0);
+  //   setUnitPrice(0);
+  //   setImages([]);
+  //   setFiles([]);
+  // };
 
-  const handleCreate = () => {
-    const formData = {
-      content,
-      productName,
-      quantity,
-      category: selectedCategory,
-      lossRate,
-      unitPrice,
-      images: images?.map((x) => x.id),
-      files: files?.map((x) => x.id),
-    };
-    createFarmerPost(formData)
-      .then(() => {
-        toast.current?.show({
-          severity: "success",
-          summary:
-            "Cảm ơn bạn đã gửi bài viết. Bài viết của bạn đang chờ quản trị viên duyệt.",
-        });
-        handleResetData();
-        hideModal();
-      })
-      .catch(() => {
-        toast.current?.show({
-          severity: "error",
-          summary: "Tạo bài đăng thất bại",
-        });
-      });
-  };
+  // const handleCreate = () => {
+  //   const formData = {
+  //     content,
+  //     productName,
+  //     quantity,
+  //     category: selectedCategory,
+  //     lossRate,
+  //     unitPrice,
+  //     images: images?.map((x) => x.id),
+  //     files: files?.map((x) => x.id),
+  //   };
+  //   createFarmerPost(formData)
+  //     .then(() => {
+  //       toast.current?.show({
+  //         severity: "success",
+  //         summary:
+  //           "Cảm ơn bạn đã gửi bài viết. Bài viết của bạn đang chờ quản trị viên duyệt.",
+  //       });
+  //       handleResetData();
+  //       hideModal();
+  //     })
+  //     .catch(() => {
+  //       toast.current?.show({
+  //         severity: "error",
+  //         summary: "Tạo bài đăng thất bại",
+  //       });
+  //     });
+  // };
 
-  const footerContent = (
-    <div className="flex justify-end mt-10">
-      <Button className="mr-5" onClick={handleCreate} severity="help">
-        Đăng Tin
-      </Button>
-      <Button severity="danger" onClick={hideModal}>
-        Hủy Bỏ
-      </Button>
-    </div>
-  );
+  // const footerContent = (
+  //   <div className="flex justify-end mt-10">
+  //     <Button className="mr-5" onClick={handleCreate} severity="help">
+  //       Đăng Tin
+  //     </Button>
+  //     <Button severity="danger" onClick={hideModal}>
+  //       Hủy Bỏ
+  //     </Button>
+  //   </div>
+  // );
 
-  const [errors, setErrors] = useState<{
-    content?: string;
-    productName?: string;
-    quantity?: string;
-    category?: string;
-    lossRate?: string;
-    unitPrice?: string;
-  }>({});
+  // const [errors, setErrors] = useState<{
+  //   content?: string;
+  //   productName?: string;
+  //   quantity?: string;
+  //   category?: string;
+  //   lossRate?: string;
+  //   unitPrice?: string;
+  // }>({});
 
-  const validateField = (field: string, value: any) => {
-    let error = "";
-    switch (field) {
-      case "content":
-        if (!value.trim()) {
-          error = "Nội dung không được để trống.";
-        }
-        break;
+  // const validateField = (field: string, value: any) => {
+  //   let error = "";
+  //   switch (field) {
+  //     case "content":
+  //       if (!value.trim()) {
+  //         error = "Nội dung không được để trống.";
+  //       }
+  //       break;
 
-      case "productName":
-        if (!value.trim()) {
-          error = "Tên sản phẩm không được để trống.";
-        }
-        break;
+  //     case "productName":
+  //       if (!value.trim()) {
+  //         error = "Tên sản phẩm không được để trống.";
+  //       }
+  //       break;
 
-      case "quantity":
-        if (value <= 0 || value > 1000000) {
-          error = "Số lượng phải trong khoảng từ 1 đến 1000000.";
-        }
-        break;
+  //     case "quantity":
+  //       if (value <= 0 || value > 1000000) {
+  //         error = "Số lượng phải trong khoảng từ 1 đến 1000000.";
+  //       }
+  //       break;
 
-      case "category":
-        if (value <= 0) {
-          error = "Danh mục không hợp lệ.";
-        }
-        break;
+  //     case "category":
+  //       if (value <= 0) {
+  //         error = "Danh mục không hợp lệ.";
+  //       }
+  //       break;
 
-      case "lossRate":
-        if (value < 1 || value > 99) {
-          error = "Tỷ lệ hao hụt phải nằm trong khoảng từ 1 đến 99.";
-        }
-        break;
+  //     case "lossRate":
+  //       if (value < 1 || value > 99) {
+  //         error = "Tỷ lệ hao hụt phải nằm trong khoảng từ 1 đến 99.";
+  //       }
+  //       break;
 
-      case "unitPrice":
-        if (!value || value < 1000 || value > 1000000000000) {
-          error =
-            "Giá tiền phải nằm trong khoảng từ 1 000 VND đến 1 000 000 000 000 VND.";
-        }
-        break;
+  //     case "unitPrice":
+  //       if (!value || value < 1000 || value > 1000000000000) {
+  //         error =
+  //           "Giá tiền phải nằm trong khoảng từ 1 000 VND đến 1 000 000 000 000 VND.";
+  //       }
+  //       break;
 
-      default:
-        break;
-    }
+  //     default:
+  //       break;
+  //   }
 
-    setErrors((prevErrors) => ({ ...prevErrors, [field]: error }));
-  };
+  //   setErrors((prevErrors) => ({ ...prevErrors, [field]: error }));
+  // };
   const toast = useRef<Toast>(null);
 
   return (
@@ -374,11 +377,11 @@ const HomeFarmerPage = () => {
           </Card>
         </div>
 
-        <div className="col-span-12 md:col-span-9 p-4 text-center">
-          <Card className="rounded-3xl">
+        <div className="col-span-12 md:col-span-9 pt-0 p-4 text-center">
+          {/* <Card className="rounded-3xl">
             <div className="grid grid-cols-12 gap-2">
               <Avatar
-                className="w-12 h-12 col-span-2 mx-auto sm:col-span-1" // Sử dụng col-span-2 trên màn hình nhỏ
+                className="w-12 h-12 col-span-2 mx-auto sm:col-span-1"
                 image={getFromLocalStorage("avatar") ?? ""}
                 shape="circle"
               />
@@ -386,10 +389,9 @@ const HomeFarmerPage = () => {
                 placeholder="Đăng gì đó lên tường nhà bạn"
                 type="text"
                 className="w-full ml-2 col-span-10 sm:col-span-11"
-                onClick={showModal} // Sử dụng col-span-10 trên màn hình nhỏ
+                onClick={showModal}
               />
 
-              {/* Modal */}
               <Dialog
                 footer={footerContent}
                 header="Thông tin bài đăng"
@@ -542,7 +544,7 @@ const HomeFarmerPage = () => {
                 </div>
               </Dialog>
             </div>
-          </Card>
+          </Card> */}
           {listObjects.length > 0 ? (
             listObjects?.map((item: any) => (
               <div key={item?.id}>

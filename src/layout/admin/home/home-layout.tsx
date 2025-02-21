@@ -47,11 +47,11 @@ const HomeAdminLayout = () => {
           icon: "pi pi-cog",
           command: () => navigate("../admin/company"),
         },
-        {
-          label: "Bài đăng nông dân",
-          icon: "pi pi-inbox",
-          command: () => navigate("../admin/farmer"),
-        },
+        // {
+        //   label: "Bài đăng nông dân",
+        //   icon: "pi pi-inbox",
+        //   command: () => navigate("../admin/farmer"),
+        // },
       ],
     },
     {

@@ -14,11 +14,15 @@ import {
   role,
   saveToLocalStorage,
 } from "../../constant/utils";
+import { Divider } from "primereact/divider";
 interface CompanyProfileProps {
   value: string; // Gán kiểu string cho prop value
 }
 const CompanyProfile: React.FC<CompanyProfileProps> = ({ value }) => {
   const [companyName, setCompanyName] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [address, setAddress] = useState("");
   const [taxNumber, setTaxNumber] = useState(0);
   const [avatar, setAvatar] = useState("");
@@ -38,6 +42,9 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ value }) => {
     companyName?: string;
     address?: string;
     taxNumber?: string;
+    fullName?: string;
+    email?: string;
+    phoneNumber?: string;
   }>({});
 
   const validateCompanyFields = () => {
@@ -45,6 +52,9 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ value }) => {
       companyName?: string;
       address?: string;
       taxNumber?: string;
+      fullName?: string;
+      email?: string;
+      phoneNumber?: string;
     } = {};
 
     // Kiểm tra tên công ty
@@ -61,19 +71,31 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ value }) => {
       newErrors.address = "Tên công ty không được quá 255 ký tự";
     }
 
+    if (fullName?.split(" ").length == 1 || !fullName) {
+      newErrors.fullName = "Vui lòng nhập cả Họ và Tên.";
+    } else if (fullName.length > 255) {
+      newErrors.fullName = "Họ và Tên không được quá 255 ký tự";
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) {
+      newErrors.email = "Vui lòng nhập địa chỉ email.";
+    } else if (!emailRegex.test(email)) {
+      newErrors.email = "Vui lòng nhập địa chỉ email hợp lệ.";
+    }
+
+    if (!phoneNumber) {
+      newErrors.phoneNumber = "Vui lòng nhập địa chỉ.";
+    } else if (phoneNumber.length < 10 || phoneNumber.length > 11) {
+      newErrors.phoneNumber = "Số điện thoại phải có 10 hoặc 11 chữ số.";
+    }
+
     // Kiểm tra mã số thuế
     if (!taxNumber) {
       newErrors.taxNumber = "Vui lòng nhập mã số thuế.";
-    } else if (
-      typeof taxNumber !== "string" ||
-      !/^\d{10}$|^\d{13}$/.test(taxNumber)
-    ) {
+    } else if (!/^\d{10}$|^\d{13}$/.test(taxNumber.toString())) {
       newErrors.taxNumber = "Mã số thuế phải có 10 hoặc 13 chữ số.";
-    } else {
-      // Nếu không có lỗi, có thể xóa lỗi đã tồn tại
-      delete newErrors.taxNumber;
     }
-
     setErrors(newErrors);
   };
 
@@ -85,6 +107,9 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ value }) => {
         setAvatar(business?.avatar);
         setAddress(business?.address);
         setCompanyName(business?.companyName);
+        setFullName(business?.fullName);
+        setPhoneNumber(business?.phoneNumber);
+        setEmail(business?.email);
       })
       .catch((e: any) => {
         {
@@ -99,6 +124,8 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ value }) => {
       address,
       taxNumber,
       avatar,
+      firstName: fullName?.split(" ")?.shift(),
+      lastName: " " + fullName?.split(" ")?.pop(),
     };
     updateBusinessProfile(companyData).then((x) => {
       toast.current?.show({
@@ -157,43 +184,68 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ value }) => {
           className="hidden" // Ẩn input
         />
       </div>
-      <div className="flex gap-10 items-center mt-5">
-        <div className="w-26 font-bold">Tên công ty:</div>
+      <div className="w-26 font-bold">Tên công ty:</div>
+      {errors.companyName && (
+        <span className="text-red-500 mt-2">{errors.companyName}</span>
+      )}
+      <div className="flex items-center mt-2">
         <InputText
           value={companyName}
           onChange={(e: any) => setCompanyName(e.target.value)}
-          className="w-96"
+          className="w-full"
           onBlur={validateCompanyFields} // Gọi hàm kiểm tra khi trường mất tiêu điểm
         />
-        {errors.companyName && (
-          <span className="text-red-500">{errors.companyName}</span>
-        )}
       </div>
-      <div className=" flex gap-10 items-center mt-5">
-        <div className=" w-24 font-bold">Địa chỉ:</div>
+      <div className=" w-full font-bold mt-2">Địa chỉ:</div>
+      {errors.address && (
+        <span className="text-red-500 mt-2">{errors.address}</span>
+      )}
+      <div className=" flex gap-10 items-center mt-2">
         <InputText
           onChange={(e: any) => setAddress(e.target.value)}
           value={address}
-          className="w-96"
+          className="w-full"
           onBlur={validateCompanyFields}
         />
-        {errors.address && (
-          <span className="text-red-500">{errors.address}</span>
-        )}
       </div>
-      <div className=" flex gap-10 items-center mt-5">
-        <div className="w-24 font-bold">Mã số thuế:</div>
+      <div className="w-24 font-bold mt-2">Mã số thuế:</div>
+      {errors.taxNumber && (
+        <span className="text-red-500 mt-2">{errors.taxNumber}</span>
+      )}
+      <div className="flex gap-10 items-center mt-2">
         <InputText
           onChange={(e: any) => setTaxNumber(e.target.value)}
           value={taxNumber.toString()}
-          className="w-96"
+          className="w-full"
           onBlur={validateCompanyFields}
         />
-        {errors.taxNumber && (
-          <span className="text-red-500">{errors.taxNumber}</span>
-        )}
       </div>
-
+      <Divider></Divider>
+      <div className="w-full font-bold">Người đại diện </div>
+      <div className="w-full font-bold  mt-2">Họ và tên:</div>
+      {errors.fullName && (
+        <span className="text-red-500  mt-2">{errors.fullName}</span>
+      )}
+      <div className=" flex gap-10 items-center mt-2">
+        <InputText
+          onChange={(e: any) => setFullName(e.target.value)}
+          value={fullName?.toString()}
+          className="w-full"
+          onBlur={validateCompanyFields}
+        />
+      </div>
+      <div className="w-full font-bold mt-2">Số điện thoại:</div>
+      {errors.phoneNumber && (
+        <span className="text-red-500  mt-2">{errors.phoneNumber}</span>
+      )}
+      <div className=" flex gap-10 items-center mt-2">
+        <InputText value={phoneNumber.toString()} className="w-full" readOnly />
+      </div>
+      <div className="w-full font-bold  mt-2">Email:</div>
+      {errors.email && <span className="text-red-500">{errors.email}</span>}
+      <div className=" flex gap-10 items-center  mt-2">
+        <InputText value={email.toString()} className="w-full" readOnly />
+      </div>
       <div className="flex justify-center mt-5">
         <Button onClick={handleUpdate} severity="help">
           Cập nhật

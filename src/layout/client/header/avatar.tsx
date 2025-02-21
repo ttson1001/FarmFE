@@ -72,14 +72,17 @@ const AvatarMenu = () => {
       icon: "pi pi-user",
       command: showProfileModal,
     },
-    {
-      label: "Tin đã đăng",
-      icon: "pi pi-list",
-      command: () => {
-        if (role() === 2) navigate("../history-farmer");
-        if (role() === 3) navigate("../history-company");
-      },
-    },
+    ...(role() !== 2
+      ? [
+          {
+            label: "Tin đã đăng",
+            icon: "pi pi-list",
+            command: () => {
+              if (role() === 3) navigate("../history-company");
+            },
+          },
+        ]
+      : []),
     {
       label: "Đổi mật khẩu",
       icon: "pi pi-cog",
