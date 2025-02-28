@@ -9,7 +9,11 @@ import { Divider } from "primereact/divider";
 import FileCarousel from "../../common/carousel/FileCarousel";
 import ImageCarousel from "../../common/carousel/ImageCarousel";
 import { Calendar } from "primereact/calendar";
-import { createBussinesPost, getFarmerPost } from "../../api/homeFarmer";
+import {
+  createBussinesPost,
+  getBussinesPost,
+  getFarmerPost,
+} from "../../api/homeFarmer";
 import { uploadFile, uploadImage } from "../../api/file";
 import {
   clearLocalStorage,
@@ -142,7 +146,7 @@ const HomeCompanyPage = () => {
   };
 
   useEffect(() => {
-    getFarmerPost(null)
+    getBussinesPost(null)
       .then((response) => {
         if (response.data.success) {
           setListObjects(response.data.data.listObjects);
@@ -465,6 +469,7 @@ const HomeCompanyPage = () => {
                     <MultiSelect
                       value={selectedCategory} // Đổi sang mảng
                       options={categories}
+                      filter
                       optionLabel="name"
                       onChange={(e: any) => {
                         setSelectedCategory(e.value);
@@ -598,8 +603,8 @@ const HomeCompanyPage = () => {
                         shape="circle"
                       />
                       <div>
-                        <div>
-                          <strong className="mr-1">Người đăng bài:</strong>
+                        <div className="text-start">
+                          <strong className="mr-1 ">Người đăng bài:</strong>
                           {item?.createdBy}
                         </div>
                         <div className="text-start">
@@ -636,7 +641,20 @@ const HomeCompanyPage = () => {
                     {item?.phoneNumber}
                   </div>
                   <div className="flex justify-start text-start">
+                    <strong className="mr-1">Email người đại điện:</strong>
+                    {item?.reprentativeEmail}
+                  </div>
+                  <div className="flex justify-start text-start">
+                    <strong className="mr-1">Yêu cầu phải có:</strong>{" "}
+                    {item?.standardRequirement}
+                  </div>
+                  <div className="flex justify-start text-start">
+                    <strong className="mr-1">Các yêu cầu khác:</strong>{" "}
+                    {item?.otherRequirement}
+                  </div>
+                  <div className="flex justify-start text-start">
                     <div>
+                      {/* Hiển thị nội dung văn bản */}
                       <p>
                         {expandedItems[item.id] ? (
                           <span
@@ -665,7 +683,7 @@ const HomeCompanyPage = () => {
                     </div>
                   </div>
 
-                  {item?.postFiles.length > 0 ? (
+                  {item?.postFiles?.length > 0 ? (
                     <>
                       <Divider />
                       <FileCarousel files={item?.postFiles ?? []} />

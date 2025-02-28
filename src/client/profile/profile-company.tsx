@@ -109,7 +109,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ value }) => {
         setCompanyName(business?.companyName);
         setFullName(business?.fullName);
         setPhoneNumber(business?.phoneNumber);
-        setEmail(business?.email);
+        setEmail(business?.representativeEmail);
       })
       .catch((e: any) => {
         {
@@ -126,6 +126,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ value }) => {
       avatar,
       firstName: fullName?.split(" ")?.shift(),
       lastName: " " + fullName?.split(" ")?.pop(),
+      representativeEmail: email,
     };
     updateBusinessProfile(companyData).then((x) => {
       toast.current?.show({
@@ -244,7 +245,12 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ value }) => {
       <div className="w-full font-bold  mt-2">Email:</div>
       {errors.email && <span className="text-red-500">{errors.email}</span>}
       <div className=" flex gap-10 items-center  mt-2">
-        <InputText value={email.toString()} className="w-full" readOnly />
+        <InputText
+          value={email?.toString()}
+          onChange={(e: any) => setEmail(e.target.value)}
+          onBlur={validateCompanyFields}
+          className="w-full"
+        />
       </div>
       <div className="flex justify-center mt-5">
         <Button onClick={handleUpdate} severity="help">

@@ -462,6 +462,10 @@ const HistoryCompany = () => {
                     {item?.phoneNumber}
                   </div>
                   <div className="flex justify-start text-start">
+                    <strong className="mr-1">Email người đại điện:</strong>
+                    {item?.reprentativeEmail}
+                  </div>
+                  <div className="flex justify-start text-start">
                     <strong className="mr-1">Yêu cầu tiêu chuẩn:</strong>{" "}
                     {item?.standardRequirement}
                   </div>
@@ -595,6 +599,7 @@ const HistoryCompany = () => {
             <MultiSelect
               value={selectedCategory} // Đổi sang mảng
               options={categories}
+              filter
               optionLabel="name"
               onChange={(e: any) => {
                 setSelectedCategory(e.value);

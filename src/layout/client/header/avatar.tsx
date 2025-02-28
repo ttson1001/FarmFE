@@ -84,6 +84,16 @@ const AvatarMenu = () => {
         ]
       : []),
     {
+      label: "Đánh giá website",
+      icon: "pi pi-cog",
+      command: () =>
+        window.open(
+          "https://docs.google.com/forms/d/e/1FAIpQLSfmVZp8_RixUc2lf_xBjQCHGAtSWDrUDPTpghx2v4C1ZsD54g/viewform",
+          "_blank"
+        ),
+    },
+
+    {
       label: "Đổi mật khẩu",
       icon: "pi pi-cog",
       command: showSettingsModal,

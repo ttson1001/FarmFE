@@ -55,65 +55,6 @@ const AccountPage = () => {
       });
   }, [loading]);
 
-  const handleUpdateStatus = (id: number) => {
-    approvedAccount(id)
-      .then(() => {
-        toast.current?.show({
-          severity: "success",
-          summary: "Chấp nhận thành công",
-        });
-        setLoading(true);
-      })
-      .catch(() => {
-        toast.current?.show({
-          severity: "success",
-          summary: "Chấp nhận thất bại",
-        });
-      });
-  };
-
-  const handleDelete = (id: number) => {
-    deleteAccount(id)
-      .then(() => {
-        toast.current?.show({
-          severity: "success",
-          summary: "Xóa tài khoản thành công",
-        });
-        setLoading(true);
-        setVisible(false);
-      })
-      .catch(() => {
-        toast.current?.show({
-          severity: "error",
-          summary: "Xóa tài khoản thất bại",
-        });
-      });
-  };
-
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [fromDate, setFromDate] = useState<Date | null>(prvYear);
-  const [toDate, setToDate] = useState<Date | null>(nextYear);
-  const [status, setStatus] = useState<number>(0);
-  const [minPrice, setMinPrice] = useState<number>(0);
-  const [maxPrice, setMaxPrice] = useState<number>(0);
-
-  const handleReset = () => {
-    setSearchTerm("");
-    setFromDate(prvYear);
-    setToDate(nextYear);
-    setMinPrice(0);
-    setMaxPrice(0);
-    getAccounts(null)
-      .then((response) => {
-        if (response.data.success) {
-          setListObjects(response.data.data.listObjects);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
   const handleSearch = () => {
     const data = {
       pageIndex: 1,
@@ -136,14 +77,47 @@ const AccountPage = () => {
       .catch((err) => {
         console.log(err);
       });
-    console.log({
-      searchTerm,
-      fromDate,
-      toDate,
-      minPrice,
-      maxPrice,
-    });
   };
+
+  const handleReset = () => {
+    setSearchTerm("");
+    setFromDate(prvYear);
+    setToDate(nextYear);
+    setStatus(0);
+    getAccounts(null)
+      .then((response) => {
+        if (response.data.success) {
+          setListObjects(response.data.data.listObjects);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const handleDelete = (id: number) => {
+    deleteAccount(id)
+      .then(() => {
+        toast.current?.show({
+          severity: "success",
+          summary: "Xóa tài khoản thành công",
+        });
+        setLoading(true);
+        setVisible(false);
+      })
+      .catch(() => {
+        toast.current?.show({
+          severity: "error",
+          summary: "Xóa tài khoản thất bại",
+        });
+      });
+  };
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [fromDate, setFromDate] = useState(prvYear);
+  const [toDate, setToDate] = useState(nextYear);
+  const [status, setStatus] = useState(0);
+  const toast = useRef<Toast>(null);
 
   const footerContent = (
     <>
@@ -155,158 +129,175 @@ const AccountPage = () => {
       <Button label="Không" onClick={() => setVisible(false)} />
     </>
   );
-  const toast = useRef<Toast>(null);
+
+  const handleUpdateStatus = (id: number) => {
+    approvedAccount(id)
+      .then(() => {
+        toast.current?.show({
+          severity: "success",
+          summary: "Chấp nhận thành công",
+        });
+        setLoading(true);
+      })
+      .catch(() => {
+        toast.current?.show({
+          severity: "success",
+          summary: "Chấp nhận thất bại",
+        });
+      });
+  };
+
   return (
     <>
       <Toast ref={toast} />
-      <div className="grid grid-cols-12">
-        <div className="col-span-3 p-4 h-screen text-center hidden md:block">
-          <Card className="rounded-3xl sticky top-0">
-            <div className="text-start font-bold">Tìm kiếm:</div>
-            <div>
-              <InputText
-                type="text"
-                className="w-full mt-2"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="text-start font-bold mt-2">Từ ngày:</div>
+      <div className="px-4 pt-2 ">
+        {/* Thanh tìm kiếm ngang */}
+        <Card className="p-0 mb-2">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <InputText
+              type="text"
+              placeholder="Tìm kiếm..."
+              className="w-full"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
             <Calendar
-              className="w-full mt-2"
               showIcon
               dateFormat="dd/mm/yy"
               value={fromDate}
               maxDate={toDate ?? new Date()}
               onChange={(e) => setFromDate(e.value as Date)}
+              placeholder="Từ ngày"
+              className="w-full"
             />
-            <div className="text-start font-bold mt-2">Đến ngày:</div>
             <Calendar
-              className="w-full mt-2"
               showIcon
               dateFormat="dd/mm/yy"
               minDate={fromDate ?? new Date()}
               value={toDate}
               onChange={(e) => setToDate(e.value as Date)}
+              placeholder="Đến ngày"
+              className="w-full"
             />
-            <div className="text-start mt-2 font-bold">Trạng thái:</div>
             <Dropdown
               value={status}
               options={statusOption}
               optionLabel="name"
               onChange={(e) => setStatus(e.value)}
-              placeholder="Chọn status"
-              className={`mt-2 w-full text-start`}
+              placeholder="Chọn trạng thái"
+              className="w-full"
             />
-            <div className="flex justify-between gap-5 mt-5">
-              <Button className="" severity="help" onClick={handleSearch}>
+            <div className="flex gap-2">
+              <Button severity="help" onClick={handleSearch}>
                 Tìm kiếm
               </Button>
-
-              <Button className="" severity="danger" onClick={handleReset}>
+              <Button severity="danger" onClick={handleReset}>
                 Mặc định
               </Button>
             </div>
-          </Card>
-        </div>
-
-        <div className="col-span-12 md:col-span-9 text-center">
-          <div className="overflow-x-auto rounded-3xl mr-5">
-            <DataTable
-              value={listObjects}
-              className="mt-5 custom-rounded"
-              scrollable
-              scrollHeight="83vh"
-              paginator
-              rows={10}
-            >
-              <Column
-                className="text-center"
-                header="Số thứ tự"
-                body={(_rowData, options) => options.rowIndex + 1}
-              />
-              <Column field="username" header="Tên đăng nhập" />
-              <Column field="email" header="Email" />
-              <Column field="phoneNumber" header="Số điện thoại" />
-              <Column
-                field="status"
-                header="Trạng thái"
-                body={(x) => translateStatus(x.status)}
-              />
-              <Column
-                header="Vai trò"
-                body={(rowData) =>
-                  rowData.roles && rowData.roles.length > 0
-                    ? translateRole(rowData.roles[0])
-                    : "Chưa có vai trò"
-                }
-              />
-              <Column
-                header="Hành động"
-                body={(rowData) => (
-                  <div>
-                    {rowData.roles[0] === "Business" &&
-                    rowData.status === "Pending" ? (
-                      <>
-                        {" "}
-                        <Button
-                          severity="help"
-                          className="mr-2"
-                          onClick={() => {
-                            handleUpdateStatus(rowData.id);
-                          }}
-                        >
-                          Chấp nhận
-                        </Button>
-                      </>
-                    ) : (
-                      <></>
-                    )}
-
-                    {rowData.status === "Deleted" ? (
-                      <>
-                        <Button
-                          severity="help"
-                          className="mr-2"
-                          onClick={() => {
-                            handleUpdateStatus(rowData.id);
-                          }}
-                        >
-                          Kích hoạt
-                        </Button>
-                      </>
-                    ) : (
-                      <></>
-                    )}
-                    {rowData.roles[0] !== "Admin" &&
-                    rowData.status !== "Deleted" ? (
-                      <>
-                        <Button
-                          severity="danger"
-                          onClick={() => {
-                            setVisible(true); // Hiển thị hộp thoại xác nhận
-                            setSelectedItemId(rowData.id); // Lưu ID của item để xóa
-                          }}
-                        >
-                          Xóa
-                        </Button>
-                      </>
-                    ) : (
-                      <></>
-                    )}
-                  </div>
-                )}
-              />
-            </DataTable>
-            <ConfirmDialog
-              visible={visible}
-              onHide={() => setVisible(false)} // Đóng hộp thoại
-              message="Bạn có chắc chắn muốn xóa mục này không?"
-              header="Xác nhận"
-              icon="pi pi-exclamation-triangle"
-              footer={footerContent}
-            />
           </div>
+        </Card>
+
+        {/* Bảng dữ liệu */}
+        <div className="overflow-x-auto rounded-3xl">
+          <DataTable
+            value={listObjects}
+            className="mt-5 custom-rounded"
+            scrollable
+            scrollHeight="70vh"
+            paginator
+            rows={10}
+          >
+            <Column
+              header="STT"
+              body={(_rowData, options) => options.rowIndex + 1}
+            />
+            <Column field="username" header="Tên đăng nhập" />
+            <Column field="email" header="Email" />
+            <Column field="businessFullName" header="Tên người đại diện" />
+            <Column
+              field="businessRepresentativeEmail"
+              header="Email người đại diện"
+            />
+            <Column field="phoneNumber" header="Số điện thoại" />
+            <Column
+              field="status"
+              header="Trạng thái"
+              body={(x) => translateStatus(x.status)}
+            />
+            <Column
+              header="Vai trò"
+              body={(rowData) =>
+                rowData.roles?.length > 0
+                  ? translateRole(rowData.roles[0])
+                  : "Chưa có vai trò"
+              }
+            />
+            <Column
+              header="Hành động"
+              body={(rowData) => (
+                <div>
+                  {rowData.roles[0] === "Business" &&
+                  rowData.status === "Pending" ? (
+                    <>
+                      {" "}
+                      <Button
+                        severity="help"
+                        className="mr-2"
+                        onClick={() => {
+                          handleUpdateStatus(rowData.id);
+                        }}
+                      >
+                        Chấp nhận
+                      </Button>
+                    </>
+                  ) : (
+                    <></>
+                  )}
+
+                  {rowData.status === "Deleted" ? (
+                    <>
+                      <Button
+                        severity="help"
+                        className="mr-2"
+                        onClick={() => {
+                          handleUpdateStatus(rowData.id);
+                        }}
+                      >
+                        Kích hoạt
+                      </Button>
+                    </>
+                  ) : (
+                    <></>
+                  )}
+                  {rowData.roles[0] !== "Admin" &&
+                  rowData.status !== "Deleted" ? (
+                    <>
+                      <Button
+                        severity="danger"
+                        onClick={() => {
+                          setVisible(true); // Hiển thị hộp thoại xác nhận
+                          setSelectedItemId(rowData.id); // Lưu ID của item để xóa
+                        }}
+                      >
+                        Xóa
+                      </Button>
+                    </>
+                  ) : (
+                    <></>
+                  )}
+                </div>
+              )}
+            />
+          </DataTable>
+          <ConfirmDialog
+            visible={visible}
+            onHide={() => setVisible(false)} // Đóng hộp thoại
+            message="Bạn có chắc chắn muốn xóa mục này không?"
+            header="Xác nhận"
+            icon="pi pi-exclamation-triangle"
+            footer={footerContent}
+          />
         </div>
       </div>
     </>
